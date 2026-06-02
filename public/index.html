@@ -639,39 +639,21 @@ body {
 </head>
 <body>
 
-<!-- ── PAGE DE LOGIN ÉLÈVE ── -->
-<div id="eleve-login" style="
-  position:fixed;inset:0;background:#0f1117;
-  display:flex;align-items:center;justify-content:center;
-  z-index:9999;padding:20px;
-">
-  <div style="
-    background:#181c27;border:1px solid #2a2f45;border-radius:16px;
-    padding:40px;width:100%;max-width:380px;text-align:center;
-  ">
+<div id="eleve-login" style="position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a2f45;border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center;">
     <div style="font-size:44px;margin-bottom:16px">🎯</div>
-    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:20px;margin-bottom:6px">Concours Douanes 2026</div>
+    <div style="font-family:sans-serif;font-weight:800;font-size:20px;margin-bottom:6px;color:#e8eaf0">Concours Douanes 2026</div>
     <div style="font-size:13px;color:#7b82a0;margin-bottom:28px">Plateforme de révision — Accès élève</div>
     <input id="el-login" type="text" placeholder="Identifiant" autocomplete="username"
-      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;
-      border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box"
-      onkeydown="if(event.key==='Enter')document.getElementById('el-pwd').focus()">
+      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
     <input id="el-pwd" type="password" placeholder="Mot de passe" autocomplete="current-password"
-      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;
-      border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box"
-      onkeydown="if(event.key==='Enter')eleveLogin()">
+      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
     <div id="el-error" style="color:#f87171;font-size:12px;margin-bottom:10px;min-height:16px"></div>
-    <button id="eleve-btn" style="
-      width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;
-      color:#fff;font-family:Syne,sans-serif;font-weight:700;font-size:13px;
-      cursor:pointer;transition:background 0.15s
-    " onmouseover="this.style.background='#3b7ef0'" onmouseout="this.style.background='#4f8ef7'">
+    <button id="eleve-btn" style="width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">
       🔓 Accéder au planning
     </button>
     <div style="margin-top:16px">
-      <a href="/correcteur.html" style="font-size:11px;color:#7b82a0;text-decoration:none">
-        Accès correcteur →
-      </a>
+      <a href="/correcteur.html" style="font-size:11px;color:#7b82a0;text-decoration:none">Accès correcteur →</a>
     </div>
   </div>
 </div>
@@ -878,109 +860,15 @@ const PHASES = [
 // Décalages de semaine par phase
 const PHASE_SEM_START = { 1:0, 2:4, 3:8, 4:12, 5:null };
 
-
-// ── AUTH ÉLÈVE ────────────────────────────────────────────────
-const ELEVE_LOGIN_HASH = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
-const ELEVE_PWD_HASH   = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
-
-// Attacher le bouton login après chargement du DOM
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('eleve-btn');
-  if (btn) btn.addEventListener('click', eleveLogin);
-  const pwdInput = document.getElementById('el-pwd');
-  if (pwdInput) pwdInput.addEventListener('keydown', e => { if(e.key==='Enter') eleveLogin(); });
-  const loginInput = document.getElementById('el-login');
-  if (loginInput) loginInput.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
-});
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-
-async function eleveLogin() {
-  const login = document.getElementById('el-login').value.trim();
-  const pwd   = document.getElementById('el-pwd').value;
-  const [lh, ph] = await Promise.all([sha256(login), sha256(pwd)]);
-  if (lh === ELEVE_LOGIN_HASH && ph === ELEVE_PWD_HASH) {
-    sessionStorage.setItem('eleve_auth', '1');
-    document.getElementById('eleve-login').style.display = 'none';
-    if (checkEleveAuth()) { loadState(); }
-  } else {
-    document.getElementById('el-error').textContent = '❌ Identifiant ou mot de passe incorrect';
-  }
-}
-
-function checkEleveAuth() {
-  if (!sessionStorage.getItem('eleve_auth')) {
-    // Affiche le login, ne charge pas l'état
-    return false;
-  }
-  return true;
-}
-
 // ═══════════════════════════════════════════════════════════════
-// STATE — synchronisé avec le serveur
+// STATE
 // ═══════════════════════════════════════════════════════════════
-const API = '';  // même domaine
-let state = {};
-let _saveTimer = null;
+let state = JSON.parse(localStorage.getItem('douanes_state') || '{}');
+// state[key] = { checks:{s1:bool,...}, answers:{...}, submitted:bool, corrected:bool, qcmScore:null, notes:{...} }
 
-// Chargement initial depuis le serveur
-async function loadState() {
-  try {
-    const r = await fetch(API + '/api/state');
-    if (r.ok) {
-      const data = await r.json();
-      state = data;
-      renderPlanning();
-      updateCountdown();
-    }
-  } catch(e) {
-    // Fallback localStorage si hors ligne
-    state = JSON.parse(localStorage.getItem('douanes_state') || '{}');
-    renderPlanning();
-    updateCountdown();
-  }
-}
-
-async function saveState(key, value) {
-  // Sauvegarder localement immédiatement
+function saveState() {
   localStorage.setItem('douanes_state', JSON.stringify(state));
-  // Sync serveur
-  try {
-    await fetch(API + '/api/state', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ key, value })
-    });
-  } catch(e) { /* hors ligne, pas grave */ }
 }
-
-// Polling pour recevoir les corrections du correcteur
-setInterval(async () => {
-  try {
-    const r = await fetch(API + '/api/notifications/unread');
-    if (!r.ok) return;
-    const {count} = await r.json();
-    if (count > 0) {
-      // Recharger l'état pour récupérer les corrections
-      const sr = await fetch(API + '/api/state');
-      if (sr.ok) {
-        const newState = await sr.json();
-        // Vérifier nouvelles corrections
-        Object.entries(newState).forEach(([k, v]) => {
-          if (v.corrected && state[k] && !state[k].corrected) {
-            showNotificationBanner(`✅ Correction disponible pour ${k.replace('p','Phase ').replace(/_/g,' ')}`);
-          }
-        });
-        state = newState;
-        renderPlanning();
-        computeStats();
-      }
-    }
-  } catch(e) {}
-}, 15000); // toutes les 15 secondes
 
 function getKey(phaseNum, jourNom) {
   return `p${phaseNum}_${jourNom.toLowerCase().replace(/[^a-z]/g,'_')}`;
@@ -1195,8 +1083,7 @@ function toggleCheck(phaseNum, jourNom, semNum, event) {
   event.stopPropagation();
   const js = getJourState(phaseNum, jourNom);
   js.checks[`s${semNum}`] = !js.checks[`s${semNum}`];
-  const k2 = getKey(phaseNum, jourNom);
-  saveState(k2, js);
+  saveState();
   const el = document.getElementById(`chk_p${phaseNum}_${jourNom}_s${semNum}`);
   if (el) el.classList.toggle('done', js.checks[`s${semNum}`]);
   computeStats();
@@ -1940,382 +1827,6 @@ FICHES['samedi_s1'] = {
     </div>` : ''}`,
   qcmAnswers: {}
 };
-
-// ─── LUNDI S2 ────────────────────────────────────────────────
-FICHES['lundi_s2'] = {
-  cours: `
-    <div class="fiche-section">
-      <div class="fiche-section-title">1. Qu'est-ce qu'un résumé ?</div>
-      <p class="fiche-text">Le résumé est une réécriture condensée d'un texte, en respectant fidèlement les idées de l'auteur, sans jugement personnel, dans un nombre de mots imposé (généralement 1/4 du texte).</p>
-      <div class="fiche-bullet"><strong>Ce que le résumé N'est PAS :</strong></div>
-      <div class="fiche-bullet">Une copie de phrases — tu dois reformuler avec tes propres mots.</div>
-      <div class="fiche-bullet">Un commentaire — tu ne donnes pas ton avis.</div>
-      <div class="fiche-bullet">Une liste de citations — les guillemets sont interdits.</div>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">2. La méthode en 5 étapes</div>
-      <table class="fiche-table">
-        <tr><th>Étape</th><th>Action</th><th>Temps</th></tr>
-        <tr><td><strong>1. Lire</strong></td><td>Lis entièrement sans t'arrêter. Repère le thème général.</td><td>3 min</td></tr>
-        <tr><td><strong>2. Analyser</strong></td><td>Relis paragraphe par paragraphe. Souligne l'idée principale de chacun.</td><td>5 min</td></tr>
-        <tr><td><strong>3. Structurer</strong></td><td>Identifie le plan : introduction / développement / conclusion.</td><td>2 min</td></tr>
-        <tr><td><strong>4. Rédiger</strong></td><td>Reformule chaque idée principale en une phrase. Enchaîne logiquement.</td><td>15 min</td></tr>
-        <tr><td><strong>5. Vérifier</strong></td><td>Compte les mots. Relis pour la cohérence et l'orthographe.</td><td>5 min</td></tr>
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">3. Les erreurs à éviter</div>
-      <table class="fiche-table">
-        <tr><th>Erreur</th><th>Explication</th></tr>
-        <tr><td><strong style="color:var(--red)">Paraphrase</strong></td><td>Reformuler les mêmes mots sans vraiment condenser</td></tr>
-        <tr><td><strong style="color:var(--red)">Ajout personnel</strong></td><td>Introduire une idée absente du texte — ne jamais écrire "Je pense que..."</td></tr>
-        <tr><td><strong style="color:var(--red)">Oubli d'idée</strong></td><td>Sauter un paragraphe entier du texte original</td></tr>
-        <tr><td><strong style="color:var(--red)">Hors limite</strong></td><td>Dépasser le nombre de mots imposé (150 mots = entre 135 et 165)</td></tr>
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">4. Identifier l'idée principale</div>
-      <div class="fiche-bullet">Lis la <strong>première phrase</strong> du paragraphe — c'est souvent l'idée principale.</div>
-      <div class="fiche-bullet">Si ce n'est pas la première, c'est souvent la <strong>dernière</strong>.</div>
-      <div class="fiche-bullet">Les phrases du milieu donnent des exemples — <strong>inutiles dans le résumé</strong>.</div>
-      <div class="fiche-bullet">Demande-toi : <em>« Si je gardais une seule phrase de ce §, laquelle ? »</em></div>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">5. Les connecteurs logiques</div>
-      <table class="fiche-table">
-        <tr><th>Relation</th><th>Connecteurs</th></tr>
-        <tr><td><strong>Addition</strong></td><td>De plus, par ailleurs, également, en outre</td></tr>
-        <tr><td><strong>Opposition</strong></td><td>Cependant, toutefois, néanmoins, en revanche, or</td></tr>
-        <tr><td><strong>Cause</strong></td><td>Car, en effet, parce que, puisque, étant donné que</td></tr>
-        <tr><td><strong>Conséquence</strong></td><td>Donc, ainsi, c'est pourquoi, par conséquent</td></tr>
-        <tr><td><strong>Conclusion</strong></td><td>En conclusion, en définitive, finalement</td></tr>
-      </table>
-      <div class="note-box">💡 Astuce comptage : environ 10 mots par ligne manuscrite. 150 mots = environ 15 lignes.</div>
-    </div>`,
-
-  exercices: (submitted, corrected, answers) => `
-    <div class="exo-num">Exercice — Résumé en 150 mots (±10%)</div>
-    <div class="note-box">📖 Lis d'abord tout le texte, puis relis en soulignant les idées clés. Rédige ensuite ton résumé SANS regarder le texte.</div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0;font-size:12px;line-height:1.8;color:var(--text)">
-      <strong style="color:var(--blue);display:block;margin-bottom:8px">TEXTE — Le trafic de cocaïne aux Antilles (environ 500 mots)</strong>
-      Le trafic de cocaïne en provenance d'Amérique du Sud représente aujourd'hui l'un des défis majeurs auxquels sont confrontées les douanes françaises dans la zone Antilles-Guyane. Cette région occupe une position géographique stratégique sur les routes maritimes et aériennes empruntées par les organisations criminelles pour acheminer la drogue vers les marchés européens.
-      <br><br>
-      La Martinique et la Guadeloupe, situées à moins de 7 000 kilomètres des côtes colombiennes et vénézuéliennes, constituent des points de transit privilégiés. Les trafiquants utilisent diverses techniques pour dissimuler les stupéfiants : conteneurs maritimes avec double fond, bagages de passagers, fret postal, voire des embarcations légères — les go-fast — pouvant transporter plusieurs centaines de kilos en une seule traversée nocturne.
-      <br><br>
-      Face à cette menace, la DGDDI a renforcé ses moyens : scanners à rayons X, chiens renifleurs, vedettes rapides. La coopération internationale via l'organisation JIATF-South permet d'obtenir des renseignements précieux sur les mouvements suspects.
-      <br><br>
-      Les résultats sont significatifs : plusieurs tonnes de cocaïne saisies chaque année. Cependant, pour chaque colis intercepté, d'autres parviennent à destination, témoignant de la résilience des réseaux criminels.
-      <br><br>
-      Au-delà des stupéfiants, les agents exercent aussi un contrôle fiscal et commercial : déclarations douanières, lutte contre la contrefaçon, contrôle des flux de capitaux.
-    </div>
-    <div class="exo-consigne">Rédige ton résumé en 150 mots (±10%) dans la zone ci-dessous.</div>
-    <textarea class="answer-area" id="res_lundi" style="min-height:220px"
-      placeholder="Ton résumé ici (objectif : 150 mots)..."
-      ${submitted?'disabled':''} onchange="saveAnswer('res_lundi')">${answers?.['res_lundi']||''}</textarea>
-    <div style="margin-bottom:12px">
-      <strong style="font-size:12px">Nombre de mots : </strong>
-      <input type="number" id="res_count" style="width:60px;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px" placeholder="0" ${submitted?'disabled':''}> / 150
-    </div>
-    <div class="correction-zone ${corrected?'show':''}">
-      <div class="correction-label">✅ Éléments de correction</div>
-      Un bon résumé doit mentionner : (1) la position stratégique des Antilles sur les routes de trafic, (2) les techniques des trafiquants (go-fast, conteneurs, fret), (3) les moyens de la DGDDI (scanners, chiens, coopération internationale), (4) les résultats et limites (saisies importantes mais trafic persistant), (5) les autres missions douanières (fiscal, contrefaçon).
-    </div>`,
-  qcmAnswers: {}
-};
-
-// ─── MARDI S2 — SPORT FRACTIONNÉ ─────────────────────────────
-FICHES['mardi_s2'] = {
-  cours: `
-    <div class="fiche-section">
-      <div class="fiche-section-title">🏃 Footing fractionné — 35 min</div>
-      <div class="note-box">Le fractionné = alterner course rapide et course lente. Plus efficace que le footing continu pour améliorer le cardio rapidement.</div>
-      <table class="fiche-table" style="margin-top:10px">
-        <tr><th>Séquence</th><th>Durée</th><th>Intensité</th><th>Consigne</th></tr>
-        <tr><td><strong>Échauffement trot</strong></td><td>5 min</td><td>3/10</td><td>Allure très légère, conversation facile</td></tr>
-        <tr><td><strong style="color:var(--red)">Sprint 1</strong></td><td>1 min</td><td>8/10</td><td>Effort intense, ne pas pouvoir parler</td></tr>
-        <tr><td>Récupération</td><td>2 min</td><td>3/10</td><td>Trot très lent</td></tr>
-        <tr><td><strong style="color:var(--red)">Sprint 2</strong></td><td>1 min</td><td>8/10</td><td>Même intensité</td></tr>
-        <tr><td>Récupération</td><td>2 min</td><td>3/10</td><td>Trot très lent</td></tr>
-        <tr><td><strong style="color:var(--red)">Sprint 3</strong></td><td>1 min</td><td>8/10</td><td>Maintenir l'effort</td></tr>
-        <tr><td>Récupération</td><td>2 min</td><td>3/10</td><td>Trot très lent</td></tr>
-        <tr><td><strong style="color:var(--red)">Sprint 4</strong></td><td>1 min</td><td>8/10</td><td>Dernier effort !</td></tr>
-        <tr><td><strong>Retour au calme</strong></td><td>20 min</td><td>3/10</td><td>Trot léger jusqu'à fin de séance</td></tr>
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">💪 Pompes & abdos — 20 min</div>
-      <table class="fiche-table">
-        <tr><th>Exercice</th><th>Séries</th><th>Rép.</th><th>Consigne</th></tr>
-        <tr><td><strong>Pompes classiques</strong></td><td>4</td><td>Max (min 8)</td><td>Corps aligné, descendre jusqu'au sol</td></tr>
-        <tr><td><strong>Pompes larges</strong></td><td>3</td><td>Max</td><td>Mains écartées, travail pectoraux</td></tr>
-        <tr><td><strong>Abdominaux crunch</strong></td><td>4</td><td>20</td><td>Montée lente, descente contrôlée</td></tr>
-        <tr><td><strong>Gainage frontal</strong></td><td>3</td><td>45 sec</td><td>Corps rigide, respiration régulière</td></tr>
-      </table>
-    </div>`,
-
-  exercices: (submitted, corrected, answers) => `
-    <div class="exo-num">📋 Fiche de suivi — Mardi 16 juin 2026</div>
-    <div class="fiche-section" style="margin-top:12px">
-      <div class="fiche-section-title">Bilan Footing fractionné</div>
-      <table class="fiche-table">
-        <tr><th>Indicateur</th><th>Objectif</th><th>Réalisé</th></tr>
-        <tr><td>Sprints complétés</td><td>4 sprints</td>
-          <td><textarea class="answer-area" id="s2_sprints" style="min-height:34px" placeholder="Ex: 4/4" ${submitted?'disabled':''} onchange="saveAnswer('s2_sprints')">${answers?.['s2_sprints']||''}</textarea></td></tr>
-        <tr><td>Durée totale</td><td>35 min</td>
-          <td><textarea class="answer-area" id="s2_duree" style="min-height:34px" placeholder="Ex: 35 min" ${submitted?'disabled':''} onchange="saveAnswer('s2_duree')">${answers?.['s2_duree']||''}</textarea></td></tr>
-        <tr><td>Ressenti effort (1-10)</td><td>6-7/10</td>
-          <td><textarea class="answer-area" id="s2_effort" style="min-height:34px" placeholder="Ex: 7/10" ${submitted?'disabled':''} onchange="saveAnswer('s2_effort')">${answers?.['s2_effort']||''}</textarea></td></tr>
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">Bilan Pompes & Abdos</div>
-      <table class="fiche-table">
-        <tr><th>Exercice</th><th>Réalisé</th></tr>
-        <tr><td>Pompes classiques (nb max)</td>
-          <td><textarea class="answer-area" id="s2_pompes" style="min-height:34px" placeholder="Ex: 12 pompes" ${submitted?'disabled':''} onchange="saveAnswer('s2_pompes')">${answers?.['s2_pompes']||''}</textarea></td></tr>
-        <tr><td>Abdos crunch (séries)</td>
-          <td><textarea class="answer-area" id="s2_abdos" style="min-height:34px" placeholder="Ex: 4×18" ${submitted?'disabled':''} onchange="saveAnswer('s2_abdos')">${answers?.['s2_abdos']||''}</textarea></td></tr>
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">Observations</div>
-      <textarea class="answer-area" id="s2_obs" style="min-height:80px"
-        placeholder="Douleurs, ressenti, points à améliorer..."
-        ${submitted?'disabled':''} onchange="saveAnswer('s2_obs')">${answers?.['s2_obs']||''}</textarea>
-    </div>`,
-  qcmAnswers: {}
-};
-
-// ─── MERCREDI S2 — MISSIONS DOUANES ──────────────────────────
-FICHES['mercredi_s2'] = {
-  cours: `
-    <div class="fiche-section">
-      <div class="fiche-section-title">1. La DGDDI — Organisation générale</div>
-      <p class="fiche-text">La <strong>Direction générale des douanes et droits indirects (DGDDI)</strong> est une direction du ministère de l'Économie et des Finances.</p>
-      <table class="fiche-table">
-        <tr><th>Mission</th><th>Détail</th></tr>
-        <tr><td><strong>Contrôle des frontières</strong></td><td>Surveillance des personnes et marchandises aux points d'entrée</td></tr>
-        <tr><td><strong>Lutte contre la fraude</strong></td><td>Contrebande, stupéfiants, contrefaçons, trafics d'armes</td></tr>
-        <tr><td><strong>Perception des droits</strong></td><td>Droits de douane, TVA à l'importation, droits d'accise</td></tr>
-        <tr><td><strong>Protection économique</strong></td><td>Contrôle des normes, lutte anti-dumping</td></tr>
-        <tr><td><strong>Fiscalité indirecte</strong></td><td>Octroi de mer (DOM), TICPE</td></tr>
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">2. Les deux branches</div>
-      <table class="fiche-table">
-        <tr><th>Branche</th><th>Missions</th><th>Épreuves spécifiques</th></tr>
-        <tr style="background:rgba(167,139,250,0.1)"><td><strong style="color:var(--purple)">SURVEILLANCE (ton concours)</strong></td><td>Contrôle terrain, patrouilles terrestres et maritimes, lutte anti-fraude</td><td>Épreuves sportives + tests psychologiques</td></tr>
-        <tr><td><strong>ADMINISTRATIVE</strong></td><td>Travail de bureau : gestion fiscale, déclarations</td><td>Aucune épreuve physique</td></tr>
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">3. Trafics spécifiques Antilles-Guyane</div>
-      <table class="fiche-table">
-        <tr><th>Type</th><th>Contexte local</th><th>Méthodes</th></tr>
-        <tr><td><strong>Cocaïne</strong></td><td>Route Amérique du Sud → Europe via Antilles</td><td>Go-fast, conteneurs, mules, fret postal</td></tr>
-        <tr><td><strong>Cannabis</strong></td><td>Production locale (Guyane) + importation</td><td>Colis postaux, véhicules, bagages</td></tr>
-        <tr><td><strong>Or illégal</strong></td><td>Orpaillage clandestin en Guyane</td><td>Frontières Brésil/Suriname</td></tr>
-        <tr><td><strong>Contrefaçons</strong></td><td>Produits asiatiques via ports antillais</td><td>Conteneurs mal déclarés</td></tr>
-      </table>
-      <div class="note-box">🎯 Point oral : sois capable d'expliquer pourquoi la région est stratégique. Question très probable à l'oral !</div>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">4. Les frontières de la zone</div>
-      <table class="fiche-table">
-        <tr><th>Territoire</th><th>Type de frontière</th><th>Particularité</th></tr>
-        <tr><td><strong>Martinique</strong></td><td>Île — maritime uniquement</td><td>Port de Fort-de-France, aéroport Aimé Césaire</td></tr>
-        <tr><td><strong>Guadeloupe</strong></td><td>Archipel — maritime</td><td>Port de Jarry, aéroport Pôle Caraïbes</td></tr>
-        <tr><td><strong>Guyane</strong></td><td>Terrestre + maritime + aérienne</td><td>Frontières avec Brésil (Oyapock) et Suriname (Maroni)</td></tr>
-        <tr><td><strong>Saint-Martin</strong></td><td>Île partagée avec Sint Maarten (NL)</td><td>Frontière terrestre avec pays tiers hors UE</td></tr>
-      </table>
-    </div>`,
-
-  exercices: (submitted, corrected, answers) => `
-    <div class="exo-num">Questions de mémorisation — Sans regarder le cours !</div>
-    ${[
-      ['mq1','1. Quelles sont les 5 missions principales de la DGDDI ?'],
-      ['mq2','2. Quelle est la différence entre branche surveillance et branche administrative ?'],
-      ['mq3','3. Pourquoi les Antilles sont-elles stratégiques pour le trafic de cocaïne ?'],
-      ['mq4','4. Quelles sont les particularités douanières de la Guyane par rapport à la Martinique ?'],
-      ['mq5','5. Qu'est-ce que l'octroi de mer et à quoi sert-il ?'],
-    ].map(([id,q]) => `
-      <div class="exo-phrase">${q}</div>
-      <textarea class="answer-area" id="${id}" style="min-height:70px"
-        placeholder="Ta réponse..." ${submitted?'disabled':''} onchange="saveAnswer('${id}')">${answers?.[id]||''}</textarea>
-      <div class="correction-zone ${corrected?'show':''}">
-        <div class="correction-label">✅ Éléments de réponse</div>
-        ${{'mq1':'Contrôle des frontières, lutte contre la fraude, perception des droits, protection économique, fiscalité indirecte.',
-           'mq2':'Surveillance = terrain, uniforme, épreuves sportives. Administrative = bureau, tenue civile, pas d'épreuves physiques.',
-           'mq3':'Position géographique sur les routes maritimes Amérique du Sud → Europe. Proximité des pays producteurs (Colombie, Venezuela).',
-           'mq4':'La Guyane a des frontières terrestres (Brésil, Suriname) en plus des frontières maritimes. Problème d'or illégal et d'orpaillage clandestin spécifique.',
-           'mq5':'Taxe locale perçue sur les marchandises importées dans les DOM. Remplace partiellement la TVA métropolitaine. Ressource fiscale pour les collectivités locales.'}[id]}
-      </div>`).join('')}`,
-};
-
-// ─── JEUDI S2 — MATRICES & SYLLOGISMES ───────────────────────
-FICHES['jeudi_s2'] = {
-  cours: `
-    <div class="fiche-section">
-      <div class="fiche-section-title">1. Les matrices logiques</div>
-      <p class="fiche-text">Une matrice présente un tableau de figures/nombres avec une case manquante. Il faut trouver la règle qui régit lignes ET colonnes.</p>
-      <div class="fiche-bullet"><strong>Étape 1 :</strong> Observe la progression sur les lignes (gauche → droite).</div>
-      <div class="fiche-bullet"><strong>Étape 2 :</strong> Vérifie la même logique sur les colonnes (haut → bas).</div>
-      <div class="fiche-bullet"><strong>Étape 3 :</strong> La règle doit fonctionner dans les deux sens.</div>
-      <div class="fiche-bullet"><strong>Types fréquents :</strong> rotation, symétrie, ×2, +n, progression de taille, alternance.</div>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">2. Les syllogismes</div>
-      <p class="fiche-text">Raisonnement logique en 3 parties : <strong>Prémisse 1 + Prémisse 2 → Conclusion</strong></p>
-      <div class="note-box">Exemple : Tous les agents portent un badge (P1). Marie est agent (P2). → Marie porte un badge ✓</div>
-      <div class="fiche-bullet"><strong>Piège 1 — Inversion :</strong> "Tous les A sont B" ≠ "Tous les B sont A"</div>
-      <div class="fiche-bullet"><strong>Piège 2 — Particulier :</strong> "Certains A sont B" ne permet pas de conclure sur TOUS les A</div>
-      <div class="fiche-bullet"><strong>Piège 3 — Double négation :</strong> "Aucun A n'est B" + "X est A" → "X n'est pas B" ✓</div>
-      <div class="note-box">💡 Conseil : utilise des diagrammes mentaux (cercles). Si A ⊂ B et C ⊂ A, alors C ⊂ B.</div>
-    </div>`,
-
-  exercices: (submitted, corrected, answers) => {
-    const qcm = [
-      {id:"j1",q:"Tous les douaniers sont fonctionnaires. Pierre est douanier. Donc :",opts:["A) Pierre est militaire","B) Pierre est fonctionnaire","C) Tous les fonctionnaires sont douaniers","D) On ne sait pas"],ans:"B"},
-      {id:"j2",q:"Aucun fraudeur n'est honnête. Paul est honnête. Donc :",opts:["A) Paul est peut-être fraudeur","B) Paul n'est pas fraudeur","C) Paul est suspect","D) Rien à conclure"],ans:"B"},
-      {id:"j3",q:"Matrice : 2,4,8 / 3,6,12 / 5,10,?",opts:["A) 15","B) 18","C) 20","D) 25"],ans:"C"},
-      {id:"j4",q:"Série : 1, 1, 2, 3, 5, 8, ?",opts:["A) 11","B) 12","C) 13","D) 16"],ans:"C"},
-      {id:"j5",q:"Si A implique B, et B implique C, alors :",opts:["A) C implique A","B) A implique C","C) B implique A","D) Rien"],ans:"B"},
-      {id:"j6",q:"20 agents, 12 en surveillance. Quel % ?",opts:["A) 50%","B) 55%","C) 60%","D) 65%"],ans:"C"},
-      {id:"j7",q:"Une saisie tous les 3 jours. Combien en 30 jours ?",opts:["A) 8","B) 9","C) 10","D) 12"],ans:"C"},
-      {id:"j8",q:"Matrice : 5,10,20 / 3,6,12 / 7,14,?",opts:["A) 21","B) 28","C) 35","D) 42"],ans:"B"},
-      {id:"j9",q:"Fraude : Sanction = Mérite : ?",opts:["A) Punition","B) Récompense","C) Travail","D) Effort"],ans:"B"},
-      {id:"j10",q:"Si P implique Q, et Q est faux, alors :",opts:["A) P est faux","B) P est vrai","C) P est peut-être vrai","D) Rien"],ans:"A"},
-    ];
-    return `
-      <div class="exo-num">⏱️ 25 QCM — Objectif 20 min</div>
-      <div class="note-box">Lance le chrono ! Score cible : 20/25. Ne reste pas bloqué, passe et reviens.</div>
-      ${qcm.map(item => `
-        <div class="qcm-item">
-          <div class="qcm-question">${item.id.replace('j','Q')}. ${item.q}</div>
-          <div class="qcm-options">
-            ${item.opts.map(o => {
-              const l = o[0];
-              const sel = answers?.qcmAnswers?.[item.id]===l;
-              const ok = corrected && l===item.ans;
-              const bad = corrected && sel && l!==item.ans;
-              return `<button class="qcm-opt ${sel?'selected':''} ${ok?'correct-ans':''} ${bad?'wrong-ans':''} ${submitted?'locked':''}"
-                data-qid="${item.id}" data-opt="${l}"
-                onclick="selectQCM('${item.id}','${l}',this)">${o}</button>`;
-            }).join('')}
-          </div>
-        </div>`).join('')}
-      <div style="margin-top:12px">
-        <strong style="font-size:13px">Mon score :</strong>
-        <textarea class="answer-area" id="j2_score" style="min-height:44px"
-          placeholder="Ex: 8/10 — Erreurs : Q3, Q7..." ${submitted?'disabled':''}
-          onchange="saveAnswer('j2_score')">${answers?.['j2_score']||''}</textarea>
-      </div>`;
-  },
-  qcmAnswers: {j1:"B",j2:"B",j3:"C",j4:"C",j5:"B",j6:"C",j7:"C",j8:"B",j9:"B",j10:"A"}
-};
-
-// ─── VENDREDI S2 — EXPRESSION ÉCRITE ─────────────────────────
-FICHES['vendredi_s2'] = {
-  cours: `
-    <div class="fiche-section">
-      <div class="fiche-section-title">Structure du paragraphe argumenté</div>
-      <table class="fiche-table">
-        <tr><th>Partie</th><th>Contenu</th><th>Exemple</th></tr>
-        <tr><td><strong>THÈSE</strong><br><small>1-2 phrases</small></td><td>Annonce l'idée principale</td><td>La coopération internationale est indispensable aux douanes antillaises.</td></tr>
-        <tr><td><strong>ARGUMENT 1</strong><br><small>2-3 phrases</small></td><td>1er argument + exemple</td><td>En effet, les trafiquants opèrent depuis l'étranger... Ainsi, sans échanges de renseignements...</td></tr>
-        <tr><td><strong>ARGUMENT 2</strong><br><small>2-3 phrases</small></td><td>2e argument + exemple</td><td>De plus, les opérations conjointes avec JIATF-South...</td></tr>
-        <tr><td><strong>NUANCE</strong><br><small>1-2 phrases</small></td><td>Montre les limites</td><td>Cependant, cette coopération se heurte parfois à...</td></tr>
-        <tr><td><strong>CONCLUSION</strong><br><small>1 phrase</small></td><td>Reformule la thèse</td><td>Ainsi, l'agent des douanes s'inscrit dans un réseau international...</td></tr>
-      </table>
-      <div class="note-box">🎯 Objectif : 200-250 mots. Un paragraphe bien construit vaut mieux qu'une longue réponse confuse.</div>
-    </div>`,
-
-  exercices: (submitted, corrected, answers) => `
-    <div class="exo-num">Sujet — Paragraphe argumenté</div>
-    <div style="background:rgba(79,142,247,0.1);border:1.5px solid var(--blue);border-radius:10px;padding:16px;margin:12px 0;font-size:13px;font-weight:600;color:var(--text)">
-      SUJET : En vous appuyant sur vos connaissances, expliquez pourquoi la coopération internationale est indispensable à l'efficacité des douanes françaises dans la zone Antilles-Guyane.
-    </div>
-    <div class="note-box" style="margin-bottom:12px">💡 Pistes : JIATF-South, coopération avec les pays producteurs, échanges de renseignements, opérations conjointes.</div>
-    <textarea class="answer-area" id="exp_s2" style="min-height:200px"
-      placeholder="Ton paragraphe argumenté (200-250 mots)..."
-      ${submitted?'disabled':''} onchange="saveAnswer('exp_s2')">${answers?.['exp_s2']||''}</textarea>
-    <div style="margin-bottom:12px"><strong style="font-size:12px">Nombre de mots : </strong>
-      <input type="number" style="width:60px;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px" placeholder="0"> / 250
-    </div>
-    <div class="correction-zone ${corrected?'show':''}">
-      <div class="correction-label">✅ Éléments de correction</div>
-      Thèse : la coopération est indispensable car les trafiquants opèrent internationalement. Arguments attendus : (1) JIATF-South et échanges de renseignements, (2) opérations conjointes avec USA/pays de la région, (3) coopération avec pays producteurs (Colombie, Venezuela). Nuance : souveraineté nationale, délais de traitement. Conclusion : l'agent douanier acteur d'un réseau mondial.
-    </div>`,
-};
-
-// ─── SAMEDI S2 — BILAN + SORTIE ──────────────────────────────
-FICHES['samedi_s2'] = {
-  cours: `
-    <div class="fiche-section">
-      <div class="fiche-section-title">🏃 Sortie longue — 1 heure</div>
-      <div class="fiche-bullet">Footing ou marche rapide à allure modérée (4-5/10).</div>
-      <div class="fiche-bullet">Progression par rapport à la semaine 1 : 45 min → 1h.</div>
-      <div class="fiche-bullet">Emporte de l'eau. Étirements 5-10 min après l'effort.</div>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">📰 Lecture de presse — 15 minutes</div>
-      <p class="fiche-text">Lis un article d'actualité sur un sujet lié au concours :</p>
-      <div class="fiche-bullet">Sécurité / trafics / douanes / police</div>
-      <div class="fiche-bullet">Actualité Martinique / Antilles / Outre-mer</div>
-      <div class="fiche-bullet">Institutions françaises / politique / économie</div>
-      <div class="note-box">📖 Pourquoi ? L'épreuve de compréhension porte souvent sur l'actualité. Lire régulièrement améliore ta compréhension et enrichit ton vocabulaire.</div>
-    </div>`,
-
-  exercices: (submitted, corrected, answers) => `
-    <div class="exo-num">📋 Bilan semaine 2 — 15 au 20 juin 2026</div>
-    <div class="fiche-section" style="margin-top:12px">
-      <div class="fiche-section-title">Suivi des séances</div>
-      <table class="fiche-table">
-        <tr><th>Jour</th><th>Activité</th><th>Fait ?</th><th>Note /10</th></tr>
-        ${[
-          ['s2b_lun','Lundi 15/06','Résumé de texte'],
-          ['s2b_mar','Mardi 16/06','Footing fractionné + Muscu'],
-          ['s2b_mer','Mercredi 17/06','Missions des douanes'],
-          ['s2b_jeu','Jeudi 18/06','25 QCM logique'],
-          ['s2b_ven','Vendredi 19/06','Expression écrite'],
-          ['s2b_sam','Samedi 20/06','Sortie 1h + Presse'],
-        ].map(([id,jour,act]) => `
-          <tr>
-            <td>${jour}</td><td>${act}</td>
-            <td><textarea class="answer-area" id="${id}_ok" style="min-height:34px" placeholder="Oui / Non" ${submitted?'disabled':''} onchange="saveAnswer('${id}_ok')">${answers?.[id+'_ok']||''}</textarea></td>
-            <td><textarea class="answer-area" id="${id}_note" style="min-height:34px" placeholder="/10" ${submitted?'disabled':''} onchange="saveAnswer('${id}_note')">${answers?.[id+'_note']||''}</textarea></td>
-          </tr>`).join('')}
-      </table>
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">Réflexion personnelle</div>
-      ${[
-        ['s2_prog','Ce que j'ai progressé cette semaine :'],
-        ['s2_diff','Ce qui reste difficile :'],
-        ['s2_obj','Objectif prioritaire pour la semaine 3 :'],
-        ['s2_motiv','Mon niveau de motivation (1-10) et pourquoi :'],
-      ].map(([id,lbl]) => `
-        <p class="fiche-text"><strong>${lbl}</strong></p>
-        <textarea class="answer-area" id="${id}" style="min-height:60px"
-          placeholder="Ta réponse..." ${submitted?'disabled':''} onchange="saveAnswer('${id}')">${answers?.[id]||''}</textarea>
-      `).join('')}
-    </div>
-    <div class="fiche-section">
-      <div class="fiche-section-title">Article lu ce samedi</div>
-      <p class="fiche-text"><strong>Source / titre :</strong></p>
-      <textarea class="answer-area" id="s2_article" style="min-height:44px"
-        placeholder="Ex: France-Antilles — 'Saisie record de cocaïne au port de Fort-de-France'"
-        ${submitted?'disabled':''} onchange="saveAnswer('s2_article')">${answers?.['s2_article']||''}</textarea>
-      <p class="fiche-text" style="margin-top:8px"><strong>Ce que j'en retiens :</strong></p>
-      <textarea class="answer-area" id="s2_article_note" style="min-height:80px"
-        placeholder="Résume en 2-3 phrases ce que tu as appris..."
-        ${submitted?'disabled':''} onchange="saveAnswer('s2_article_note')">${answers?.['s2_article_note']||''}</textarea>
-    </div>`,
-  qcmAnswers: {}
-};
-
-
 [2,3,4,5].forEach(pn => {
   PHASES.find(p=>p.num===pn).jours.forEach(j => {
     const k = `${j.nom.toLowerCase().replace(/[^a-z]/g,'_')}_s${pn}`;
@@ -2329,26 +1840,55 @@ FICHES['samedi_s2'] = {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// NOTIFICATION BANNER
-// ═══════════════════════════════════════════════════════════════
-function showNotificationBanner(msg) {
-  const b = document.createElement('div');
-  b.style.cssText = `
-    position:fixed;top:16px;left:50%;transform:translateX(-50%);
-    background:#1e2335;border:1px solid #34d399;border-radius:10px;
-    padding:12px 20px;font-size:13px;color:#e8eaf0;z-index:9999;
-    box-shadow:0 4px 24px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;
-  `;
-  b.innerHTML = msg;
-  document.body.appendChild(b);
-  setTimeout(() => b.remove(), 5000);
-}
-
-// ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
-loadState();
+renderPlanning();
 </script>
+
+<script>
+(function() {
+  const EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
+  const EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
+
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function doLogin() {
+    const login = (document.getElementById('el-login').value || '').trim();
+    const pwd   = document.getElementById('el-pwd').value || '';
+    const [lh, ph] = await Promise.all([sha256(login), sha256(pwd)]);
+    if (lh === EL && ph === EP) {
+      sessionStorage.setItem('eleve_auth','1');
+      document.getElementById('eleve-login').style.display = 'none';
+    } else {
+      document.getElementById('el-error').textContent = '❌ Identifiant ou mot de passe incorrect';
+    }
+  }
+
+  function checkAuth() {
+    if (!sessionStorage.getItem('eleve_auth')) {
+      document.getElementById('eleve-login').style.display = 'flex';
+      return false;
+    }
+    document.getElementById('eleve-login').style.display = 'none';
+    return true;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Si déjà authentifié, cacher le login
+    checkAuth();
+    var btn = document.getElementById('eleve-btn');
+    if (btn) btn.onclick = doLogin;
+    var pwd = document.getElementById('el-pwd');
+    if (pwd) pwd.onkeydown = function(e) { if(e.key==='Enter') doLogin(); };
+    var lid = document.getElementById('el-login');
+    if (lid) lid.onkeydown = function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); };
+  });
+})();
+</script>
+
 </body>
 </html>
 <script>
