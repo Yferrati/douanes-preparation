@@ -638,6 +638,26 @@ body {
 </style>
 </head>
 <body>
+
+<div id="eleve-login" style="position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a2f45;border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center;">
+    <div style="font-size:44px;margin-bottom:16px">🎯</div>
+    <div style="font-family:sans-serif;font-weight:800;font-size:20px;margin-bottom:6px;color:#e8eaf0">Concours Douanes 2026</div>
+    <div style="font-size:13px;color:#7b82a0;margin-bottom:28px">Plateforme de révision — CHRISTOPHE-HAYOT</div>
+    <input id="el-login" type="text" placeholder="Identifiant" autocomplete="username"
+      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
+    <input id="el-pwd" type="password" placeholder="Mot de passe" autocomplete="current-password"
+      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
+    <div id="el-error" style="color:#f87171;font-size:12px;margin-bottom:10px;min-height:16px"></div>
+    <button id="eleve-btn" style="width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">
+      🔓 Accéder au planning
+    </button>
+    <div style="margin-top:16px">
+      <a href="/correcteur.html" style="font-size:11px;color:#7b82a0;text-decoration:none">Accès correcteur →</a>
+    </div>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- SIDEBAR -->
@@ -2131,6 +2151,41 @@ FICHES['samedi_s2'] = {
 // ═══════════════════════════════════════════════════════════════
 renderPlanning();
 </script>
+
+<script>
+(function() {
+  var EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
+  var EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
+
+  async function sha256(str) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+  }
+
+  async function doLogin() {
+    var login = (document.getElementById('el-login').value || '').trim();
+    var pwd   = document.getElementById('el-pwd').value || '';
+    var lh = await sha256(login);
+    var ph = await sha256(pwd);
+    if (lh === EL && ph === EP) {
+      sessionStorage.setItem('eleve_auth','1');
+      document.getElementById('eleve-login').style.display = 'none';
+    } else {
+      document.getElementById('el-error').textContent = '❌ Identifiant ou mot de passe incorrect';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (sessionStorage.getItem('eleve_auth')) {
+      document.getElementById('eleve-login').style.display = 'none';
+    }
+    document.getElementById('eleve-btn').addEventListener('click', doLogin);
+    document.getElementById('el-pwd').addEventListener('keydown', function(e) { if(e.key==='Enter') doLogin(); });
+    document.getElementById('el-login').addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
+  });
+})();
+</script>
+
 </body>
 </html>
 <script>
