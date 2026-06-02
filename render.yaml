@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: douanes-christophe-hayot
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: DB_PATH
+        value: ./douanes.db
+    disk:
+      name: db
+      mountPath: /opt/render/project/src
+      sizeGB: 1

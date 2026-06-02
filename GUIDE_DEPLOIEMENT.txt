@@ -1,0 +1,92 @@
+═══════════════════════════════════════════════════════════════
+  GUIDE DE DÉPLOIEMENT — CONCOURS DOUANES 2026
+  Plateforme CHRISTOPHE-HAYOT accessible depuis n'importe où
+═══════════════════════════════════════════════════════════════
+
+RÉSULTAT FINAL
+──────────────
+→ Élève    : https://douanes-christophe-hayot.onrender.com
+→ Correcteur : https://douanes-christophe-hayot.onrender.com/correcteur.html
+→ Accessible depuis n'importe quel appareil, n'importe où
+
+
+ÉTAPE 1 — Créer un compte GitHub (si pas déjà fait)
+─────────────────────────────────────────────────────
+1. Va sur https://github.com/signup
+2. Crée un compte gratuit (utilise ton adresse email)
+3. Confirme ton email
+
+
+ÉTAPE 2 — Mettre le code sur GitHub
+─────────────────────────────────────
+1. Connecte-toi sur https://github.com
+2. Clique sur "New repository" (bouton vert)
+3. Nom du dépôt : douanes-preparation
+4. Laisse tout par défaut → clique "Create repository"
+5. Sur la page qui apparaît, clique "uploading an existing file"
+6. Glisse-dépose TOUS les fichiers du dossier douanes_app :
+   - server.js
+   - package.json
+   - render.yaml
+   - public/ (le dossier entier)
+7. Clique "Commit changes"
+
+
+ÉTAPE 3 — Créer un compte Render
+──────────────────────────────────
+1. Va sur https://render.com
+2. Clique "Get Started for Free"
+3. Connecte-toi avec ton compte GitHub (bouton "Connect GitHub")
+4. Autorise Render à accéder à tes dépôts
+
+
+ÉTAPE 4 — Déployer l'application
+──────────────────────────────────
+1. Sur Render, clique "New +" → "Web Service"
+2. Sélectionne ton dépôt "douanes-preparation"
+3. Render détecte automatiquement les paramètres via render.yaml
+4. Vérifie que tu vois :
+   - Build Command : npm install
+   - Start Command : node server.js
+5. Clique "Create Web Service"
+6. Attends 3-5 minutes que le déploiement se termine
+7. Render te donne une URL du type :
+   https://douanes-christophe-hayot.onrender.com
+
+
+ÉTAPE 5 — Tester
+──────────────────
+1. Ouvre l'URL sur ton téléphone (réseau mobile)
+2. Le planning doit s'afficher
+3. Coche une case → vérifie qu'elle reste cochée en actualisant
+4. Va sur /correcteur.html et teste le mot de passe : Douane_CE2026
+
+
+NOTES IMPORTANTES
+──────────────────
+→ Render GRATUIT : le site s'endort après 15 min d'inactivité.
+  Au premier accès après une pause, il met ~30 secondes à redémarrer.
+  C'est normal avec le plan gratuit.
+
+→ Pour éviter cela (optionnel) : passe au plan "Starter" à $7/mois
+  sur Render, le site reste toujours actif.
+
+→ Les données sont persistantes : même si le site redémarre,
+  toutes les cases cochées et réponses sont sauvegardées.
+
+→ Mises à jour : si tu veux modifier le site, modifie les fichiers
+  sur GitHub → Render redéploie automatiquement en quelques minutes.
+
+
+MOT DE PASSE CORRECTEUR
+────────────────────────
+→ Douane_CE2026
+→ NE PAS partager publiquement
+
+
+URLS DE RÉFÉRENCE
+──────────────────
+→ Élève    : https://[ton-url].onrender.com/
+→ Correcteur : https://[ton-url].onrender.com/correcteur.html
+
+═══════════════════════════════════════════════════════════════
