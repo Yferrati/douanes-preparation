@@ -661,7 +661,7 @@ body {
       border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box"
       onkeydown="if(event.key==='Enter')eleveLogin()">
     <div id="el-error" style="color:#f87171;font-size:12px;margin-bottom:10px;min-height:16px"></div>
-    <button onclick="eleveLogin()" style="
+    <button id="eleve-btn" style="
       width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;
       color:#fff;font-family:Syne,sans-serif;font-weight:700;font-size:13px;
       cursor:pointer;transition:background 0.15s
@@ -882,6 +882,16 @@ const PHASE_SEM_START = { 1:0, 2:4, 3:8, 4:12, 5:null };
 // ── AUTH ÉLÈVE ────────────────────────────────────────────────
 const ELEVE_LOGIN_HASH = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
 const ELEVE_PWD_HASH   = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
+
+// Attacher le bouton login après chargement du DOM
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('eleve-btn');
+  if (btn) btn.addEventListener('click', eleveLogin);
+  const pwdInput = document.getElementById('el-pwd');
+  if (pwdInput) pwdInput.addEventListener('keydown', e => { if(e.key==='Enter') eleveLogin(); });
+  const loginInput = document.getElementById('el-login');
+  if (loginInput) loginInput.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
+});
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
