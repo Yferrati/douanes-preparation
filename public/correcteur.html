@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace Correcteur — Douanes 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f1117; --surface:#181c27; --surface2:#1e2335; --border:#2a2f45;
+  --text:#e8eaf0; --muted:#7b82a0; --blue:#4f8ef7; --green:#34d399;
+  --yellow:#fbbf24; --red:#f87171; --purple:#a78bfa; --pink:#f472b6;
+  --radius:10px; --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* LOGIN */
+.login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+.login-box {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:40px; width:100%; max-width:400px;
+  text-align:center;
+}
+.login-icon { font-size:48px; margin-bottom:20px; }
+.login-title { font-family:'Syne',sans-serif; font-weight:800; font-size:22px; margin-bottom:8px; }
+.login-sub { font-size:13px; color:var(--muted); margin-bottom:28px; }
+.input {
+  width:100%; padding:12px 16px; background:var(--bg);
+  border:1px solid var(--border); border-radius:8px;
+  color:var(--text); font-size:14px; margin-bottom:12px;
+  transition:border-color 0.15s;
+}
+.input:focus { outline:none; border-color:var(--blue); }
+.btn {
+  padding:11px 24px; border-radius:8px;
+  font-family:'Syne',sans-serif; font-weight:700; font-size:13px;
+  cursor:pointer; transition:all 0.15s; border:none;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-primary { background:var(--blue); color:#fff; width:100%; justify-content:center; }
+.btn-primary:hover { background:#3b7ef0; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--muted); }
+.btn-outline:hover { border-color:var(--muted); color:var(--text); }
+.btn-success { background:var(--green); color:#0f1117; }
+.btn-success:hover { background:#2ec990; }
+.btn-danger { background:var(--red); color:#fff; }
+.error { color:var(--red); font-size:12px; margin-bottom:10px; min-height:16px; }
+
+/* APP */
+.app { display:none; }
+.app.visible { display:block; }
+
+/* HEADER */
+.header {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:16px 32px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+}
+.header-left { display:flex; align-items:center; gap:16px; }
+.header-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:14px; color:var(--blue); }
+.header-title { font-family:'Syne',sans-serif; font-weight:700; font-size:16px; }
+.header-sub { font-size:12px; color:var(--muted); }
+.notif-badge {
+  background:var(--red); color:#fff;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:11px;
+  padding:2px 7px; border-radius:99px; margin-left:8px;
+  display:none;
+}
+.notif-badge.show { display:inline; }
+
+/* TABS */
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border); padding:0 32px; background:var(--surface); }
+.tab {
+  padding:12px 20px; font-size:13px; font-weight:500; color:var(--muted);
+  cursor:pointer; border:none; background:none;
+  border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s;
+}
+.tab:hover { color:var(--text); }
+.tab.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+/* CONTENT */
+.content { padding:28px 32px; max-width:1100px; }
+
+/* STATS CARDS */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:20px;
+}
+.stat-card-label { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:8px; }
+.stat-card-val { font-family:'Syne',sans-serif; font-weight:800; font-size:28px; }
+.stat-card-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+
+/* TRAVAUX EN ATTENTE */
+.section-title {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:15px;
+  margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+.badge {
+  padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700;
+  font-family:'Syne',sans-serif;
+}
+.badge-yellow { background:rgba(251,191,36,0.15); color:var(--yellow); border:1px solid rgba(251,191,36,0.3); }
+.badge-green  { background:rgba(52,211,153,0.15); color:var(--green); border:1px solid rgba(52,211,153,0.3); }
+.badge-red    { background:rgba(248,113,113,0.15); color:var(--red); border:1px solid rgba(248,113,113,0.3); }
+
+.work-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; margin-bottom:12px; overflow:hidden;
+  transition:border-color 0.15s;
+}
+.work-card:hover { border-color:var(--blue); }
+.work-card-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; cursor:pointer;
+}
+.work-card-left { display:flex; align-items:center; gap:12px; }
+.work-card-badge {
+  width:40px; height:40px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:11px;
+  text-align:center; line-height:1.2; flex-shrink:0;
+}
+.work-card-title { font-family:'Syne',sans-serif; font-weight:700; font-size:14px; }
+.work-card-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.work-card-right { display:flex; align-items:center; gap:10px; }
+
+.work-card-body { display:none; padding:18px; border-top:1px solid var(--border); }
+.work-card-body.open { display:block; }
+
+/* Réponses élève */
+.answer-block { margin-bottom:16px; }
+.answer-question {
+  font-size:12px; font-weight:600; color:var(--text);
+  margin-bottom:6px; padding:6px 10px;
+  background:var(--surface2); border-radius:6px;
+  border-left:3px solid var(--blue);
+}
+.answer-text {
+  font-size:13px; color:var(--text); line-height:1.6;
+  padding:10px 14px; background:var(--bg);
+  border:1px solid var(--border); border-radius:8px;
+  white-space:pre-wrap; min-height:40px;
+}
+.answer-text.empty { color:var(--muted); font-style:italic; }
+
+/* QCM résultats */
+.qcm-results { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.qcm-chip {
+  padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700;
+  font-family:'Syne',sans-serif;
+}
+.qcm-correct { background:rgba(52,211,153,0.15); color:var(--green); border:1px solid rgba(52,211,153,0.3); }
+.qcm-wrong   { background:rgba(248,113,113,0.15); color:var(--red); border:1px solid rgba(248,113,113,0.3); }
+.qcm-empty   { background:rgba(123,130,160,0.15); color:var(--muted); border:1px solid rgba(123,130,160,0.3); }
+
+/* Feedback correcteur */
+.feedback-section { margin-top:16px; border-top:1px solid var(--border); padding-top:16px; }
+.feedback-label { font-size:12px; font-weight:600; color:var(--yellow); margin-bottom:8px; }
+.feedback-area {
+  width:100%; padding:12px 14px; background:var(--bg);
+  border:1px solid var(--border); border-radius:8px;
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px;
+  resize:vertical; min-height:80px; margin-bottom:10px;
+  transition:border-color 0.15s;
+}
+.feedback-area:focus { outline:none; border-color:var(--yellow); }
+.feedback-actions { display:flex; gap:10px; }
+
+/* NOTIFICATIONS */
+.notif-item {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px; margin-bottom:8px;
+  display:flex; align-items:center; gap:12px;
+}
+.notif-item.unread { border-color:var(--blue); background:rgba(79,142,247,0.05); }
+.notif-dot { width:8px; height:8px; border-radius:50%; background:var(--blue); flex-shrink:0; }
+.notif-dot.read { background:var(--border); }
+.notif-text { flex:1; font-size:13px; }
+.notif-time { font-size:11px; color:var(--muted); flex-shrink:0; }
+
+/* PROGRESSION */
+.prog-table { width:100%; border-collapse:collapse; }
+.prog-table th {
+  background:var(--surface2); padding:10px 14px; text-align:left;
+  font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted);
+  border-bottom:1px solid var(--border);
+}
+.prog-table td { padding:10px 14px; border-bottom:1px solid var(--border); font-size:13px; }
+.prog-table tr:hover td { background:var(--surface2); }
+.bar-wrap { background:var(--border); border-radius:99px; height:6px; width:120px; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px; }
+.bar-fill { height:100%; border-radius:99px; transition:width 0.4s; }
+
+/* Toast */
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:10px; padding:12px 18px;
+  font-size:13px; color:var(--text); z-index:3000;
+  transform:translateY(20px); opacity:0; transition:all 0.3s;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <div class="login-title">Espace Correcteur</div>
+    <div class="login-sub">Concours Douanes 2026 — CHRISTOPHE-HAYOT<br>Espace réservé au correcteur</div>
+    <input type="text" class="input" id="login-user" placeholder="Identifiant"
+      onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus()"
+      autocomplete="username">
+    <input type="password" class="input" id="login-pwd" placeholder="Mot de passe"
+      onkeydown="if(event.key==='Enter')login()"
+      autocomplete="current-password">
+    <div class="error" id="login-error"></div>
+    <button class="btn btn-primary" onclick="login()">🔓 Accéder</button>
+    <div style="margin-top:16px">
+      <a href="/" style="font-size:12px;color:var(--muted);text-decoration:none">← Retour au planning élève</a>
+    </div>
+  </div>
+</div>
+
+<!-- APP CORRECTEUR -->
+<div class="app" id="app">
+
+  <div class="header">
+    <div class="header-left">
+      <div>
+        <div class="header-logo">🎯 Douanes 2026</div>
+        <div class="header-title">Espace Correcteur
+          <span class="notif-badge" id="notif-badge">0</span>
+        </div>
+        <div class="header-sub">CHRISTOPHE-HAYOT — Branche Surveillance</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div id="last-sync" style="font-size:11px;color:var(--muted)">Sync...</div>
+      <button class="btn btn-outline" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('travaux',this)">📋 Travaux à corriger</button>
+    <button class="tab" onclick="showTab('notifications',this)">🔔 Notifications</button>
+    <button class="tab" onclick="showTab('progression',this)">📊 Progression</button>
+  </div>
+
+  <!-- TRAVAUX -->
+  <div class="content" id="tab-travaux">
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="section-title">
+      En attente de correction
+      <span class="badge badge-yellow" id="pending-count">0</span>
+    </div>
+    <div id="pending-list"></div>
+    <div class="section-title" style="margin-top:28px">
+      Travaux corrigés
+      <span class="badge badge-green" id="corrected-count">0</span>
+    </div>
+    <div id="corrected-list"></div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="content" id="tab-notifications" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="section-title" style="margin:0">Toutes les notifications</div>
+      <button class="btn btn-outline" onclick="markAllRead()" style="font-size:12px">✓ Tout marquer comme lu</button>
+    </div>
+    <div id="notif-list"></div>
+  </div>
+
+  <!-- PROGRESSION -->
+  <div class="content" id="tab-progression" style="display:none">
+    <div class="section-title">Progression globale</div>
+    <table class="prog-table" id="prog-table">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Jour</th>
+          <th>Séances cochées</th>
+          <th>Travail soumis</th>
+          <th>Corrigé</th>
+          <th>Score QCM</th>
+        </tr>
+      </thead>
+      <tbody id="prog-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+const CORRECTOR_LOGIN_HASH = 'f103524768d90313b5aa6e3840adc3a503fe0bf38fed75add8ecc2cb935a20a9';
+const CORRECTOR_HASH      = 'af1abd791ae251219722ef2b9d30c081f5216c00df1c9506960ed5190298bb2d';
+let pwdHash = null;
+let allState = {};
+let allNotifs = [];
+
+// ── DONNÉES PHASES ──────────────────────────────────────────
+const PHASES = [
+  { num:1, titre:'Diagnostic & fondamentaux', periode:'Juin', semaines:4,
+    jours:['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'] },
+  { num:2, titre:'Approfondissement', periode:'Juil.', semaines:4,
+    jours:['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'] },
+  { num:3, titre:'Entraînements intensifs', periode:'Août', semaines:4,
+    jours:['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'] },
+  { num:4, titre:'Sprint final', periode:'Sept.', semaines:4,
+    jours:['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'] },
+  { num:5, titre:'Oral & sport', periode:'Oct-Jan', semaines:null,
+    jours:['Octobre','Novembre','Déc.-Jan.'] },
+];
+
+const PHASE_COLORS = {
+  1:{ bg:'#1a2a4a', border:'#4f8ef7', text:'#4f8ef7' },
+  2:{ bg:'#2a1f0a', border:'#fbbf24', text:'#fbbf24' },
+  3:{ bg:'#0a2a1a', border:'#34d399', text:'#34d399' },
+  4:{ bg:'#1e1040', border:'#a78bfa', text:'#a78bfa' },
+  5:{ bg:'#2a0f0f', border:'#f87171', text:'#f87171' },
+};
+
+const QCM_ANSWERS_JEUDI_S1 = {
+  q1:'B',q2:'B',q3:'B',q4:'C',q5:'B',
+  q6:'B',q7:'C',q8:'B',q9:'B',q10:'C'
+};
+
+// ── LOGIN ────────────────────────────────────────────────────
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function login() {
+  const user = document.getElementById('login-user').value.trim();
+  const pwd  = document.getElementById('login-pwd').value;
+  const [uh, ph] = await Promise.all([sha256(user), sha256(pwd)]);
+  if (uh !== CORRECTOR_LOGIN_HASH || ph !== CORRECTOR_HASH) {
+    document.getElementById('login-error').textContent = '❌ Identifiant ou mot de passe incorrect';
+    return;
+  }
+  pwdHash = ph;
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  loadAll();
+  setInterval(loadAll, 30000);
+}
+
+function logout() {
+  pwdHash = null;
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-pwd').value = '';
+}
+
+// ── LOAD ─────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [stateR, notifR] = await Promise.all([
+      fetch(API + '/api/state'),
+      fetch(API + '/api/notifications'),
+    ]);
+    allState = stateR.ok ? await stateR.json() : {};
+    allNotifs = notifR.ok ? await notifR.json() : [];
+    renderAll();
+    document.getElementById('last-sync').textContent =
+      'Sync : ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    document.getElementById('last-sync').textContent = '⚠️ Hors ligne';
+  }
+}
+
+function renderAll() {
+  renderStats();
+  renderTravaux();
+  renderNotifications();
+  renderProgression();
+  // Badge notifications
+  const unread = allNotifs.filter(n => !n.read_at).length;
+  const badge = document.getElementById('notif-badge');
+  badge.textContent = unread;
+  badge.classList.toggle('show', unread > 0);
+}
+
+// ── STATS ────────────────────────────────────────────────────
+function renderStats() {
+  let totalChecks=0, doneChecks=0, submitted=0, corrected=0;
+  PHASES.forEach(ph => {
+    if (!ph.semaines) return;
+    ph.jours.forEach(j => {
+      const js = allState[`p${ph.num}_${j.toLowerCase().replace(/[^a-z]/g,'_')}`] || {};
+      for (let s=1; s<=ph.semaines; s++) {
+        totalChecks++;
+        if (js.checks?.[`s${s}`]) doneChecks++;
+      }
+      if (js.submitted) submitted++;
+      if (js.corrected) corrected++;
+    });
+  });
+
+  const pct = totalChecks>0 ? Math.round(doneChecks/totalChecks*100) : 0;
+  const pending = submitted - corrected;
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-label">Progression globale</div>
+      <div class="stat-card-val" style="color:var(--blue)">${pct}%</div>
+      <div class="stat-card-sub">${doneChecks} / ${totalChecks} séances</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Travaux soumis</div>
+      <div class="stat-card-val" style="color:var(--yellow)">${submitted}</div>
+      <div class="stat-card-sub">Total depuis le début</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">En attente</div>
+      <div class="stat-card-val" style="color:var(--red)">${pending}</div>
+      <div class="stat-card-sub">À corriger</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Corrigés</div>
+      <div class="stat-card-val" style="color:var(--green)">${corrected}</div>
+      <div class="stat-card-sub">Retours envoyés</div>
+    </div>`;
+}
+
+// ── TRAVAUX ──────────────────────────────────────────────────
+const LABELS = {
+  lundi:   { tags:'Grammaire & orthographe', color:'#4f8ef7' },
+  mardi:   { tags:'Sport', color:'#f472b6' },
+  mercredi:{ tags:'Institutions françaises', color:'#a78bfa' },
+  jeudi:   { tags:'Logique QCM', color:'#34d399' },
+  vendredi:{ tags:'Compréhension texte', color:'#4f8ef7' },
+  samedi:  { tags:'Bilan semaine', color:'#f472b6' },
+  octobre: { tags:'Oral & sport', color:'#f87171' },
+  novembre:{ tags:'Sport', color:'#f87171' },
+  'd__c__jan__':{ tags:'Simulations oral', color:'#f87171' },
+};
+
+function renderTravaux() {
+  const pending = [], corrected = [];
+  Object.entries(allState).forEach(([k, v]) => {
+    if (!v.submitted) return;
+    const match = k.match(/^p(\d+)_(.+)$/);
+    if (!match) return;
+    const phNum = parseInt(match[1]);
+    const jourKey = match[2];
+    const jourNom = jourKey.replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
+    const entry = { key:k, phNum, jourKey, jourNom, data:v };
+    if (v.corrected) corrected.push(entry);
+    else pending.push(entry);
+  });
+
+  document.getElementById('pending-count').textContent = pending.length;
+  document.getElementById('corrected-count').textContent = corrected.length;
+  document.getElementById('pending-list').innerHTML = pending.length
+    ? pending.map(e => renderWorkCard(e, false)).join('')
+    : '<p style="color:var(--muted);font-size:13px;padding:16px 0">Aucun travail en attente 🎉</p>';
+  document.getElementById('corrected-list').innerHTML = corrected.length
+    ? corrected.map(e => renderWorkCard(e, true)).join('')
+    : '<p style="color:var(--muted);font-size:13px;padding:16px 0">Aucun travail corrigé pour l\'instant.</p>';
+}
+
+function renderWorkCard(entry, isCorrected) {
+  const { key, phNum, jourKey, jourNom, data } = entry;
+  const c = PHASE_COLORS[phNum];
+  const lbl = LABELS[jourKey] || { tags: jourNom, color: c.text };
+
+  // Calculer QCM score si jeudi
+  let qcmHtml = '';
+  if (jourKey === 'jeudi' && data.qcmAnswers) {
+    let score = 0;
+    const chips = Object.entries(QCM_ANSWERS_JEUDI_S1).map(([qid, correct]) => {
+      const given = data.qcmAnswers?.[qid];
+      const ok = given === correct;
+      if (ok) score++;
+      return `<span class="qcm-chip ${ok?'qcm-correct':given?'qcm-wrong':'qcm-empty'}">${qid.toUpperCase()}: ${given||'—'} ${ok?'✓':'✗'}</span>`;
+    }).join('');
+    qcmHtml = `
+      <div class="answer-block">
+        <div class="answer-question">QCM — Score : ${score}/${Object.keys(QCM_ANSWERS_JEUDI_S1).length}</div>
+        <div class="qcm-results">${chips}</div>
+      </div>`;
+  }
+
+  // Réponses texte
+  let answersHtml = '';
+  const LABELS_ANSWERS = {
+    e1_1:'Phrase 1', e1_2:'Phrase 2', e1_3:'Phrase 3', e1_4:'Phrase 4', e1_5:'Phrase 5',
+    e2_hom:'Homophones', e3_1:'PP ex.1', e3_2:'PP ex.2', e3_3:'PP ex.3',
+    m1:'Q1', m2:'Q2', m3:'Q3', m4:'Q4',
+    v1:'Q1 - Mission', v2:'Q2 - Exposition', v3:'Q3 - Octroi de mer', v4:'Q4 - Missions', v5:'Q5 - Règles',
+    sp_duree:'Durée footing', sp_dist:'Distance', sp_effort:'Effort', sp_fc:'FC',
+    sp_series:'Séries gainage', sp_planche:'Planche', sp_obs:'Observations',
+    qcm_score:'Score noté',
+    b_lun_ok:'Lundi fait', b_mar_ok:'Mardi fait', b_mer_ok:'Mercredi fait',
+    b_jeu_ok:'Jeudi fait', b_ven_ok:'Vendredi fait', b_sam_ok:'Samedi fait',
+    b_facile:'Facile', b_diff:'Difficile', b_retravailler:'À retravailler', b_motiv:'Motivation',
+    personal:'Notes perso',
+  };
+  if (data.answers) {
+    Object.entries(data.answers).forEach(([id, val]) => {
+      if (!val || val.trim() === '') return;
+      const lbl2 = LABELS_ANSWERS[id] || id;
+      answersHtml += `
+        <div class="answer-block">
+          <div class="answer-question">${lbl2}</div>
+          <div class="answer-text">${escHtml(val)}</div>
+        </div>`;
+    });
+  }
+  if (!answersHtml && !qcmHtml) {
+    answersHtml = '<p style="color:var(--muted);font-size:12px;font-style:italic">Aucune réponse saisie.</p>';
+  }
+
+  // Feedback existant
+  const existingFeedback = escHtml(data.answers?.['_feedback'] || '');
+
+  return `
+    <div class="work-card" id="card_${key}">
+      <div class="work-card-head" onclick="toggleCard('${key}')">
+        <div class="work-card-left">
+          <div class="work-card-badge" style="background:${c.bg};border:1px solid ${c.border};color:${c.text}">
+            P${phNum}
+          </div>
+          <div>
+            <div class="work-card-title">${jourNom} — Phase ${phNum}</div>
+            <div class="work-card-meta">${lbl.tags} • Soumis le ${formatDate(data.submitted_at)}</div>
+          </div>
+        </div>
+        <div class="work-card-right">
+          ${isCorrected
+            ? '<span class="badge badge-green">✅ Corrigé</span>'
+            : '<span class="badge badge-yellow">⏳ En attente</span>'}
+          <span style="color:var(--muted);font-size:16px" id="arrow_${key}">▼</span>
+        </div>
+      </div>
+      <div class="work-card-body" id="body_${key}">
+        ${qcmHtml}
+        ${answersHtml}
+        ${!isCorrected ? `
+        <div class="feedback-section">
+          <div class="feedback-label">💬 Feedback correcteur</div>
+          <textarea class="feedback-area" id="feedback_${key}"
+            placeholder="Commentaires, encouragements, points à améliorer...">${existingFeedback}</textarea>
+          <div class="feedback-actions">
+            <button class="btn btn-success" onclick="applyCorrection('${key}',${phNum},'${jourNom}')">
+              ✅ Valider la correction
+            </button>
+            <button class="btn btn-outline" onclick="toggleCard('${key}')">Fermer</button>
+          </div>
+        </div>` : `
+        <div class="feedback-section">
+          <div class="feedback-label">✅ Feedback envoyé</div>
+          <div style="font-size:13px;color:var(--text);padding:10px 14px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:8px">
+            ${existingFeedback || '<em style="color:var(--muted)">Aucun commentaire</em>'}
+          </div>
+        </div>`}
+      </div>
+    </div>`;
+}
+
+function toggleCard(key) {
+  const body = document.getElementById(`body_${key}`);
+  const arrow = document.getElementById(`arrow_${key}`);
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+async function applyCorrection(key, phNum, jourNom) {
+  const feedback = document.getElementById(`feedback_${key}`)?.value || '';
+  const js = allState[key] || {};
+  js.corrected = true;
+  js.submitted_at = js.submitted_at || Date.now();
+  if (!js.answers) js.answers = {};
+  js.answers['_feedback'] = feedback;
+
+  try {
+    const r = await fetch(API + '/api/correct', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        password_hash: pwdHash,
+        phase_num: phNum,
+        jour_nom: jourNom,
+        feedback,
+        key,
+        value: js
+      })
+    });
+    if (r.ok) {
+      showToast(`✅ Correction envoyée pour ${jourNom} P${phNum}`);
+      await loadAll();
+    } else {
+      showToast('❌ Erreur lors de l\'envoi');
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau');
+  }
+}
+
+// ── NOTIFICATIONS ────────────────────────────────────────────
+function renderNotifications() {
+  const list = document.getElementById('notif-list');
+  if (!allNotifs.length) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:16px 0">Aucune notification.</p>';
+    return;
+  }
+  list.innerHTML = allNotifs.map(n => `
+    <div class="notif-item ${n.read_at ? '' : 'unread'}">
+      <div class="notif-dot ${n.read_at ? 'read' : ''}"></div>
+      <div class="notif-text">
+        <strong>${n.type === 'submit' ? '📋 Travail soumis' : '✅ Correction envoyée'}</strong><br>
+        <span style="color:var(--muted)">${escHtml(n.message)}</span>
+      </div>
+      <div class="notif-time">${formatDate(n.created_at)}</div>
+    </div>`).join('');
+}
+
+async function markAllRead() {
+  await fetch(API + '/api/notifications/read', { method:'POST' });
+  await loadAll();
+  showToast('✓ Toutes les notifications marquées comme lues');
+}
+
+// ── PROGRESSION ──────────────────────────────────────────────
+function renderProgression() {
+  const tbody = document.getElementById('prog-tbody');
+  let html = '';
+  PHASES.forEach(ph => {
+    ph.jours.forEach(j => {
+      const k = `p${ph.num}_${j.toLowerCase().replace(/[^a-z]/g,'_')}`;
+      const js = allState[k] || {};
+      const n = ph.semaines || 1;
+      let done = 0;
+      for (let s=1; s<=n; s++) if (js.checks?.[`s${s}`]) done++;
+      const pct = n>0 ? Math.round(done/n*100) : 0;
+      const c = PHASE_COLORS[ph.num];
+      html += `
+        <tr>
+          <td><span style="color:${c.text};font-weight:700">Phase ${ph.num}</span> <span style="color:var(--muted);font-size:11px">${ph.periode}</span></td>
+          <td>${j}</td>
+          <td>
+            <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${c.border}"></div></div>
+            ${done}/${n}
+          </td>
+          <td>${js.submitted ? '<span style="color:var(--yellow)">✓ Soumis</span>' : '<span style="color:var(--muted)">—</span>'}</td>
+          <td>${js.corrected ? '<span style="color:var(--green)">✓ Corrigé</span>' : '<span style="color:var(--muted)">—</span>'}</td>
+          <td>${js.qcmScore !== undefined && js.qcmScore !== null ? `<strong>${js.qcmScore}/30</strong>` : '<span style="color:var(--muted)">—</span>'}</td>
+        </tr>`;
+    });
+  });
+  tbody.innerHTML = html;
+}
+
+// ── TABS ─────────────────────────────────────────────────────
+function showTab(name, btn) {
+  ['travaux','notifications','progression'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (name === 'notifications') markAllRead();
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts > 1e10 ? ts : ts*1000);
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})
+    + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
