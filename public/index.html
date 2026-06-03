@@ -639,21 +639,39 @@ body {
 </head>
 <body>
 
-<div id="eleve-login" style="position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
-  <div style="background:#181c27;border:1px solid #2a2f45;border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center;">
+<!-- ── PAGE DE LOGIN ÉLÈVE ── -->
+<div id="eleve-login" style="
+  position:fixed;inset:0;background:#0f1117;
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;padding:20px;
+">
+  <div style="
+    background:#181c27;border:1px solid #2a2f45;border-radius:16px;
+    padding:40px;width:100%;max-width:380px;text-align:center;
+  ">
     <div style="font-size:44px;margin-bottom:16px">🎯</div>
-    <div style="font-family:sans-serif;font-weight:800;font-size:20px;margin-bottom:6px;color:#e8eaf0">Concours Douanes 2026</div>
-    <div style="font-size:13px;color:#7b82a0;margin-bottom:28px">Plateforme de révision — CHRISTOPHE-HAYOT</div>
+    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:20px;margin-bottom:6px">Concours Douanes 2026</div>
+    <div style="font-size:13px;color:#7b82a0;margin-bottom:28px">Plateforme de révision — Accès élève</div>
     <input id="el-login" type="text" placeholder="Identifiant" autocomplete="username"
-      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
+      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;
+      border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box"
+      onkeydown="if(event.key==='Enter')document.getElementById('el-pwd').focus()">
     <input id="el-pwd" type="password" placeholder="Mot de passe" autocomplete="current-password"
-      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
+      style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;
+      border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box"
+      onkeydown="if(event.key==='Enter')eleveLogin()">
     <div id="el-error" style="color:#f87171;font-size:12px;margin-bottom:10px;min-height:16px"></div>
-    <button id="eleve-btn" style="width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">
+    <button onclick="eleveLogin()" style="
+      width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;
+      color:#fff;font-family:Syne,sans-serif;font-weight:700;font-size:13px;
+      cursor:pointer;transition:background 0.15s
+    " onmouseover="this.style.background='#3b7ef0'" onmouseout="this.style.background='#4f8ef7'">
       🔓 Accéder au planning
     </button>
     <div style="margin-top:16px">
-      <a href="/correcteur.html" style="font-size:11px;color:#7b82a0;text-decoration:none">Accès correcteur →</a>
+      <a href="/correcteur.html" style="font-size:11px;color:#7b82a0;text-decoration:none">
+        Accès correcteur →
+      </a>
     </div>
   </div>
 </div>
@@ -839,4 +857,1249 @@ const PHASES = [
     jours:[
       { nom:"Lundi", dayIdx:0, tags:[{l:"Annale chronométrée",c:"#92400e",bg:"#fef3c7"}], desc:"", fiche:"lundi_s4" },
       { nom:"Mardi", dayIdx:1, tags:[{l:"Sport modéré 40 min",c:"#831843",bg:"#fce7f3"}], desc:"Maintenir sans se fatiguer", fiche:"mardi_s4" },
-      { nom:"Mercredi", dayIdx:2, tags:[{l:"Révision ciblée points faibles",c:"#
+      { nom:"Mercredi", dayIdx:2, tags:[{l:"Révision ciblée points faibles",c:"#1e3a8a",bg:"#dbeafe"}], desc:"", fiche:"mercredi_s4" },
+      { nom:"Jeudi", dayIdx:3, tags:[{l:"30 QCM logique rapide",c:"#064e3b",bg:"#d1fae5"}], desc:"En 20 min", fiche:"jeudi_s4" },
+      { nom:"Vendredi", dayIdx:4, tags:[{l:"Actualité douanes & Antilles",c:"#4c1d95",bg:"#ede9fe"}], desc:"", fiche:"vendredi_s4" },
+      { nom:"Samedi", dayIdx:5, tags:[{l:"Footing léger 30 min",c:"#831843",bg:"#fce7f3"}], desc:"", fiche:"samedi_s4" },
+    ]
+  },
+  {
+    num:5, titre:"Après les écrits : oral & sport", periode:"Oct. — Jan. 2027", semaines:null,
+    color: PHASE_COLORS[5],
+    note:"Oral du 25 au 29 janvier 2027. Préparer : qui es-tu, pourquoi la douane ?",
+    jours:[
+      { nom:"Octobre", dayIdx:null, tags:[{l:"Maintien physique",c:"#831843",bg:"#fce7f3"},{l:"Motivations pour l'oral",c:"#4c1d95",bg:"#ede9fe"}], desc:"", fiche:"octobre_s5" },
+      { nom:"Novembre", dayIdx:null, tags:[{l:"Entraînements sportifs",c:"#831843",bg:"#fce7f3"}], desc:"Épreuves dès le 23 nov.", fiche:"novembre_s5" },
+      { nom:"Déc.-Jan.", dayIdx:null, tags:[{l:"Simulations d'oral",c:"#4c1d95",bg:"#ede9fe"}], desc:"Présentation, motivations, missions", fiche:"decjan_s5" },
+    ]
+  }
+];
+
+// Décalages de semaine par phase
+const PHASE_SEM_START = { 1:0, 2:4, 3:8, 4:12, 5:null };
+
+
+// ── AUTH ÉLÈVE ────────────────────────────────────────────────
+const ELEVE_LOGIN_HASH = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
+const ELEVE_PWD_HASH   = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function eleveLogin() {
+  const login = document.getElementById('el-login').value.trim();
+  const pwd   = document.getElementById('el-pwd').value;
+  const [lh, ph] = await Promise.all([sha256(login), sha256(pwd)]);
+  if (lh === ELEVE_LOGIN_HASH && ph === ELEVE_PWD_HASH) {
+    sessionStorage.setItem('eleve_auth', '1');
+    document.getElementById('eleve-login').style.display = 'none';
+    if (checkEleveAuth()) { loadState(); }
+  } else {
+    document.getElementById('el-error').textContent = '❌ Identifiant ou mot de passe incorrect';
+  }
+}
+
+function checkEleveAuth() {
+  if (!sessionStorage.getItem('eleve_auth')) {
+    // Affiche le login, ne charge pas l'état
+    return false;
+  }
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE — synchronisé avec le serveur
+// ═══════════════════════════════════════════════════════════════
+const API = '';  // même domaine
+let state = {};
+let _saveTimer = null;
+
+// Chargement initial depuis le serveur
+async function loadState() {
+  try {
+    const r = await fetch(API + '/api/state');
+    if (r.ok) {
+      const data = await r.json();
+      state = data;
+      renderPlanning();
+      updateCountdown();
+    }
+  } catch(e) {
+    // Fallback localStorage si hors ligne
+    state = JSON.parse(localStorage.getItem('douanes_state') || '{}');
+    renderPlanning();
+    updateCountdown();
+  }
+}
+
+async function saveState(key, value) {
+  // Sauvegarder localement immédiatement
+  localStorage.setItem('douanes_state', JSON.stringify(state));
+  // Sync serveur
+  try {
+    await fetch(API + '/api/state', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ key, value })
+    });
+  } catch(e) { /* hors ligne, pas grave */ }
+}
+
+// Polling pour recevoir les corrections du correcteur
+setInterval(async () => {
+  try {
+    const r = await fetch(API + '/api/notifications/unread');
+    if (!r.ok) return;
+    const {count} = await r.json();
+    if (count > 0) {
+      // Recharger l'état pour récupérer les corrections
+      const sr = await fetch(API + '/api/state');
+      if (sr.ok) {
+        const newState = await sr.json();
+        // Vérifier nouvelles corrections
+        Object.entries(newState).forEach(([k, v]) => {
+          if (v.corrected && state[k] && !state[k].corrected) {
+            showNotificationBanner(`✅ Correction disponible pour ${k.replace('p','Phase ').replace(/_/g,' ')}`);
+          }
+        });
+        state = newState;
+        renderPlanning();
+        computeStats();
+      }
+    }
+  } catch(e) {}
+}, 15000); // toutes les 15 secondes
+
+function getKey(phaseNum, jourNom) {
+  return `p${phaseNum}_${jourNom.toLowerCase().replace(/[^a-z]/g,'_')}`;
+}
+
+function getJourState(phaseNum, jourNom) {
+  const k = getKey(phaseNum, jourNom);
+  if (!state[k]) state[k] = { checks:{}, answers:{}, submitted:false, corrected:false, qcmScore:null };
+  return state[k];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COUNTDOWN
+// ═══════════════════════════════════════════════════════════════
+function updateCountdown() {
+  const exam = new Date('2026-09-29');
+  const now = new Date();
+  const diff = Math.ceil((exam - now) / (1000*60*60*24));
+  document.getElementById('countdown-days').textContent = Math.max(0, diff);
+}
+updateCountdown();
+
+// ═══════════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════════
+function computeStats() {
+  let totalChecks = 0, doneChecks = 0, submitted = 0, corrected = 0;
+  let qcmScores = [];
+
+  PHASES.forEach(phase => {
+    phase.jours.forEach(jour => {
+      if (phase.semaines) {
+        for (let s = 0; s < phase.semaines; s++) {
+          totalChecks++;
+          const js = getJourState(phase.num, jour.nom);
+          if (js.checks[`s${s+1}`]) doneChecks++;
+        }
+      }
+      const js = getJourState(phase.num, jour.nom);
+      if (js.submitted) submitted++;
+      if (js.corrected) corrected++;
+      if (js.qcmScore !== null) qcmScores.push(js.qcmScore);
+    });
+  });
+
+  document.getElementById('stat-done').textContent = `${doneChecks} / ${totalChecks}`;
+  document.getElementById('stat-submitted').textContent = submitted;
+  document.getElementById('stat-corrected').textContent = corrected;
+  const pct = totalChecks > 0 ? Math.round(doneChecks/totalChecks*100) : 0;
+  document.getElementById('bar-global').style.width = pct + '%';
+  if (qcmScores.length > 0) {
+    const avg = Math.round(qcmScores.reduce((a,b)=>a+b,0)/qcmScores.length * 10) / 10;
+    document.getElementById('stat-qcm').textContent = `${avg} / 30`;
+  }
+
+  // Phase progress list
+  const list = document.getElementById('phase-progress-list');
+  list.innerHTML = '';
+  PHASES.forEach(phase => {
+    if (!phase.semaines) return;
+    let tot = 0, done = 0;
+    phase.jours.forEach(j => {
+      for (let s = 0; s < phase.semaines; s++) {
+        tot++;
+        if (getJourState(phase.num, j.nom).checks[`s${s+1}`]) done++;
+      }
+    });
+    const p = tot > 0 ? Math.round(done/tot*100) : 0;
+    const c = phase.color;
+    list.innerHTML += `
+      <div class="phase-prog">
+        <div class="phase-prog-label">
+          <span class="phase-prog-name" style="color:${c.text}">Phase ${phase.num}</span>
+          <span class="phase-prog-pct" style="color:${c.text}">${p}%</span>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:${p}%;background:${c.border}"></div>
+        </div>
+      </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER PLANNING
+// ═══════════════════════════════════════════════════════════════
+function renderPlanning() {
+  const grid = document.getElementById('phases-grid');
+  const nav = document.getElementById('nav-phases');
+  grid.innerHTML = '';
+  nav.innerHTML = '';
+
+  PHASES.forEach(phase => {
+    const c = phase.color;
+    // Calcul pct phase pour nav
+    let tot = 0, done = 0;
+    if (phase.semaines) {
+      phase.jours.forEach(j => {
+        for (let s = 0; s < phase.semaines; s++) {
+          tot++;
+          if (getJourState(phase.num, j.nom).checks[`s${s+1}`]) done++;
+        }
+      });
+    }
+    const pct = tot > 0 ? Math.round(done/tot*100) : 0;
+
+    // Nav
+    nav.innerHTML += `
+      <a class="nav-phase" href="#phase-${phase.num}">
+        <div class="nav-badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${phase.num}</div>
+        <div class="nav-phase-info">
+          <div class="nav-phase-name">${phase.titre}</div>
+          <div class="nav-phase-period">${phase.periode}</div>
+        </div>
+        <div class="nav-phase-pct" style="color:${c.text}">${pct}%</div>
+      </a>`;
+
+    // Card
+    let joursHTML = '';
+    phase.jours.forEach(jour => {
+      const js = getJourState(phase.num, jour.nom);
+      const tagsHTML = jour.tags.map(t =>
+        `<span class="day-tag" style="background:${t.bg};color:${t.c}">${t.l}</span>`
+      ).join('');
+
+      let checksHTML = '';
+      const semStart = PHASE_SEM_START[phase.num];
+      if (phase.semaines && jour.dayIdx !== null) {
+        for (let s = 0; s < phase.semaines; s++) {
+          const done = js.checks[`s${s+1}`] || false;
+          const dateStr = getDate(semStart + s, jour.dayIdx);
+          checksHTML += `
+            <div class="check-item" onclick="toggleCheck(${phase.num},'${jour.nom}',${s+1},event)">
+              <div class="check-box ${done?'done':''}" id="chk_p${phase.num}_${jour.nom}_s${s+1}"></div>
+              <span class="check-date">${dateStr}</span>
+            </div>`;
+        }
+      } else if (jour.dayIdx === null) {
+        const done = js.checks['s1'] || false;
+        checksHTML = `
+          <div class="check-item" onclick="toggleCheck(${phase.num},'${jour.nom}',1,event)">
+            <div class="check-box ${done?'done':''}" id="chk_p${phase.num}_${jour.nom}_s1"></div>
+            <span class="check-date">À faire</span>
+          </div>`;
+      }
+
+      const statusIcon = js.corrected ? '✅' : js.submitted ? '📋' : '';
+
+      joursHTML += `
+        <div class="day-row" onclick="openFiche(${phase.num},'${jour.nom}')">
+          <div class="day-header">
+            <span class="day-name">${jour.nom}</span>
+            <div class="day-tags">${tagsHTML}</div>
+            ${statusIcon ? `<span style="font-size:11px;margin-left:4px">${statusIcon}</span>` : ''}
+          </div>
+          ${jour.desc ? `<div class="day-desc">${jour.desc}</div>` : ''}
+          <div class="day-checks">${checksHTML}</div>
+        </div>`;
+    });
+
+    // Dimanche
+    const semStart = PHASE_SEM_START[phase.num];
+    let dimDates = '';
+    if (phase.semaines && semStart !== null) {
+      for (let s = 0; s < phase.semaines; s++) {
+        dimDates += `<span style="font-size:9px;color:var(--text-muted);margin-right:6px">${getDate(semStart+s, 6)}</span>`;
+      }
+    }
+    joursHTML += `
+      <div class="day-row sunday">
+        <div class="sunday-label">☾ Dimanche — Jour off complet &nbsp; ${dimDates}</div>
+      </div>`;
+
+    // Calcul mini progress bar
+    let phTot = 0, phDone = 0;
+    if (phase.semaines) {
+      phase.jours.forEach(j => {
+        for (let s = 0; s < phase.semaines; s++) {
+          phTot++;
+          if (getJourState(phase.num, j.nom).checks[`s${s+1}`]) phDone++;
+        }
+      });
+    }
+    const phPct = phTot > 0 ? Math.round(phDone/phTot*100) : 0;
+
+    grid.innerHTML += `
+      <div class="phase-card" id="phase-${phase.num}">
+        <div class="phase-head" style="background:${c.bg};border-bottom-color:${c.border}">
+          <div class="phase-badge">
+            <div class="phase-num" style="background:${c.border};color:#0f1117">${phase.num}</div>
+            <span class="phase-tag" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">Phase ${phase.num}</span>
+          </div>
+          <div class="phase-title">${phase.titre}</div>
+          <div class="phase-period">${phase.periode}</div>
+          <div class="phase-prog-mini">
+            <div class="bar-wrap">
+              <div class="bar-fill" style="width:${phPct}%;background:${c.border}"></div>
+            </div>
+          </div>
+        </div>
+        ${joursHTML}
+        <div class="phase-note">🎯 ${phase.note}</div>
+      </div>`;
+  });
+
+  computeStats();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOGGLE CHECK
+// ═══════════════════════════════════════════════════════════════
+function toggleCheck(phaseNum, jourNom, semNum, event) {
+  event.stopPropagation();
+  const js = getJourState(phaseNum, jourNom);
+  js.checks[`s${semNum}`] = !js.checks[`s${semNum}`];
+  const k2 = getKey(phaseNum, jourNom);
+  saveState(k2, js);
+  const el = document.getElementById(`chk_p${phaseNum}_${jourNom}_s${semNum}`);
+  if (el) el.classList.toggle('done', js.checks[`s${semNum}`]);
+  computeStats();
+  renderPhaseProgress(phaseNum);
+  showToast(js.checks[`s${semNum}`] ? '✅ Séance cochée !' : '↩️ Séance décochée');
+}
+
+function renderPhaseProgress(phaseNum) {
+  // Recalcule mini barre de la phase
+  const phase = PHASES.find(p => p.num === phaseNum);
+  if (!phase || !phase.semaines) return;
+  let tot = 0, done = 0;
+  phase.jours.forEach(j => {
+    for (let s = 0; s < phase.semaines; s++) {
+      tot++;
+      if (getJourState(phase.num, j.nom).checks[`s${s+1}`]) done++;
+    }
+  });
+  const pct = tot > 0 ? Math.round(done/tot*100) : 0;
+  const bar = document.querySelector(`#phase-${phaseNum} .bar-fill`);
+  if (bar) bar.style.width = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODAL FICHE
+// ═══════════════════════════════════════════════════════════════
+let currentFiche = null;
+
+function openFiche(phaseNum, jourNom) {
+  const phase = PHASES.find(p => p.num === phaseNum);
+  const jour = phase.jours.find(j => j.nom === jourNom);
+  const c = phase.color;
+  currentFiche = { phaseNum, jourNom, phase, jour };
+
+  document.getElementById('modal-badge').style.background = c.bg;
+  document.getElementById('modal-badge').style.border = `1px solid ${c.border}`;
+  document.getElementById('modal-badge').style.color = c.text;
+  document.getElementById('modal-badge').innerHTML = `<span style="font-family:Syne;font-weight:800;font-size:10px;text-align:center">${jour.nom}<br><span style="font-weight:400;font-size:9px">P${phaseNum}</span></span>`;
+  document.getElementById('modal-title').textContent = jour.tags.map(t=>t.l).join(' + ');
+  document.getElementById('modal-subtitle').textContent = `Phase ${phaseNum} • ${phase.periode}`;
+
+  renderModalTabs(phaseNum, jourNom);
+  renderModalTab('cours');
+  updateModalStatus();
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentFiche = null;
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function renderModalTabs(phaseNum, jourNom) {
+  const tabs = document.getElementById('modal-tabs');
+  const hasCours = FICHES[`${jourNom.toLowerCase()}_s${phaseNum}`]?.cours;
+  const hasExo = FICHES[`${jourNom.toLowerCase()}_s${phaseNum}`]?.exercices;
+  tabs.innerHTML = '';
+  if (hasCours) tabs.innerHTML += `<button class="modal-tab active" onclick="renderModalTab('cours',this)">📖 Cours</button>`;
+  if (hasExo) tabs.innerHTML += `<button class="modal-tab" onclick="renderModalTab('exercices',this)">✏️ Exercices</button>`;
+  tabs.innerHTML += `<button class="modal-tab" onclick="renderModalTab('notes',this)">📝 Mes notes</button>`;
+}
+
+function renderModalTab(tab, btn) {
+  if (btn) {
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const { phaseNum, jourNom } = currentFiche;
+  const key = `${jourNom.toLowerCase()}_s${phaseNum}`;
+  const fiche = FICHES[key];
+  const js = getJourState(phaseNum, jourNom);
+  const body = document.getElementById('modal-body');
+
+  if (tab === 'cours' && fiche?.cours) {
+    body.innerHTML = fiche.cours;
+  } else if (tab === 'exercices' && fiche?.exercices) {
+    body.innerHTML = fiche.exercices(js.submitted, js.corrected, js.answers);
+    // Restaurer réponses
+    restoreAnswers(js);
+  } else if (tab === 'notes') {
+    body.innerHTML = `
+      <div class="fiche-section">
+        <div class="fiche-section-title">📝 Mes notes personnelles</div>
+        <p class="fiche-text" style="color:var(--text-muted);margin-bottom:12px">Espace libre pour tes remarques, points à revoir, idées...</p>
+        <textarea class="answer-area" id="personal-notes" style="min-height:200px" 
+          placeholder="Écris tes notes ici..."
+          ${js.submitted?'disabled':''}
+          onchange="saveNote()">${js.notes?.personal||''}</textarea>
+      </div>`;
+  }
+
+  updateModalActions();
+}
+
+function restoreAnswers(js) {
+  if (!js.answers) return;
+  Object.entries(js.answers).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (el.tagName === 'TEXTAREA') el.value = val;
+    }
+  });
+  // Restaurer QCM
+  if (js.qcmAnswers) {
+    Object.entries(js.qcmAnswers).forEach(([qid, ans]) => {
+      const btns = document.querySelectorAll(`[data-qid="${qid}"]`);
+      btns.forEach(b => {
+        if (b.dataset.opt === ans) b.classList.add('selected');
+      });
+    });
+  }
+}
+
+function saveNote() {
+  if (!currentFiche) return;
+  const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
+  if (!js.notes) js.notes = {};
+  const el = document.getElementById('personal-notes');
+  if (el) js.notes.personal = el.value;
+  saveState();
+}
+
+function saveAnswer(id) {
+  if (!currentFiche) return;
+  const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
+  if (!js.answers) js.answers = {};
+  const el = document.getElementById(id);
+  if (el) js.answers[id] = el.value;
+  saveState();
+}
+
+function selectQCM(qid, opt, btn) {
+  if (!currentFiche) return;
+  const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
+  if (js.submitted) return;
+  if (!js.qcmAnswers) js.qcmAnswers = {};
+  js.qcmAnswers[qid] = opt;
+  saveState();
+  document.querySelectorAll(`[data-qid="${qid}"]`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SOUMETTRE / CORRIGER
+// ═══════════════════════════════════════════════════════════════
+function submitWork() {
+  if (!currentFiche) return;
+  const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
+  // Sauvegarder toutes les textareas
+  document.querySelectorAll('.answer-area').forEach(el => {
+    if (el.id) {
+      if (!js.answers) js.answers = {};
+      js.answers[el.id] = el.value;
+    }
+  });
+  js.submitted = true;
+  saveState();
+  updateModalStatus();
+  updateModalActions();
+  // Désactiver les textareas
+  document.querySelectorAll('.answer-area').forEach(el => el.disabled = true);
+  document.querySelectorAll('.qcm-opt').forEach(el => el.classList.add('locked'));
+  showToast('📋 Travail soumis ! En attente de correction.');
+  renderPlanning();
+}
+
+function requestCorrection() {
+  document.getElementById('pwd-modal').classList.add('open');
+  document.getElementById('pwd-input').value = '';
+  document.getElementById('pwd-error').textContent = '';
+  setTimeout(() => document.getElementById('pwd-input').focus(), 100);
+}
+
+function closePwdModal() {
+  document.getElementById('pwd-modal').classList.remove('open');
+}
+
+async function checkPassword() {
+  const pwd = document.getElementById('pwd-input').value;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+  const hash = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if (hash === PWD_HASH) {
+    closePwdModal();
+    applyCorrection();
+  } else {
+    document.getElementById('pwd-error').textContent = '❌ Mot de passe incorrect';
+    document.getElementById('pwd-input').select();
+  }
+}
+
+function applyCorrection() {
+  if (!currentFiche) return;
+  const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
+  js.corrected = true;
+  saveState();
+  updateModalStatus();
+  updateModalActions();
+  // Afficher les corrections
+  document.querySelectorAll('.correction-zone').forEach(el => el.classList.add('show'));
+  // Corriger QCM
+  const key = `${currentFiche.jourNom.toLowerCase()}_s${currentFiche.phaseNum}`;
+  const fiche = FICHES[key];
+  if (fiche?.qcmAnswers && js.qcmAnswers) {
+    let score = 0;
+    Object.entries(fiche.qcmAnswers).forEach(([qid, correct]) => {
+      const given = js.qcmAnswers?.[qid];
+      document.querySelectorAll(`[data-qid="${qid}"]`).forEach(b => {
+        if (b.dataset.opt === correct) b.classList.add('correct-ans');
+        else if (b.dataset.opt === given && given !== correct) b.classList.add('wrong-ans');
+      });
+      if (given === correct) score++;
+    });
+    js.qcmScore = score;
+    saveState();
+    showToast(`✅ Correction appliquée ! Score QCM : ${score}/${Object.keys(fiche.qcmAnswers).length}`);
+  } else {
+    showToast('✅ Corrections affichées !');
+  }
+  renderPlanning();
+  computeStats();
+}
+
+function updateModalStatus() {
+  if (!currentFiche) return;
+  const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  if (js.corrected) { dot.className='status-dot corrected'; txt.textContent='Corrigé ✅'; }
+  else if (js.submitted) { dot.className='status-dot submitted'; txt.textContent='Soumis — En attente de correction'; }
+  else { dot.className='status-dot'; txt.textContent='En cours de travail'; }
+}
+
+function updateModalActions() {
+  if (!currentFiche) return;
+  const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
+  const actions = document.getElementById('modal-actions');
+  if (js.corrected) {
+    actions.innerHTML = `<div style="font-size:12px;color:var(--green)">✅ Travail corrigé</div>`;
+  } else if (js.submitted) {
+    actions.innerHTML = `
+      <button class="btn btn-locked">📋 Soumis</button>
+      <button class="btn btn-primary" onclick="requestCorrection()">🔐 Corriger</button>`;
+  } else {
+    actions.innerHTML = `
+      <button class="btn btn-outline" onclick="closeModal()">Fermer</button>
+      <button class="btn btn-success" onclick="submitWork()">📤 Soumettre mon travail</button>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FICHES DE CONTENU — Semaine 1 complète
+// ═══════════════════════════════════════════════════════════════
+const FICHES = {
+
+  // ─── LUNDI S1 ────────────────────────────────────────────────
+  lundi_s1: {
+    cours: `
+      <div class="fiche-section">
+        <div class="fiche-section-title">1. Les accords sujet-verbe</div>
+        <p class="fiche-text"><strong>Règle de base :</strong> le verbe s'accorde en personne et en nombre avec son sujet.</p>
+        <div class="fiche-bullet">Sujet inversé : <em>Arrivent les candidats.</em> → accord obligatoire même si le verbe est avant le sujet.</div>
+        <div class="fiche-bullet">Sujets multiples : <em>Le chef et son adjoint arrivent.</em> → accord au pluriel.</div>
+        <div class="fiche-bullet">Collectif + complément : <em>Une foule de gens se pressait / se pressaient.</em> → les deux sont acceptés.</div>
+        <div class="fiche-bullet">Pronom relatif « qui » : accord avec l'antécédent — <em>C'est moi qui suis responsable.</em></div>
+        <div class="fiche-bullet">Ni... ni... : <em>Ni Pierre ni Paul ne viennent.</em> → accord au pluriel en général.</div>
+      </div>
+      <div class="fiche-section">
+        <div class="fiche-section-title">2. Les homophones grammaticaux</div>
+        <table class="fiche-table">
+          <tr><th>Homophone</th><th>Astuce</th><th>Exemple</th></tr>
+          <tr><td><strong>a / à</strong></td><td>Remplace par « avait » → si ça marche = a</td><td>Il a faim. / Il va à Paris.</td></tr>
+          <tr><td><strong>on / ont</strong></td><td>Remplace par « ils ont » → si ça marche = ont</td><td>On part. / Ils ont fini.</td></tr>
+          <tr><td><strong>ce / se</strong></td><td>ce = démonstratif ; se = pronom réfléchi</td><td>Ce dossier se lit vite.</td></tr>
+          <tr><td><strong>ou / où</strong></td><td>où = lieu (remplace « ou bien » impossible)</td><td>Où vas-tu ? / Café ou thé ?</td></tr>
+          <tr><td><strong>ces / ses</strong></td><td>ces = pluriel de ce/cette ; ses = pluriel de son/sa</td><td>Ses affaires. / Ces dossiers.</td></tr>
+          <tr><td><strong>mais / mes</strong></td><td>mais = conjonction ; mes = pluriel de mon/ma</td><td>Mais oui ! / Mes documents.</td></tr>
+        </table>
+      </div>
+      <div class="fiche-section">
+        <div class="fiche-section-title">3. Les participes passés</div>
+        <div class="fiche-bullet"><strong>Avec être :</strong> accord avec le sujet → <em>Elle est partie. Ils sont arrivés.</em></div>
+        <div class="fiche-bullet"><strong>Avec avoir :</strong> accord avec le COD si placé AVANT → <em>La lettre qu'il a écrite.</em></div>
+        <div class="fiche-bullet"><strong>Verbes pronominaux :</strong> accord avec le sujet → <em>Elles se sont levées.</em></div>
+        <div class="note-box">💡 <strong>Astuce AVOIR :</strong> pose la question « Quoi ? » AVANT le verbe. Si la réponse est avant → accord. Ex : Les lettres (quoi ?) qu'il a <em>écrites</em>.</div>
+      </div>
+      <div class="fiche-section">
+        <div class="fiche-section-title">4. Ponctuation et majuscules</div>
+        <div class="fiche-bullet"><strong>Majuscules :</strong> début de phrase, noms propres, titres officiels (Président de la République, Direction générale des douanes).</div>
+        <div class="fiche-bullet"><strong>Virgule :</strong> sépare les éléments d'une énumération, encadre une proposition incise.</div>
+        <div class="fiche-bullet"><strong>Point-virgule :</strong> sépare deux propositions liées par le sens mais indépendantes grammaticalement.</div>
+      </div>
+      <div class="fiche-section">
+        <div class="fiche-section-title">5. Mots invariables souvent mal orthographiés</div>
+        <table class="fiche-table">
+          <tr><th>Correct</th><th>Erreur fréquente</th><th>Correct</th><th>Erreur fréquente</th></tr>
+          <tr><td><strong>davantage</strong></td><td>d'avantage</td><td><strong>plutôt</strong></td><td>plus tôt (≠ heure)</td></tr>
+          <tr><td><strong>parce que</strong></td><td>par ce que</td><td><strong>néanmoins</strong></td><td>néamoins</td></tr>
+          <tr><td><strong>quant à</strong></td><td>quand à</td><td><strong>vis-à-vis</strong></td><td>visavis</td></tr>
+        </table>
+      </div>`,
+
+    exercices: (submitted, corrected, answers) => `
+      <div class="exo-num">Exercice 1 — Accords sujet-verbe</div>
+      <div class="exo-consigne">Récris chaque phrase en corrigeant les erreurs d'accord.</div>
+      ${[
+        ["e1_1","1. Les agents des douanes contrôlent les marchandises qui entre sur le territoire."],
+        ["e1_2","2. Une série de documents ont été vérifiés par l'inspecteur."],
+        ["e1_3","3. C'est toi qui est responsable de cette erreur dans le rapport."],
+        ["e1_4","4. Ni le chef ni son adjoint n'était présent lors de l'inspection."],
+        ["e1_5","5. La foule des manifestants s'était rassemblé devant le bâtiment."],
+      ].map(([id,ph]) => `
+        <div class="exo-phrase">${ph}</div>
+        <textarea class="answer-area ${corrected?'correct':''}" id="${id}" 
+          placeholder="Ta correction..." ${submitted?'disabled':''}
+          onchange="saveAnswer('${id}')">${answers?.[id]||''}</textarea>
+        <div class="correction-zone ${corrected?'show':''}">
+          <div class="correction-label">✅ Correction</div>
+          ${CORRECTIONS_LUNDI[id]}
+        </div>`).join('')}
+
+      <div class="exo-num" style="margin-top:20px">Exercice 2 — Homophones</div>
+      <div class="exo-consigne">Complète avec le bon homophone : a/à, on/ont, ce/se, ou/où, ces/ses.</div>
+      <div class="exo-phrase">L'agent _____ aperçu que _____ colis ne correspondait pas _____ la déclaration. Il _____ donc décidé de l'inspecter. _____ lors de ce contrôle qu'il _____ découvert plusieurs objets non déclarés.</div>
+      <textarea class="answer-area" id="e2_hom" 
+        placeholder="Tes réponses dans l'ordre : __, __, __, __, __, __" ${submitted?'disabled':''}
+        onchange="saveAnswer('e2_hom')">${answers?.['e2_hom']||''}</textarea>
+      <div class="correction-zone ${corrected?'show':''}">
+        <div class="correction-label">✅ Correction</div>
+        a — ce — à — a (ont) — C'est — s'est (a)
+      </div>
+
+      <div class="exo-num" style="margin-top:20px">Exercice 3 — Participes passés</div>
+      <div class="exo-consigne">Accorde le participe passé si nécessaire.</div>
+      ${[
+        ["e3_1","1. Les infractions que l'agent a (constater) _____ sont graves."],
+        ["e3_2","2. Elle s'est (tromper) _____ dans ses calculs."],
+        ["e3_3","3. Les marchandises (saisir) _____ ont été (placer) _____ en entrepôt."],
+      ].map(([id,ph]) => `
+        <div class="exo-phrase">${ph}</div>
+        <textarea class="answer-area" id="${id}" rows="1" style="min-height:44px"
+          placeholder="Ta réponse..." ${submitted?'disabled':''}
+          onchange="saveAnswer('${id}')">${answers?.[id]||''}</textarea>
+        <div class="correction-zone ${corrected?'show':''}">
+          <div class="correction-label">✅ Correction</div>
+          ${CORRECTIONS_LUNDI[id]}
+        </div>`).join('')}`,
+
+    qcmAnswers: {}
+  },
+
+  // ─── MERCREDI S1 ─────────────────────────────────────────────
+  mercredi_s1: {
+    cours: `
+      <div class="fiche-section">
+        <div class="fiche-section-title">1. La Ve République</div>
+        <div class="fiche-bullet">Constitution du <strong>4 octobre 1958</strong> — régime <strong>semi-présidentiel</strong>.</div>
+        <div class="fiche-bullet">Devise : <strong>Liberté, Égalité, Fraternité</strong>.</div>
+        <div class="fiche-bullet">Séparation des pouvoirs : <strong>exécutif</strong> (Président + gouvernement), <strong>législatif</strong> (Parlement), <strong>judiciaire</strong> (tribunaux).</div>
+      </div>
+      <div class="fiche-section">
+        <div class="fiche-section-title">2. Le Pouvoir exécutif</div>
+        <table class="fiche-table">
+          <tr><th>Rôle</th><th>Qui</th><th>Mandat</th><th>Pouvoirs principaux</th></tr>
+          <tr><td><strong>Président de la République</strong></td><td>Suffrage universel direct</td><td>5 ans (quinquennat)</td><td>Chef des armées, nomme le PM, préside le Conseil des ministres, droit de dissolution</td></tr>
+          <tr><td><strong>Premier ministre</strong></td><td>Nommé par le Président</td><td>Sans durée fixe</td><td>Dirige le gouvernement, exécute les lois, signe les décrets</td></tr>
+          <tr><td><strong>Ministres</strong></td><td>Nommés sur prop. du PM</td><td>Sans durée fixe</td><td>Dirigent leur ministère, préparent et appliquent les lois</td></tr>
+        </table>
+      </div>
+      <div class="fiche-section">
+        <div class="fiche-section-title">3. Le Pouvoir législatif</div>
+        <table class="fiche-table">
+          <tr><th>Chambre</th><th>Membres</th><th>Élection</th><th>Rôle</th></tr>
+          <tr><td><strong>Assemblée nationale</strong></td><td>577 députés</td><td>Suffrage universel direct — 5 ans</td><td>Vote les lois, peut renverser le gouvernement (motion de censure)</td></tr>
+          <tr><td><strong>Sénat</strong></td><td>348 sénateurs</td><td>Suffrage universel indirect — 6 ans</td><td>Représente les collectivités territoriales, examine les lois</td></tr>
+        </table>
+      </div>
+      <div class="fiche-section">
+        <div class="fiche-section-title">4. Les collectivités territoriales</div>
+        <table class="fiche-table">
+          <tr><th>Niveau</th><th>Nombre</th><th>Dirigeant</th><th>Compétences</th></tr>
+          <tr><td><strong>Commune</strong></td><td>~35 000</td><td>Maire + Conseil municipal</td><td>État civil, urbanisme local, écoles primaires</td></tr>
+          <tr><td><strong>Département</strong></td><td>101</td><td>Président + Conseil départ.</td><td>Action sociale, routes, collèges</td></tr>
+          <tr><td><strong>Région</strong></td><td>18</td><td>Président + Conseil régional</td><td>Formation pro, lycées, économie</td></tr>
+          <tr><td><strong style="color:#fbbf24">Martinique (CTU)</strong></td><td>1</td><td>Président du Conseil exécutif</td><td>Compétences région ET département depuis 2015</td></tr>
+        </table>
+        <div class="note-box">🎯 <strong>Point concours :</strong> La Martinique est une Collectivité Territoriale Unique (CTU) depuis 2015. Elle cumule les compétences du département ET de la région. Retiens-le pour l'oral !</div>
+      </div>`,
+
+    exercices: (submitted, corrected, answers) => `
+      <div class="exo-num">Questions de mémorisation</div>
+      <div class="exo-consigne">Réponds sans regarder le cours.</div>
+      ${[
+        ["m1","1. Quelle est la différence entre le Président de la République et le Premier ministre ?"],
+        ["m2","2. Comment est élu le Sénat ? Pourquoi est-il différent de l'Assemblée nationale ?"],
+        ["m3","3. Qu'est-ce qu'une Collectivité Territoriale Unique ? Donne l'exemple de la Martinique."],
+        ["m4","4. Cite les 3 pouvoirs et leur institution principale."],
+      ].map(([id,q]) => `
+        <div class="exo-phrase">${q}</div>
+        <textarea class="answer-area" id="${id}" style="min-height:70px"
+          placeholder="Ta réponse..." ${submitted?'disabled':''}
+          onchange="saveAnswer('${id}')">${answers?.[id]||''}</textarea>
+        <div class="correction-zone ${corrected?'show':''}">
+          <div class="correction-label">✅ Éléments de réponse</div>
+          ${CORRECTIONS_MERCREDI[id]}
+        </div>`).join('')}`,
+  },
+
+  // ─── JEUDI S1 ─────────────────────────────────────────────────
+  jeudi_s1: {
+    cours: `
+      <div class="fiche-section">
+        <div class="fiche-section-title">Méthode QCM — Conseils</div>
+        <div class="fiche-bullet"><strong>Lis toutes les options</strong> avant de répondre.</div>
+        <div class="fiche-bullet"><strong>Élimine</strong> les réponses clairement fausses.</div>
+        <div class="fiche-bullet"><strong>Ne reste pas bloqué</strong> : passe et reviens.</div>
+        <div class="fiche-bullet">Pour les <strong>séries numériques</strong> : cherche la différence, le ratio, ou la loi de formation.</div>
+        <div class="fiche-bullet">Pour les <strong>analogies</strong> : reformule la relation (A est à B ce que C est à ?).</div>
+        <div class="note-box">⏱️ Objectif : 30 questions en 25 minutes. Lance un chronomètre !</div>
+      </div>`,
+
+    exercices: (submitted, corrected, answers) => {
+      const qcm = [
+        { id:"q1", q:"2 — 5 — 8 — 11 — ?", opts:["A) 13","B) 14","C) 15","D) 12"], ans:"B" },
+        { id:"q2", q:"3 — 6 — 12 — 24 — ?", opts:["A) 36","B) 48","C) 42","D) 30"], ans:"B" },
+        { id:"q3", q:"1 — 4 — 9 — 16 — ?", opts:["A) 20","B) 25","C) 24","D) 36"], ans:"B" },
+        { id:"q4", q:"2 — 3 — 5 — 8 — 13 — ?", opts:["A) 18","B) 20","C) 21","D) 22"], ans:"C" },
+        { id:"q5", q:"7 — 14 — 28 — 56 — ?", opts:["A) 98","B) 112","C) 84","D) 120"], ans:"B" },
+        { id:"q6", q:"Douane : contrôle = Juge : ?", opts:["A) loi","B) jugement","C) tribunal","D) avocat"], ans:"B" },
+        { id:"q7", q:"France : Paris = Martinique : ?", opts:["A) Schoelcher","B) Le Lamentin","C) Fort-de-France","D) Saint-Pierre"], ans:"C" },
+        { id:"q8", q:"Importation : entrer = Exportation : ?", opts:["A) vendre","B) sortir","C) produire","D) fabriquer"], ans:"B" },
+        { id:"q9", q:"Tous les agents portent un badge. Pierre est agent. Conclusion ?", opts:["A) Pierre a un uniforme","B) Pierre porte un badge","C) Pierre est en service","D) On ne sait pas"], ans:"B" },
+        { id:"q10", q:"Sur 20 candidats, 12 ont réussi l'écrit. Combien ont échoué ?", opts:["A) 6","B) 7","C) 8","D) 9"], ans:"C" },
+      ];
+      return `
+        <div class="exo-num">30 QCM chronométrés — ⏱️ Lance le timer !</div>
+        <div class="note-box">🎯 Objectif : 25 min pour répondre, 5 min pour vérifier. Score cible : 20+/30</div>
+        ${qcm.map(item => `
+          <div class="qcm-item">
+            <div class="qcm-question">${item.id.replace('q','Q')}. ${item.q}</div>
+            <div class="qcm-options">
+              ${item.opts.map(o => {
+                const optLetter = o[0];
+                const isSelected = answers?.qcmAnswers?.[item.id] === optLetter;
+                const isCorrectAns = corrected && optLetter === item.ans;
+                const isWrongAns = corrected && isSelected && optLetter !== item.ans;
+                return `<button class="qcm-opt ${isSelected?'selected':''} ${isCorrectAns?'correct-ans':''} ${isWrongAns?'wrong-ans':''} ${submitted?'locked':''}"
+                  data-qid="${item.id}" data-opt="${optLetter}"
+                  onclick="selectQCM('${item.id}','${optLetter}',this)">${o}</button>`;
+              }).join('')}
+            </div>
+          </div>`).join('')}
+        <div style="margin-top:16px">
+          <strong style="font-size:13px">Mon score :</strong>
+          <textarea class="answer-area" id="qcm_score" style="min-height:44px"
+            placeholder="Ex: 8/10 — Erreurs : Q3 (séries), Q7..." ${submitted?'disabled':''}
+            onchange="saveAnswer('qcm_score')">${answers?.['qcm_score']||''}</textarea>
+        </div>`;
+    },
+    qcmAnswers: { q1:"B",q2:"B",q3:"B",q4:"C",q5:"B",q6:"B",q7:"C",q8:"B",q9:"B",q10:"C" }
+  },
+
+  // ─── VENDREDI S1 ──────────────────────────────────────────────
+  vendredi_s1: {
+    cours: `
+      <div class="fiche-section">
+        <div class="fiche-section-title">Méthode — Compréhension de texte</div>
+        <div class="fiche-bullet"><strong>Étape 1 :</strong> Lis le texte entièrement sans t'arrêter.</div>
+        <div class="fiche-bullet"><strong>Étape 2 :</strong> Relis en soulignant les idées clés de chaque paragraphe.</div>
+        <div class="fiche-bullet"><strong>Étape 3 :</strong> Lis les questions AVANT de répondre.</div>
+        <div class="fiche-bullet"><strong>Étape 4 :</strong> Réponds en reformulant — ne recopie pas le texte mot pour mot.</div>
+        <div class="note-box">⚠️ <strong>Pièges à éviter :</strong> réponses trop longues, copier-coller du texte, oublier de justifier.</div>
+      </div>`,
+
+    exercices: (submitted, corrected, answers) => `
+      <div class="exo-num">Texte — Les douanes françaises en outre-mer</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text)">
+        La Direction générale des douanes et droits indirects (DGDDI) exerce en France ultramarine des missions spécifiques, adaptées aux réalités géographiques et économiques de ces territoires. Aux Antilles et en Guyane, les agents des douanes font face à des défis particuliers liés à l'insularité, à la proximité de pays producteurs de stupéfiants et à l'intensité du trafic maritime.
+        <br><br>
+        Dans la région Antilles-Guyane, la lutte contre le trafic de drogue constitue la priorité absolue. La Martinique et la Guadeloupe sont situées sur des routes maritimes empruntées par les trafiquants qui acheminent de la cocaïne depuis l'Amérique du Sud vers l'Europe.
+        <br><br>
+        Les douanes antillaises veillent également au respect des règles fiscales. La Martinique et la Guadeloupe, en tant que régions ultrapériphériques (RUP), appliquent la législation douanière européenne, mais bénéficient d'adaptations fiscales spécifiques, notamment l'octroi de mer, taxe locale perçue sur les marchandises importées.
+        <br><br>
+        Les agents de la branche surveillance sont au cœur de ce dispositif. Leurs missions quotidiennes incluent la surveillance des frontières, le contrôle des voyageurs et des marchandises, et la participation aux opérations de lutte contre la fraude organisée.
+      </div>
+      ${[
+        ["v1","1. Quelle est la mission prioritaire des douanes aux Antilles-Guyane ?"],
+        ["v2","2. Pourquoi la Martinique est-elle particulièrement exposée au trafic de stupéfiants ? (2 raisons)"],
+        ["v3","3. Qu'est-ce que l'octroi de mer ? Expliquez avec vos propres mots."],
+        ["v4","4. Citez les 3 missions quotidiennes d'un agent de surveillance."],
+        ["v5","5. La Martinique applique-t-elle exactement les mêmes règles que la France métropolitaine ? Justifiez."],
+      ].map(([id,q]) => `
+        <div class="exo-phrase">${q}</div>
+        <textarea class="answer-area" id="${id}" style="min-height:70px"
+          placeholder="Ta réponse..." ${submitted?'disabled':''}
+          onchange="saveAnswer('${id}')">${answers?.[id]||''}</textarea>
+        <div class="correction-zone ${corrected?'show':''}">
+          <div class="correction-label">✅ Corrigé type</div>
+          ${CORRECTIONS_VENDREDI[id]}
+        </div>`).join('')}`,
+  },
+
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CORRECTIONS
+// ═══════════════════════════════════════════════════════════════
+const CORRECTIONS_LUNDI = {
+  e1_1: "Les agents des douanes contrôlent les marchandises qui <strong>entrent</strong> sur le territoire. (qui → antécédent pluriel «marchandises»)",
+  e1_2: "Une série de documents <strong>a été vérifiée</strong> par l'inspecteur. (sujet = «série», singulier)",
+  e1_3: "C'est toi qui <strong>es</strong> responsable de cette erreur dans le rapport. (qui → toi → 2e personne)",
+  e1_4: "Ni le chef ni son adjoint n'<strong>était</strong> présent. ✓ Correct — ou <strong>n'étaient</strong> présents (les deux acceptés)",
+  e1_5: "La foule des manifestants s'était <strong>rassemblée</strong> devant le bâtiment. (sujet = «foule», féminin singulier)",
+  e3_1: "Les infractions que l'agent a <strong>constatées</strong> sont graves. (COD «que» = «infractions», féminin pluriel, placé avant)",
+  e3_2: "Elle s'est <strong>trompée</strong> dans ses calculs. (accord avec sujet «elle»)",
+  e3_3: "Les marchandises <strong>saisies</strong> ont été <strong>placées</strong> en entrepôt. (participés adjectifs accordés avec «marchandises»)",
+};
+
+const CORRECTIONS_MERCREDI = {
+  m1: "Le <strong>Président</strong> est élu au suffrage universel direct et est chef de l'État. Le <strong>Premier ministre</strong> est nommé par le Président et dirige le gouvernement au quotidien — il est responsable devant l'Assemblée nationale.",
+  m2: "Le Sénat est élu au <strong>suffrage universel indirect</strong> (par les grands électeurs : élus locaux). Contrairement à l'Assemblée nationale élue directement par les citoyens, il représente les collectivités territoriales.",
+  m3: "Une CTU fusionne les compétences du département ET de la région en une seule collectivité. La <strong>Martinique</strong> est devenue CTU en <strong>2015</strong>, dirigée par un Président du Conseil exécutif et une Assemblée de Martinique.",
+  m4: "<strong>Exécutif :</strong> Président de la République + Gouvernement. <strong>Législatif :</strong> Parlement (Assemblée nationale + Sénat). <strong>Judiciaire :</strong> tribunaux et cours de justice (Conseil d'État, Cour de cassation...).",
+};
+
+const CORRECTIONS_VENDREDI = {
+  v1: "La lutte contre le <strong>trafic de drogue</strong> (stupéfiants / cocaïne) constitue la priorité absolue.",
+  v2: "1) <strong>Situation géographique</strong> sur les routes maritimes empruntées par les trafiquants venant d'Amérique du Sud. 2) <strong>Proximité de pays producteurs</strong> de stupéfiants.",
+  v3: "L'octroi de mer est une <strong>taxe locale perçue sur les marchandises importées</strong> dans les DOM. C'est une fiscalité spécifique différente de la TVA métropolitaine.",
+  v4: "<strong>1)</strong> Surveillance des frontières. <strong>2)</strong> Contrôle des voyageurs et des marchandises. <strong>3)</strong> Participation aux opérations de lutte contre la fraude organisée.",
+  v5: "Non. Bien qu'elle applique la législation douanière <strong>européenne</strong> (en tant que RUP), la Martinique bénéficie d'<strong>adaptations fiscales spécifiques</strong> : TVA particulière et octroi de mer.",
+};
+
+// Fiches génériques pour les autres jours (à développer)
+// ─── MARDI S1 — SPORT ────────────────────────────────────────
+FICHES['mardi_s1'] = {
+  cours: `
+    <div class="fiche-section">
+      <div class="fiche-section-title">🏃 Programme du jour — 55 minutes</div>
+      <div class="note-box">⚠️ <strong>Objectif semaine 1 :</strong> établir ton niveau de base. Pas de performance, juste de la régularité. Note tout pour suivre ta progression.</div>
+    </div>
+    <div class="fiche-section">
+      <div class="fiche-section-title">1. Échauffement — 10 min</div>
+      <div class="fiche-bullet">Marche rapide pendant 3 minutes pour élever la température corporelle.</div>
+      <div class="fiche-bullet">Rotations des chevilles : 10 cercles dans chaque sens.</div>
+      <div class="fiche-bullet">Rotations des genoux : 10 cercles dans chaque sens.</div>
+      <div class="fiche-bullet">Rotations des hanches : 10 cercles dans chaque sens.</div>
+      <div class="fiche-bullet">Rotations des épaules et des bras : 10 répétitions.</div>
+      <div class="fiche-bullet">Talons-fesses et montées de genoux : 20 mètres chacun.</div>
+    </div>
+    <div class="fiche-section">
+      <div class="fiche-section-title">2. Footing — 35 min</div>
+      <div class="fiche-bullet"><strong>Allure :</strong> modérée et régulière. Tu dois pouvoir tenir une conversation sans être essoufflé.</div>
+      <div class="fiche-bullet"><strong>Respiration :</strong> nasale si possible — inspire 3 pas, expire 3 pas.</div>
+      <div class="fiche-bullet"><strong>Posture :</strong> buste droit, regard vers l'horizon, bras à 90° qui balancent naturellement.</div>
+      <div class="fiche-bullet"><strong>Si tu ne peux pas courir 35 min :</strong> alterne 5 min course / 2 min marche jusqu'à atteindre 35 min au total.</div>
+      <div class="note-box">📍 <strong>Conseil Martinique :</strong> évite de courir entre 11h et 15h. Préfère tôt le matin ou en fin de journée. Hydrate-toi avant, pendant et après.</div>
+    </div>
+    <div class="fiche-section">
+      <div class="fiche-section-title">3. Gainage — 20 min (4 séries)</div>
+      <table class="fiche-table">
+        <tr><th>Exercice</th><th>Durée</th><th>Consigne</th></tr>
+        <tr><td><strong>Planche frontale</strong></td><td>45 secondes</td><td>Appui sur avant-bras et orteils. Corps aligné tête-talons. Ne creuse pas le dos.</td></tr>
+        <tr><td><strong>Planche latérale droite</strong></td><td>30 secondes</td><td>Appui sur l'avant-bras droit. Hanches levées, corps en ligne droite.</td></tr>
+        <tr><td><strong>Planche latérale gauche</strong></td><td>30 secondes</td><td>Même exercice côté gauche.</td></tr>
+        <tr><td><strong>Gainage dorsal</strong></td><td>30 secondes</td><td>Sur le dos, pieds à plat, hanches levées. Corps aligné épaules-genoux.</td></tr>
+        <tr><td><strong>Repos entre séries</strong></td><td>30 secondes</td><td>Respiration calme, récupération active.</td></tr>
+      </table>
+      <div class="note-box">🔁 Répète ce circuit <strong>4 fois</strong>. Si c'est trop difficile en semaine 1, fais 2 ou 3 séries et augmente progressivement.</div>
+    </div>
+    <div class="fiche-section">
+      <div class="fiche-section-title">4. Retour au calme — 5 min</div>
+      <div class="fiche-bullet"><strong>Mollets :</strong> appuie le pied contre un mur, genou tendu — 30 secondes par jambe.</div>
+      <div class="fiche-bullet"><strong>Ischio-jambiers :</strong> assis jambe tendue, penche-toi vers l'avant — 30 secondes par jambe.</div>
+      <div class="fiche-bullet"><strong>Quadriceps :</strong> debout, tire ton pied vers la fesse — 30 secondes par jambe.</div>
+      <div class="fiche-bullet"><strong>Dos :</strong> allongé sur le dos, ramène les genoux sur la poitrine — 30 secondes.</div>
+    </div>`,
+
+  exercices: (submitted, corrected, answers) => `
+    <div class="exo-num">📋 Fiche de suivi — Mardi 9 juin 2026</div>
+    <div class="note-box">Remplis cette fiche après ta séance. Elle te permettra de suivre ta progression semaine après semaine.</div>
+
+    <div class="fiche-section" style="margin-top:16px">
+      <div class="fiche-section-title">Bilan Footing</div>
+      <table class="fiche-table">
+        <tr><th>Indicateur</th><th>Objectif</th><th>Réalisé</th></tr>
+        <tr>
+          <td>Durée totale</td><td>35 min</td>
+          <td><textarea class="answer-area" id="sp_duree" style="min-height:36px" placeholder="Ex: 32 min" ${submitted?'disabled':''} onchange="saveAnswer('sp_duree')">${answers?.['sp_duree']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Distance estimée</td><td>— km</td>
+          <td><textarea class="answer-area" id="sp_dist" style="min-height:36px" placeholder="Ex: 4,5 km" ${submitted?'disabled':''} onchange="saveAnswer('sp_dist')">${answers?.['sp_dist']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Ressenti effort (1-10)</td><td>5-6 / 10</td>
+          <td><textarea class="answer-area" id="sp_effort" style="min-height:36px" placeholder="Ex: 6/10" ${submitted?'disabled':''} onchange="saveAnswer('sp_effort')">${answers?.['sp_effort']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Fréquence cardiaque fin</td><td>—</td>
+          <td><textarea class="answer-area" id="sp_fc" style="min-height:36px" placeholder="Ex: 155 bpm" ${submitted?'disabled':''} onchange="saveAnswer('sp_fc')">${answers?.['sp_fc']||''}</textarea></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="fiche-section">
+      <div class="fiche-section-title">Bilan Gainage</div>
+      <table class="fiche-table">
+        <tr><th>Exercice</th><th>Objectif</th><th>Réalisé</th></tr>
+        <tr>
+          <td>Nombre de séries complètes</td><td>4 séries</td>
+          <td><textarea class="answer-area" id="sp_series" style="min-height:36px" placeholder="Ex: 3 séries" ${submitted?'disabled':''} onchange="saveAnswer('sp_series')">${answers?.['sp_series']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Planche frontale tenue</td><td>45 sec</td>
+          <td><textarea class="answer-area" id="sp_planche" style="min-height:36px" placeholder="Ex: 40 sec" ${submitted?'disabled':''} onchange="saveAnswer('sp_planche')">${answers?.['sp_planche']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Point(s) difficile(s)</td><td>—</td>
+          <td><textarea class="answer-area" id="sp_diff" style="min-height:36px" placeholder="Ex: planche latérale gauche" ${submitted?'disabled':''} onchange="saveAnswer('sp_diff')">${answers?.['sp_diff']||''}</textarea></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="fiche-section">
+      <div class="fiche-section-title">Observations générales</div>
+      <textarea class="answer-area" id="sp_obs" style="min-height:90px"
+        placeholder="Douleurs ressenties, météo, heure de la séance, moral, points à améliorer..."
+        ${submitted?'disabled':''} onchange="saveAnswer('sp_obs')">${answers?.['sp_obs']||''}</textarea>
+      ${corrected ? `<div class="correction-zone show"><div class="correction-label">✅ Feedback correcteur</div>${answers?.['sp_feedback']||'Aucun commentaire du correcteur.'}</div>` : ''}
+    </div>`,
+  qcmAnswers: {}
+};
+
+// ─── SAMEDI S1 — BILAN + SPORT ───────────────────────────────
+FICHES['samedi_s1'] = {
+  cours: `
+    <div class="fiche-section">
+      <div class="fiche-section-title">🏃 Sortie sportive libre — 45 min</div>
+      <div class="note-box">Le samedi c'est récupération active. Pas d'intensité — l'objectif est de bouger sans se fatiguer et de clore la semaine positivement.</div>
+      <div class="fiche-bullet"><strong>Activité au choix :</strong> footing léger, marche rapide, natation, vélo, randonnée.</div>
+      <div class="fiche-bullet"><strong>Intensité :</strong> très modérée. Effort ressenti : 3-4/10 maximum.</div>
+      <div class="fiche-bullet"><strong>Durée :</strong> 45 minutes minimum.</div>
+      <div class="fiche-bullet"><strong>Étirements obligatoires</strong> après l'effort : 5 minutes minimum.</div>
+      <div class="note-box">💆 Profite de cette sortie pour te vider la tête. La récupération mentale est aussi importante que la récupération physique.</div>
+    </div>
+    <div class="fiche-section">
+      <div class="fiche-section-title">📊 Bilan de la semaine 1</div>
+      <p class="fiche-text">Le samedi est aussi le moment de faire le point sur ta semaine. Utilise l'onglet Exercices pour remplir ton bilan complet.</p>
+    </div>`,
+
+  exercices: (submitted, corrected, answers) => `
+    <div class="exo-num">📋 Bilan semaine 1 — 8 au 13 juin 2026</div>
+
+    <div class="fiche-section" style="margin-top:12px">
+      <div class="fiche-section-title">Suivi des séances</div>
+      <table class="fiche-table">
+        <tr><th>Jour</th><th>Activité</th><th>Fait ?</th><th>Note /10</th></tr>
+        <tr>
+          <td>Lundi 08/06</td><td>Grammaire & orthographe</td>
+          <td><textarea class="answer-area" id="b_lun_ok" style="min-height:34px" placeholder="Oui / Non" ${submitted?'disabled':''} onchange="saveAnswer('b_lun_ok')">${answers?.['b_lun_ok']||''}</textarea></td>
+          <td><textarea class="answer-area" id="b_lun_note" style="min-height:34px" placeholder="/10" ${submitted?'disabled':''} onchange="saveAnswer('b_lun_note')">${answers?.['b_lun_note']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Mardi 09/06</td><td>Footing + Gainage</td>
+          <td><textarea class="answer-area" id="b_mar_ok" style="min-height:34px" placeholder="Oui / Non" ${submitted?'disabled':''} onchange="saveAnswer('b_mar_ok')">${answers?.['b_mar_ok']||''}</textarea></td>
+          <td><textarea class="answer-area" id="b_mar_note" style="min-height:34px" placeholder="/10" ${submitted?'disabled':''} onchange="saveAnswer('b_mar_note')">${answers?.['b_mar_note']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Mercredi 10/06</td><td>Institutions françaises</td>
+          <td><textarea class="answer-area" id="b_mer_ok" style="min-height:34px" placeholder="Oui / Non" ${submitted?'disabled':''} onchange="saveAnswer('b_mer_ok')">${answers?.['b_mer_ok']||''}</textarea></td>
+          <td><textarea class="answer-area" id="b_mer_note" style="min-height:34px" placeholder="/10" ${submitted?'disabled':''} onchange="saveAnswer('b_mer_note')">${answers?.['b_mer_note']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Jeudi 11/06</td><td>30 QCM logique</td>
+          <td><textarea class="answer-area" id="b_jeu_ok" style="min-height:34px" placeholder="Oui / Non" ${submitted?'disabled':''} onchange="saveAnswer('b_jeu_ok')">${answers?.['b_jeu_ok']||''}</textarea></td>
+          <td><textarea class="answer-area" id="b_jeu_note" style="min-height:34px" placeholder="/10" ${submitted?'disabled':''} onchange="saveAnswer('b_jeu_note')">${answers?.['b_jeu_note']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Vendredi 12/06</td><td>Compréhension de texte</td>
+          <td><textarea class="answer-area" id="b_ven_ok" style="min-height:34px" placeholder="Oui / Non" ${submitted?'disabled':''} onchange="saveAnswer('b_ven_ok')">${answers?.['b_ven_ok']||''}</textarea></td>
+          <td><textarea class="answer-area" id="b_ven_note" style="min-height:34px" placeholder="/10" ${submitted?'disabled':''} onchange="saveAnswer('b_ven_note')">${answers?.['b_ven_note']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td>Samedi 13/06</td><td>Sortie 45 min</td>
+          <td><textarea class="answer-area" id="b_sam_ok" style="min-height:34px" placeholder="Oui / Non" ${submitted?'disabled':''} onchange="saveAnswer('b_sam_ok')">${answers?.['b_sam_ok']||''}</textarea></td>
+          <td><textarea class="answer-area" id="b_sam_note" style="min-height:34px" placeholder="/10" ${submitted?'disabled':''} onchange="saveAnswer('b_sam_note')">${answers?.['b_sam_note']||''}</textarea></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="fiche-section">
+      <div class="fiche-section-title">Réflexion personnelle</div>
+      ${[
+        ['b_facile', 'Ce que j\'ai trouvé facile cette semaine :'],
+        ['b_diff', 'Ce que j\'ai trouvé difficile :'],
+        ['b_retravailler', 'Ce que je dois retravailler la semaine prochaine :'],
+        ['b_motiv', 'Mon niveau de motivation (1-10) et pourquoi :'],
+      ].map(([id, label]) => `
+        <p class="fiche-text"><strong>${label}</strong></p>
+        <textarea class="answer-area" id="${id}" style="min-height:60px"
+          placeholder="Ta réponse..." ${submitted?'disabled':''} onchange="saveAnswer('${id}')">${answers?.[id]||''}</textarea>
+      `).join('')}
+    </div>
+
+    <div class="fiche-section">
+      <div class="fiche-section-title">Sortie sportive du samedi</div>
+      <table class="fiche-table">
+        <tr>
+          <td><strong>Activité choisie</strong></td>
+          <td><textarea class="answer-area" id="b_sport_act" style="min-height:34px" placeholder="Ex: Footing, natation, vélo..." ${submitted?'disabled':''} onchange="saveAnswer('b_sport_act')">${answers?.['b_sport_act']||''}</textarea></td>
+        </tr>
+        <tr>
+          <td><strong>Durée réelle</strong></td>
+          <td><textarea class="answer-area" id="b_sport_dur" style="min-height:34px" placeholder="Ex: 50 min" ${submitted?'disabled':''} onchange="saveAnswer('b_sport_dur')">${answers?.['b_sport_dur']||''}</textarea></td>
+        </tr>
+      </table>
+    </div>
+
+    ${corrected ? `
+    <div class="fiche-section">
+      <div class="fiche-section-title" style="border-left-color:var(--green)">✅ Retour du correcteur</div>
+      <div class="correction-zone show">
+        <div class="correction-label">Commentaires</div>
+        ${answers?.['b_feedback'] || 'Bonne semaine ! Continue sur cette lancée pour la semaine 2.'}
+      </div>
+    </div>` : ''}`,
+  qcmAnswers: {}
+};
+[2,3,4,5].forEach(pn => {
+  PHASES.find(p=>p.num===pn).jours.forEach(j => {
+    const k = `${j.nom.toLowerCase().replace(/[^a-z]/g,'_')}_s${pn}`;
+    if (!FICHES[k]) {
+      FICHES[k] = {
+        cours: `<div class="fiche-section"><div class="fiche-section-title">${j.tags.map(t=>t.l).join(' + ')}</div><p class="fiche-text" style="color:var(--text-muted)">Fiche Phase ${pn} — ${j.nom}<br><br>Cette fiche sera disponible lors de la génération de la semaine correspondante.</p></div>`,
+        exercices: (s,c,a) => `<div class="exo-num">Exercices</div><p class="fiche-text" style="color:var(--text-muted)">Exercices à venir.</p>`
+      };
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// NOTIFICATION BANNER
+// ═══════════════════════════════════════════════════════════════
+function showNotificationBanner(msg) {
+  const b = document.createElement('div');
+  b.style.cssText = `
+    position:fixed;top:16px;left:50%;transform:translateX(-50%);
+    background:#1e2335;border:1px solid #34d399;border-radius:10px;
+    padding:12px 20px;font-size:13px;color:#e8eaf0;z-index:9999;
+    box-shadow:0 4px 24px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;
+  `;
+  b.innerHTML = msg;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 5000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+loadState();
+</script>
+</body>
+</html>
+<script>
+// ─── ILLUSTRATIONS SVG GAINAGE ────────────────────────────────
+// Injectées dans la fiche sport mardi_s1 après le DOM ready
+
+const SVG_GAINAGE = {
+  planche_frontale: `<svg width="100%" viewBox="0 0 340 120" role="img" style="max-width:340px;display:block;margin:8px auto">
+    <title>Planche frontale</title>
+    <desc>Silhouette en position de planche frontale, appui sur avant-bras et orteils, corps aligné</desc>
+    <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <!-- Sol -->
+    <line x1="20" y1="95" x2="320" y2="95" stroke="#4f8ef7" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+    <!-- Corps aligné - ligne de référence -->
+    <line x1="60" y1="58" x2="295" y2="78" stroke="#34d399" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+    <!-- Jambes -->
+    <line x1="270" y1="78" x2="295" y2="93" stroke="#e8eaf0" stroke-width="7" stroke-linecap="round"/>
+    <line x1="250" y1="76" x2="275" y2="93" stroke="#e8eaf0" stroke-width="7" stroke-linecap="round"/>
+    <!-- Pieds / orteils -->
+    <ellipse cx="296" cy="93" rx="6" ry="4" fill="#4f8ef7" opacity="0.8"/>
+    <ellipse cx="276" cy="93" rx="6" ry="4" fill="#4f8ef7" opacity="0.6"/>
+    <!-- Bassin -->
+    <ellipse cx="230" cy="72" rx="20" ry="10" fill="#2a2f45" stroke="#7b82a0" stroke-width="1"/>
+    <!-- Torse -->
+    <rect x="130" y="54" width="95" height="22" rx="10" fill="#2a2f45" stroke="#7b82a0" stroke-width="1"/>
+    <!-- Avant-bras droit -->
+    <line x1="130" y1="65" x2="80" y2="90" stroke="#e8eaf0" stroke-width="7" stroke-linecap="round"/>
+    <!-- Avant-bras gauche -->
+    <line x1="155" y1="65" x2="105" y2="90" stroke="#e8eaf0" stroke-width="7" stroke-linecap="round"/>
+    <!-- Coudes -->
+    <ellipse cx="80" cy="90" rx="6" ry="5" fill="#4f8ef7" opacity="0.9"/>
+    <ellipse cx="105" cy="90" rx="6" ry="5" fill="#4f8ef7" opacity="0.7"/>
+    <!-- Tête -->
+    <circle cx="60" cy="52" r="14" fill="#2a2f45" stroke="#7b82a0" stroke-width="1"/>
+    <!-- Flèche alignement -->
+    <text font-size="10" fill="#34d399" x="155" y="48" font-family="DM Sans,sans-serif" opacity="0.9">Corps aligné ✓</text>
+    <!-- Labels -->
+    <text font-size="9" fill="#7b82a0" x="62" y="110" font-family="DM Sans,sans-serif">Appui avant-bras</text>
+    <text font-size="9" fill="#7b82a0" x="265" y="110" font-family="DM Sans,sans-serif">Orteils</text>
+  </svg>`,
+
+  planche_laterale: `<svg width="100%" viewBox="0 0 340 130" role="img" style="max-width:340px;display:block;margin:8px auto">
+    <title>Planche latérale</title>
+    <desc>Silhouette en position de planche latérale, appui sur un avant-bras, hanches levées, vue de face</desc>
+    <!-- Sol -->
+    <line x1="20" y1="100" x2="320" y2="100" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+    <!-- Pied au sol -->
+    <ellipse cx="280" cy="100" rx="18" ry="5" fill="#a78bfa" opacity="0.7"/>
+    <!-- Jambes empilées -->
+    <line x1="215" y1="72" x2="280" y2="98" stroke="#e8eaf0" stroke-width="10" stroke-linecap="round"/>
+    <!-- Bassin -->
+    <ellipse cx="200" cy="68" rx="18" ry="11" fill="#2a2f45" stroke="#7b82a0" stroke-width="1"/>
+    <!-- Torse -->
+    <line x1="200" y1="60" x2="130" y2="45" stroke="#e8eaf0" stroke-width="14" stroke-linecap="round"/>
+    <!-- Bras libre levé -->
+    <line x1="160" y1="50" x2="160" y2="20" stroke="#e8eaf0" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="160" cy="18" rx="5" ry="5" fill="#a78bfa" opacity="0.8"/>
+    <!-- Avant-bras appui -->
+    <line x1="130" y1="45" x2="70" y2="98" stroke="#e8eaf0" stroke-width="7" stroke-linecap="round"/>
+    <!-- Coude au sol -->
+    <ellipse cx="70" cy="98" rx="10" ry="6" fill="#a78bfa" opacity="0.9"/>
+    <!-- Tête -->
+    <circle cx="115" cy="35" r="13" fill="#2a2f45" stroke="#7b82a0" stroke-width="1"/>
+    <!-- Ligne hanches levées -->
+    <line x1="200" y1="68" x2="200" y2="98" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,2" opacity="0.7" marker-end="url(#a2)"/>
+    <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <text font-size="9" fill="#fbbf24" x="206" y="85" font-family="DM Sans,sans-serif">Hanches levées</text>
+    <text font-size="9" fill="#7b82a0" x="45" y="118" font-family="DM Sans,sans-serif">Appui avant-bras</text>
+    <text font-size="9" fill="#7b82a0" x="246" y="118" font-family="DM Sans,sans-serif">Pieds empilés</text>
+  </svg>`,
+
+  gainage_dorsal: `<svg width="100%" viewBox="0 0 340 130" role="img" style="max-width:340px;display:block;margin:8px auto">
+    <title>Gainage dorsal</title>
+    <desc>Silhouette en position de pont fessier, allongé sur le dos, hanches levées, pieds à plat</desc>
+    <!-- Sol -->
+    <line x1="20" y1="105" x2="320" y2="105" stroke="#34d399" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+    <!-- Pieds à plat -->
+    <rect x="255" y="88" width="28" height="16" rx="4" fill="#34d399" opacity="0.7"/>
+    <rect x="215" y="88" width="28" height="16" rx="4" fill="#34d399" opacity="0.5"/>
+    <!-- Tibias -->
+    <line x1="269" y1="88" x2="245" y2="65" stroke="#e8eaf0" stroke-width="8" stroke-linecap="round"/>
+    <line x1="229" y1="88" x2="225" y2="65" stroke="#e8eaf0" stroke-width="8" stroke-linecap="round"/>
+    <!-- Cuisses -->
+    <line x1="245" y1="65" x2="200" y2="55" stroke="#e8eaf0" stroke-width="11" stroke-linecap="round"/>
+    <!-- Bassin levé -->
+    <ellipse cx="190" cy="50" rx="22" ry="13" fill="#2a2f45" stroke="#34d399" stroke-width="1.5"/>
+    <!-- Dos -->
+    <line x1="175" y1="58" x2="100" y2="90" stroke="#e8eaf0" stroke-width="14" stroke-linecap="round"/>
+    <!-- Épaules -->
+    <ellipse cx="100" cy="90" rx="20" ry="9" fill="#2a2f45" stroke="#7b82a0" stroke-width="1"/>
+    <!-- Bras au sol -->
+    <line x1="92" y1="92" x2="60" y2="102" stroke="#e8eaf0" stroke-width="6" stroke-linecap="round"/>
+    <line x1="108" y1="92" x2="80" y2="102" stroke="#e8eaf0" stroke-width="6" stroke-linecap="round"/>
+    <!-- Tête (au sol) -->
+    <circle cx="68" cy="90" r="13" fill="#2a2f45" stroke="#7b82a0" stroke-width="1"/>
+    <!-- Flèche hanches -->
+    <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <line x1="190" y1="50" x2="190" y2="102" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,2" opacity="0.7" marker-end="url(#a3)"/>
+    <!-- Ligne alignement épaules-genoux -->
+    <line x1="100" y1="90" x2="240" y2="65" stroke="#34d399" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+    <text font-size="9" fill="#fbbf24" x="196" y="78" font-family="DM Sans,sans-serif">Hanches levées</text>
+    <text font-size="9" fill="#34d399" x="130" y="50" font-family="DM Sans,sans-serif">Alignement épaules-genoux</text>
+    <text font-size="9" fill="#7b82a0" x="220" y="120" font-family="DM Sans,sans-serif">Pieds à plat</text>
+  </svg>`
+};
+
+// Injecter les SVG dans la fiche mardi après ouverture du modal
+const _origOpenFiche = openFiche;
+openFiche = function(phaseNum, jourNom) {
+  _origOpenFiche(phaseNum, jourNom);
+  if (phaseNum === 1 && jourNom === 'Mardi') {
+    setTimeout(injectSVGGainage, 50);
+  }
+};
+
+function injectSVGGainage() {
+  const table = document.querySelector('#modal-body .fiche-table');
+  if (!table) return;
+  const rows = table.querySelectorAll('tr');
+  const svgMap = {
+    0: null,
+    1: SVG_GAINAGE.planche_frontale,
+    2: SVG_GAINAGE.planche_laterale,
+    3: SVG_GAINAGE.planche_laterale, // latérale gauche = même position miroir
+    4: SVG_GAINAGE.gainage_dorsal,
+    5: null
+  };
+  rows.forEach((row, i) => {
+    if (svgMap[i]) {
+      const td = row.querySelector('td:last-child');
+      if (td) {
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'margin-top:6px';
+        wrapper.innerHTML = svgMap[i];
+        td.appendChild(wrapper);
+      }
+    }
+  });
+}
+</script>
