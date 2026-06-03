@@ -1112,11 +1112,54 @@ function renderPhaseProgress(phaseNum) {
 // ═══════════════════════════════════════════════════════════════
 let currentFiche = null;
 
-function openFiche(phaseNum, jourNom) {
+function showSemainePicker(phaseNum, jourNom) {
+  const phase = PHASES.find(p => p.num === phaseNum);
+  const c = phase.color;
+  const jourIdx = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'].indexOf(jourNom);
+  const dates = {
+    1: ['08/06','09/06','10/06','11/06','12/06','13/06'],
+    2: ['15/06','16/06','17/06','18/06','19/06','20/06'],
+    3: ['22/06','23/06','24/06','25/06','26/06','27/06'],
+    4: ['29/06','30/06','01/07','02/07','03/07','04/07'],
+  };
+  const matieres = [
+    ['Grammaire & orthographe','Sport','Institutions françaises','Logique QCM','Compréhension texte','Bilan'],
+    ['Résumé de texte','Sport fractionné','Missions des douanes','Matrices & syllogismes','Expression écrite','Sortie + Presse'],
+    ['Accords adjectifs & Majuscules','Circuit complet','Histoire de France','Logique déductions','Compréhension texte','Bilan'],
+    ['Test blanc français','Simulation épreuves','Droit et libertés','Test blanc logique','Expression écrite','Bilan Phase 1'],
+  ];
+  const jour = phase.jours.find(j => j.nom === jourNom);
+  document.getElementById('modal-badge').style.background = c.bg;
+  document.getElementById('modal-badge').style.border = '1px solid ' + c.border;
+  document.getElementById('modal-badge').style.color = c.text;
+  document.getElementById('modal-badge').innerHTML = '<span style="font-family:Syne;font-weight:800;font-size:10px;text-align:center">' + jourNom + '<br><span style="font-weight:400;font-size:9px">P' + phaseNum + '</span></span>';
+  document.getElementById('modal-title').textContent = jourNom + ' — Phase ' + phaseNum;
+  document.getElementById('modal-subtitle').textContent = 'Choisissez la semaine';
+  document.getElementById('modal-tabs').innerHTML = '';
+  document.getElementById('modal-body').innerHTML = '<div style="padding:8px 0"><p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Quelle semaine souhaitez-vous ouvrir ?</p>' +
+    [1,2,3,4].map(function(s) {
+      var js = getJourState(phaseNum, jourNom);
+      var done = js.checks && js.checks['s'+s];
+      var date = jourIdx >= 0 ? dates[s][jourIdx] : '';
+      var mat = jourIdx >= 0 ? matieres[s-1][jourIdx] : '';
+      return '<div onclick="openFiche(' + phaseNum + ','' + jourNom + '',' + s + ')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border-radius:10px;cursor:pointer;background:var(--surface2);border:1px solid ' + (done ? 'var(--green)' : 'var(--border)') + '"><div><div style="font-family:Syne;font-weight:700;font-size:14px;color:var(--text)">Semaine ' + s + '</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + date + ' — ' + mat + '</div></div><div style="font-size:18px">' + (done ? '✅' : '→') + '</div></div>';
+    }).join('') + '</div>';
+  document.getElementById('modal-actions').innerHTML = '<button class="btn btn-outline" onclick="closeModal()">Fermer</button>';
+  document.getElementById('status-text').textContent = 'Choisissez une semaine';
+  document.getElementById('status-dot').className = 'status-dot';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openFiche(phaseNum, jourNom, semNum) {
+  // Pour Phase 1, afficher le sélecteur de semaine si pas de semaine précisée
+  if (phaseNum === 1 && !semNum) {
+    showSemainePicker(phaseNum, jourNom);
+    return;
+  }
   const phase = PHASES.find(p => p.num === phaseNum);
   const jour = phase.jours.find(j => j.nom === jourNom);
   const c = phase.color;
-  currentFiche = { phaseNum, jourNom, phase, jour };
+  currentFiche = { phaseNum, jourNom, phase, jour, semNum: semNum || null };
 
   document.getElementById('modal-badge').style.background = c.bg;
   document.getElementById('modal-badge').style.border = `1px solid ${c.border}`;
@@ -1143,8 +1186,11 @@ document.getElementById('modal-overlay').addEventListener('click', function(e) {
 
 function renderModalTabs(phaseNum, jourNom) {
   const tabs = document.getElementById('modal-tabs');
-  const hasCours = FICHES[`${jourNom.toLowerCase()}_s${phaseNum}`]?.cours;
-  const hasExo = FICHES[`${jourNom.toLowerCase()}_s${phaseNum}`]?.exercices;
+  const tabKey = currentFiche && currentFiche.semNum
+    ? jourNom.toLowerCase() + '_p' + phaseNum + '_s' + currentFiche.semNum
+    : jourNom.toLowerCase() + '_s' + phaseNum;
+  const hasCours = FICHES[tabKey]?.cours;
+  const hasExo = FICHES[tabKey]?.exercices;
   tabs.innerHTML = '';
   if (hasCours) tabs.innerHTML += `<button class="modal-tab active" onclick="renderModalTab('cours',this)">📖 Cours</button>`;
   if (hasExo) tabs.innerHTML += `<button class="modal-tab" onclick="renderModalTab('exercices',this)">✏️ Exercices</button>`;
@@ -1157,8 +1203,10 @@ function renderModalTab(tab, btn) {
     btn.classList.add('active');
   }
   const { phaseNum, jourNom } = currentFiche;
-  const key = `${jourNom.toLowerCase()}_s${phaseNum}`;
-  const fiche = FICHES[key];
+  const semKey = currentFiche && currentFiche.semNum
+    ? jourNom.toLowerCase() + '_p' + phaseNum + '_s' + currentFiche.semNum
+    : jourNom.toLowerCase() + '_s' + phaseNum;
+  const fiche = FICHES[semKey];
   const js = getJourState(phaseNum, jourNom);
   const body = document.getElementById('modal-body');
 
@@ -1237,7 +1285,6 @@ function selectQCM(qid, opt, btn) {
 function submitWork() {
   if (!currentFiche) return;
   const js = getJourState(currentFiche.phaseNum, currentFiche.jourNom);
-  // Sauvegarder toutes les textareas
   document.querySelectorAll('.answer-area').forEach(el => {
     if (el.id) {
       if (!js.answers) js.answers = {};
@@ -1245,14 +1292,23 @@ function submitWork() {
     }
   });
   js.submitted = true;
+  // ✅ COCHAGE AUTOMATIQUE de toutes les semaines de ce jour
+  const phase = PHASES.find(p => p.num === currentFiche.phaseNum);
+  if (phase && phase.semaines) {
+    for (let s = 1; s <= phase.semaines; s++) {
+      js.checks['s' + s] = true;
+    }
+  } else {
+    js.checks['s1'] = true;
+  }
   saveState();
   updateModalStatus();
   updateModalActions();
-  // Désactiver les textareas
   document.querySelectorAll('.answer-area').forEach(el => el.disabled = true);
   document.querySelectorAll('.qcm-opt').forEach(el => el.classList.add('locked'));
-  showToast('📋 Travail soumis ! En attente de correction.');
+  showToast('📋 Travail soumis ! Cases cochées automatiquement ✅');
   renderPlanning();
+  computeStats();
 }
 
 function requestCorrection() {
@@ -2143,6 +2199,480 @@ FICHES['samedi_s2'] = {
       <textarea class="answer-area" id="s2_article_note" style="min-height:80px"
         placeholder="Résume en 2-3 phrases..." ${submitted?'disabled':''} onchange="saveAnswer('s2_article_note')">${answers?.['s2_article_note']||''}</textarea>
     </div>`,
+  qcmAnswers: {}
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// FICHES PHASE 1 — SEMAINE 3
+// ══════════════════════════════════════════════════════════════
+FICHES['lundi_p1_s3'] = {
+  cours: `
+    <div class="fiche-section"><div class="fiche-section-title">1. Accord de l'adjectif qualificatif</div>
+      <p class="fiche-text"><strong>Règle :</strong> l'adjectif s'accorde en genre et en nombre avec le nom.</p>
+      <table class="fiche-table">
+        <tr><th></th><th>Singulier</th><th>Pluriel</th></tr>
+        <tr><td><strong>Masculin</strong></td><td>un agent compétent</td><td>des agents compétents</td></tr>
+        <tr><td><strong>Féminin</strong></td><td>une agente compétente</td><td>des agentes compétentes</td></tr>
+      </table>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">2. Formation du féminin</div>
+      <table class="fiche-table">
+        <tr><th>Terminaison</th><th>Transformation</th><th>Exemples</th></tr>
+        <tr><td>-er</td><td>-ère</td><td>léger → légère</td></tr>
+        <tr><td>-eux</td><td>-euse</td><td>heureux → heureuse</td></tr>
+        <tr><td>-f</td><td>-ve</td><td>actif → active</td></tr>
+        <tr><td>-el, -eil</td><td>-elle, -eille</td><td>cruel → cruelle</td></tr>
+        <tr><td>Doublement consonne</td><td>+e</td><td>gros → grosse / bon → bonne</td></tr>
+      </table>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">3. Adjectifs de couleur</div>
+      <div class="fiche-bullet"><strong>Accord normal :</strong> des uniformes <em>bleus</em></div>
+      <div class="fiche-bullet"><strong>Invariables — composés :</strong> des tenues <em>bleu marine</em>, <em>gris foncé</em></div>
+      <div class="fiche-bullet"><strong>Invariables — noms :</strong> des robes <em>marron</em>, <em>kaki</em>, <em>bordeaux</em></div>
+      <div class="note-box">💡 Si la couleur vient d'un NOM → INVARIABLE.</div>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">4. Les majuscules</div>
+      <table class="fiche-table">
+        <tr><th>Règle</th><th>Exemples</th></tr>
+        <tr><td><strong>Début de phrase</strong></td><td>La douane surveille...</td></tr>
+        <tr><td><strong>Noms propres / villes</strong></td><td>Fort-de-France, Martinique</td></tr>
+        <tr><td><strong>Institutions complètes</strong></td><td>Direction générale des douanes</td></tr>
+        <tr><td><strong>Sigles</strong></td><td>DGDDI, PAF, TVA</td></tr>
+        <tr><td><strong style="color:var(--red)">PAS maj. adj. nationalité</strong></td><td>un agent <em>français</em></td></tr>
+        <tr><td><strong style="color:var(--red)">PAS maj. titres seuls</strong></td><td>le président a dit...</td></tr>
+      </table>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">5. Adjectifs invariables à retenir</div>
+      <div class="fiche-bullet">chic, snob, kitch → toujours invariables</div>
+      <div class="fiche-bullet">demi (avant nom) : une <em>demi</em>-heure (trait d'union)</div>
+      <div class="fiche-bullet">nu (avant nom) : <em>nu</em>-pieds (trait d'union)</div>
+      <div class="note-box">💡 Règle d'or : MAJUSCULE = nom propre (la Martinique = île précise). Titre officiel complet = majuscule.</div>
+    </div>`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">Exercice 1 — Accord des adjectifs</div>
+    <div class="exo-consigne">Accorde les adjectifs entre parenthèses.</div>
+    \${[['a1','1. Les tenues (bleu marine) des agents sont (impeccable).'],
+       ['a2','2. Des voitures (gris) et des motos (rouge vif) ont été saisies.'],
+       ['a3','3. La brigade (maritime) est (actif) sur toute la zone (côtier).'],
+       ['a4','4. Les agents (compétent) ont effectué des contrôles (approfondi) et (minutieux).'],
+       ['a5','5. Des tenues (kaki) et des uniformes (bleu ciel) étaient stockés dans l\'entrepôt.'],
+    ].map(([id,ph]) => \`
+      <div class="exo-phrase">\${ph}</div>
+      <textarea class="answer-area" id="\${id}" style="min-height:44px"
+        \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+      <div class="correction-zone \${corrected?'show':''}">
+        <div class="correction-label">✅ Correction</div>
+        \${{a1:'Les tenues bleu marine (invariable) sont impeccables.',
+           a2:'Des voitures grises et des motos rouge vif (invariable) ont été saisies.',
+           a3:'La brigade maritime est active sur toute la zone côtière.',
+           a4:'Les agents compétents ont effectué des contrôles approfondis et minutieux.',
+           a5:'Des tenues kaki (invariable) et des uniformes bleu ciel (invariable).'}[id]}
+      </div>\`).join('')}
+    <div class="exo-num" style="margin-top:16px">Exercice 2 — Majuscules</div>
+    <div class="exo-consigne">Corrige les majuscules manquantes ou incorrectes.</div>
+    \${[['b1','1. le président de la république a reçu le premier Ministre à l\'élysée.'],
+       ['b2','2. la direction générale des douanes est basée à paris.'],
+       ['b3','3. L\'agent Français en poste à la martinique travaille pour la dgddi.'],
+    ].map(([id,ph]) => \`
+      <div class="exo-phrase">\${ph}</div>
+      <textarea class="answer-area" id="\${id}" style="min-height:44px"
+        \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+      <div class="correction-zone \${corrected?'show':''}">
+        <div class="correction-label">✅ Correction</div>
+        \${{b1:'Le Président de la République a reçu le Premier ministre à l\'Élysée.',
+           b2:'La Direction générale des douanes est basée à Paris.',
+           b3:'L\'agent français en poste à la Martinique travaille pour la DGDDI.'}[id]}
+      </div>\`).join('')}\`,
+  qcmAnswers: {}
+};
+
+FICHES['mardi_p1_s3'] = {
+  cours: \`
+    <div class="fiche-section"><div class="fiche-section-title">🏃 Circuit complet — 55 min</div>
+      <div class="note-box">Semaine 3 : footing + gainage + pompes. <strong>Pompes très progressives</strong> — commence doucement !</div>
+      <div class="fiche-bullet"><strong>Footing 30 min</strong> — allure modérée (5/10)</div>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">Circuit musculaire — 15 min</div>
+      <div class="note-box">🎯 POMPES : sur les genoux si nécessaire. 5 pompes parfaites > 15 mal faites !</div>
+      <table class="fiche-table" style="margin-top:8px">
+        <tr><th>Exercice</th><th>Séries</th><th>Rép.</th><th>Consigne</th></tr>
+        <tr><td><strong style="color:var(--pink)">Pompes sur les genoux</strong></td><td>3</td><td>5 à 8</td><td>Mains largeur épaules, corps aligné tête-fesses</td></tr>
+        <tr><td><strong style="color:var(--pink)">Pompes classiques (si à l'aise)</strong></td><td>3</td><td>3 à 6</td><td>Corps entièrement aligné, coudes à 45°</td></tr>
+        <tr><td><strong>Gainage frontal</strong></td><td>3</td><td>30 sec</td><td>Appui avant-bras, corps rigide</td></tr>
+        <tr><td><strong>Gainage latéral</strong></td><td>2</td><td>20 sec/côté</td><td>Hanches bien levées</td></tr>
+        <tr><td><strong>Abdos crunch</strong></td><td>3</td><td>15</td><td>Montée lente, descente contrôlée</td></tr>
+      </table>
+    </div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">📋 Fiche de suivi — Mardi 23 juin</div>
+    <table class="fiche-table">
+      <tr><th>Indicateur</th><th>Objectif</th><th>Réalisé</th></tr>
+      \${[['s3m_dur','Footing (durée)','30 min'],['s3m_pom','Pompes (type + nb)','Sur genoux ou classiques'],
+         ['s3m_gai','Gainage tenu','30 sec × 3'],['s3m_res','Ressenti (1-10)','6/10'],
+      ].map(([id,ep,obj]) => \`<tr><td>\${ep}</td><td>\${obj}</td>
+        <td><textarea class="answer-area" id="\${id}" style="min-height:34px" \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea></td>
+      </tr>\`).join('')}
+    </table>
+    <textarea class="answer-area" id="s3m_obs" style="min-height:70px;margin-top:10px"
+      placeholder="Observations..." \${submitted?'disabled':''} onchange="saveAnswer('s3m_obs')">\${answers?.['s3m_obs']||''}</textarea>\`,
+  qcmAnswers: {}
+};
+
+FICHES['mercredi_p1_s3'] = {
+  cours: \`
+    <div class="fiche-section"><div class="fiche-section-title">1. Les Républiques françaises</div>
+      <table class="fiche-table">
+        <tr><th>République</th><th>Dates</th><th>Fin</th></tr>
+        <tr><td><strong>Ire</strong></td><td>1792-1804</td><td>Napoléon Bonaparte</td></tr>
+        <tr><td><strong>IIe</strong></td><td>1848-1852</td><td>Coup d'État Louis-Napoléon</td></tr>
+        <tr><td><strong>IIIe</strong></td><td>1870-1940</td><td>Défaite WWII</td></tr>
+        <tr><td><strong>IVe</strong></td><td>1946-1958</td><td>Crise algérienne → de Gaulle</td></tr>
+        <tr style="background:rgba(167,139,250,0.1)"><td><strong style="color:var(--purple)">Ve — ACTUELLE</strong></td><td>1958-auj.</td><td>Constitution 4 oct. 1958</td></tr>
+      </table>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">2. Dates clés à retenir</div>
+      <table class="fiche-table">
+        <tr><th>Date</th><th>Événement</th></tr>
+        <tr><td><strong>1789</strong></td><td>Révolution française — Déclaration des droits de l'homme</td></tr>
+        <tr><td><strong style="color:var(--yellow)">1848</strong></td><td><strong>Abolition de l'esclavage (Schœlcher) — très important Antilles !</strong></td></tr>
+        <tr><td><strong>1905</strong></td><td>Loi de séparation des Églises et de l'État — laïcité</td></tr>
+        <tr><td><strong>1944</strong></td><td>Droit de vote des femmes</td></tr>
+        <tr><td><strong>1946</strong></td><td>Départementalisation des Antilles (Martinique = DOM)</td></tr>
+        <tr><td><strong>1958</strong></td><td>Constitution Ve République (de Gaulle)</td></tr>
+        <tr><td><strong style="color:var(--yellow)">2015</strong></td><td><strong>Martinique = CTU (Collectivité Territoriale Unique)</strong></td></tr>
+      </table>
+      <div class="note-box">🎯 Anecdote oral : 1848 = abolition esclavage par Victor Schœlcher. Le Rectorat de ton concours est à SCHOELCHER — la ville porte son nom !</div>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">3. Symboles de la République</div>
+      <table class="fiche-table">
+        <tr><th>Symbole</th><th>Détail</th></tr>
+        <tr><td><strong>Devise</strong></td><td>Liberté, Égalité, Fraternité</td></tr>
+        <tr><td><strong>Drapeau</strong></td><td>Bleu-Blanc-Rouge (tricolore, 1794)</td></tr>
+        <tr><td><strong>Hymne</strong></td><td>La Marseillaise (1792, Rouget de Lisle)</td></tr>
+        <tr><td><strong>Marianne</strong></td><td>Allégorie féminine avec bonnet phrygien</td></tr>
+        <tr><td><strong>14 juillet</strong></td><td>Fête nationale — prise de la Bastille (1789)</td></tr>
+      </table>
+    </div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">Questions — Sans regarder le cours !</div>
+    \${[['h1','1. Cite les 5 Républiques françaises avec leurs dates.'],
+       ['h2','2. Quelle est la signification de 1848 pour les Antilles ?'],
+       ['h3','3. Quels sont les 5 symboles de la République ?'],
+       ['h4','4. Pourquoi la ville de Schoelcher porte-t-elle ce nom ?'],
+       ['h5','5. Différence entre IVe et Ve République ?'],
+    ].map(([id,q]) => \`
+      <div class="exo-phrase">\${q}</div>
+      <textarea class="answer-area" id="\${id}" style="min-height:70px"
+        \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+      <div class="correction-zone \${corrected?'show':''}">
+        <div class="correction-label">✅ Éléments de réponse</div>
+        \${{h1:'Ire (1792), IIe (1848), IIIe (1870), IVe (1946), Ve (1958-auj.)',
+           h2:'Abolition de l\'esclavage par Victor Schœlcher, 27 avril 1848. Date fondamentale pour les Antilles françaises.',
+           h3:'Devise, Drapeau bleu-blanc-rouge, Marseillaise, Marianne, 14 juillet.',
+           h4:'En hommage à Victor Schœlcher, abolitionniste de l\'esclavage en 1848.',
+           h5:'IVe = Assemblée très puissante, gouvernements instables. Ve = semi-présidentiel, Président fort élu au suffrage universel direct depuis 1962.'}[id]}
+      </div>\`).join('')}\`,
+};
+
+FICHES['jeudi_p1_s3'] = {
+  cours: \`
+    <div class="fiche-section"><div class="fiche-section-title">Méthode déductions logiques</div>
+      <div class="fiche-bullet"><strong>Transitivité :</strong> Si A→B et B→C, alors A→C</div>
+      <div class="fiche-bullet"><strong>Contraposée :</strong> Si A→B, alors non-B→non-A</div>
+      <div class="fiche-bullet"><strong>Disjonction :</strong> Si A ou B est vrai, et A est faux, alors B est vrai</div>
+      <div class="note-box">⏱️ Objectif : 10 QCM en 20 min. Score cible : 8+/10.</div>
+    </div>\`,
+  exercices: (submitted, corrected, answers) => {
+    const qcm = [
+      {id:"d1",q:"Si tous les A sont B, et X n'est pas B :",opts:["A) X est A","B) X n'est pas A","C) X est peut-être A","D) Rien"],ans:"B"},
+      {id:"d2",q:"Série : 3, 7, 13, 21, 31, ?",opts:["A) 41","B) 43","C) 45","D) 47"],ans:"B"},
+      {id:"d3",q:"Certains agents sont formés au tir. Marc est agent. Donc :",opts:["A) Marc est formé","B) Marc n'est pas formé","C) Marc est peut-être formé","D) Rien"],ans:"C"},
+      {id:"d4",q:"Matrice : 1,2,4 / 2,4,8 / 3,6,?",opts:["A) 9","B) 10","C) 12","D) 15"],ans:"C"},
+      {id:"d5",q:"Série : 100, 50, 25, 12.5, ?",opts:["A) 5","B) 6","C) 6.25","D) 7"],ans:"C"},
+      {id:"d6",q:"Si P→Q et non-Q, alors :",opts:["A) P est vrai","B) P est faux","C) On ne sait pas","D) Q est vrai"],ans:"B"},
+      {id:"d7",q:"Tous les ports sont surveillés. Fort-de-France est un port. Donc :",opts:["A) Peut-être surveillé","B) Surveillé","C) Non surveillé","D) Rien"],ans:"B"},
+      {id:"d8",q:"Série : 1, 3, 6, 10, 15, ?",opts:["A) 18","B) 20","C) 21","D) 22"],ans:"C"},
+      {id:"d9",q:"4 agents × 6h × 3 jours = ? heures",opts:["A) 60","B) 66","C) 72","D) 78"],ans:"C"},
+      {id:"d10",q:"Si A ou B, et A est faux, alors :",opts:["A) B est faux","B) B est vrai","C) B peut-être vrai","D) Rien"],ans:"B"},
+    ];
+    return \`
+      <div class="exo-num">⏱️ QCM Logique — 20 min chrono</div>
+      <div class="note-box">Score cible : 8+/10.</div>
+      \${qcm.map(item => \`
+        <div class="qcm-item">
+          <div class="qcm-question">\${item.id.replace('d','Q')}. \${item.q}</div>
+          <div class="qcm-options">
+            \${item.opts.map(o => {
+              const l=o[0],sel=answers?.qcmAnswers?.[item.id]===l;
+              const ok=corrected&&l===item.ans,bad=corrected&&sel&&l!==item.ans;
+              return \`<button class="qcm-opt \${sel?'selected':''} \${ok?'correct-ans':''} \${bad?'wrong-ans':''} \${submitted?'locked':''}"
+                data-qid="\${item.id}" data-opt="\${l}" onclick="selectQCM('\${item.id}','\${l}',this)">\${o}</button>\`;
+            }).join('')}
+          </div>
+        </div>\`).join('')}
+      <div style="margin-top:12px"><strong>Mon score :</strong>
+        <textarea class="answer-area" id="d_score" style="min-height:44px"
+          \${submitted?'disabled':''} onchange="saveAnswer('d_score')">\${answers?.['d_score']||''}</textarea>
+      </div>\`;
+  },
+  qcmAnswers: {d1:"B",d2:"B",d3:"C",d4:"C",d5:"C",d6:"B",d7:"B",d8:"C",d9:"C",d10:"B"}
+};
+
+FICHES['vendredi_p1_s3'] = {
+  cours: \`
+    <div class="fiche-section"><div class="fiche-section-title">Rappel méthode compréhension</div>
+      <div class="fiche-bullet"><strong>1.</strong> Lis entièrement sans t'arrêter.</div>
+      <div class="fiche-bullet"><strong>2.</strong> Relis en soulignant les idées clés.</div>
+      <div class="fiche-bullet"><strong>3.</strong> Réponds en reformulant — ne recopie pas.</div>
+    </div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">Texte — L'économie de la Martinique</div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-size:12px;line-height:1.8">
+      L'économie martiniquaise est fortement dépendante de ses importations (principalement depuis la France hexagonale — 60% des approvisionnements). Elle exporte la banane et le rhum agricole. Le tourisme représente environ 500 000 visiteurs/an. L'octroi de mer — taxe sur les marchandises importées — constitue une ressource fiscale essentielle et protège la production locale. Les douaniers veillent au respect des règles fiscales et contre les importations frauduleuses.
+    </div>
+    \${[['v1','1. Quelles sont les deux principales exportations ?'],
+       ['v2','2. Quel est le double rôle de l\'octroi de mer ?'],
+       ['v3','3. Pourquoi dit-on que la Martinique est "fortement dépendante" ?'],
+       ['v4','4. Quel lien entre économie locale et rôle des douaniers ?'],
+    ].map(([id,q]) => \`
+      <div class="exo-phrase">\${q}</div>
+      <textarea class="answer-area" id="\${id}" style="min-height:60px"
+        \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+      <div class="correction-zone \${corrected?'show':''}">
+        <div class="correction-label">✅ Corrigé type</div>
+        \${{v1:'La banane (1ère exportation) et le rhum agricole.',
+           v2:'(1) Ressource fiscale pour les collectivités. (2) Protection de la production locale.',
+           v3:'Car elle importe l\'essentiel de ses produits depuis la France hexagonale (60%).',
+           v4:'Les douaniers protègent l\'économie locale contre les importations frauduleuses et contrefaçons.'}[id]}
+      </div>\`).join('')}\`,
+};
+
+FICHES['samedi_p1_s3'] = {
+  cours: \`<div class="fiche-section"><div class="fiche-section-title">🏃 Sortie — 45 min</div>
+    <div class="fiche-bullet">Footing léger ou marche rapide (4/10). Étirements après.</div></div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">📋 Bilan semaine 3</div>
+    <table class="fiche-table">
+      <tr><th>Jour</th><th>Activité</th><th>Fait ?</th><th>Note /10</th></tr>
+      \${[['s3l','Lundi 22/06','Accords + Majuscules'],['s3m','Mardi 23/06','Circuit complet'],
+         ['s3me','Mercredi 24/06','Histoire de France'],['s3j','Jeudi 25/06','QCM déductions'],
+         ['s3v','Vendredi 26/06','Compréhension texte'],['s3s','Samedi 27/06','Sortie 45 min'],
+      ].map(([id,j,a]) => \`<tr><td>\${j}</td><td>\${a}</td>
+        <td><textarea class="answer-area" id="\${id}_ok" style="min-height:34px" \${submitted?'disabled':''} onchange="saveAnswer('\${id}_ok')">\${answers?.[\${id}+'_ok']||''}</textarea></td>
+        <td><textarea class="answer-area" id="\${id}_n" style="min-height:34px" \${submitted?'disabled':''} onchange="saveAnswer('\${id}_n')">\${answers?.[\${id}+'_n']||''}</textarea></td>
+      </tr>\`).join('')}
+    </table>
+    \${[['s3p','Progression :'],['s3d','Difficultés :'],['s3o','Objectif S4 :']]
+    .map(([id,l]) => \`<p style="margin-top:10px"><strong>\${l}</strong></p>
+      <textarea class="answer-area" id="\${id}" style="min-height:50px" \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+    \`).join('')}\`,
+  qcmAnswers: {}
+};
+
+// ══════════════════════════════════════════════════════════════
+// FICHES PHASE 1 — SEMAINE 4
+// ══════════════════════════════════════════════════════════════
+FICHES['lundi_p1_s4'] = {
+  cours: \`<div class="fiche-section"><div class="fiche-section-title">Test blanc français — 1h15 chrono</div>
+    <div class="note-box">⏱️ Lance le chrono sur 1h15. SANS le cours. Mesure ta progression depuis S1.</div></div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">TEST BLANC — Accords + Compréhension</div>
+    <div class="exo-num" style="margin-top:12px">Partie 1 — Accords (corrige les phrases)</div>
+    \${[['t1','1. Les agents des douanes ont saisi des marchandises qui provenait d\'Amérique du Sud.'],
+       ['t2','2. Des tenues bleu marine ont été distribué aux nouvelles recrues.'],
+       ['t3','3. Les opérations conjointes ont permis d\'obtenir des informations précieux.'],
+       ['t4','4. La première saisie de l\'année a été exceptionnel par son ampleur.'],
+       ['t5','5. Les trafiquants, actif et organisé, utilisent des go-fast nocturne.'],
+    ].map(([id,ph]) => \`
+      <div class="exo-phrase">\${ph}</div>
+      <textarea class="answer-area" id="\${id}" style="min-height:44px"
+        \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+      <div class="correction-zone \${corrected?'show':''}">
+        <div class="correction-label">✅ Correction</div>
+        \${{t1:'...marchandises qui <strong>provenaient</strong>...',
+           t2:'...ont été <strong>distribués</strong>...',
+           t3:'...informations <strong>précieuses</strong>.',
+           t4:'...a été <strong>exceptionnelle</strong>...',
+           t5:'...trafiquants <strong>actifs</strong> et <strong>organisés</strong>...go-fast <strong>nocturnes</strong>.'}[id]}
+      </div>\`).join('')}
+    <div class="exo-num" style="margin-top:16px">Partie 2 — Compréhension de texte</div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-size:12px;line-height:1.8">
+      La modernisation douanière repose sur 3 piliers : (1) les équipements technologiques (scanners), (2) la formation comportementale (détecter le stress des voyageurs), (3) la coopération internationale via JIATF-South. Cette anticipation est cruciale aux Antilles car les délais d'intervention sont courts.
+    </div>
+    \${[['c1','1. Quels sont les 3 piliers de la modernisation ?'],
+       ['c2','2. À quoi sert la détection comportementale ?'],
+       ['c3','3. Pourquoi la coopération internationale est-elle cruciale aux Antilles ?'],
+    ].map(([id,q]) => \`
+      <div class="exo-phrase">\${q}</div>
+      <textarea class="answer-area" id="\${id}" style="min-height:60px"
+        \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+      <div class="correction-zone \${corrected?'show':''}">
+        <div class="correction-label">✅ Corrigé</div>
+        \${{c1:'Équipements technologiques, formation comportementale, coopération internationale.',
+           c2:'Repérer signes de stress chez les voyageurs, en complément des contrôles documentaires.',
+           c3:'Délais courts et nombreuses routes maritimes → anticipation via le renseignement est cruciale.'}[id]}
+      </div>\`).join('')}\`,
+  qcmAnswers: {}
+};
+
+FICHES['mardi_p1_s4'] = {
+  cours: \`<div class="fiche-section"><div class="fiche-section-title">🏃 Simulation épreuves sportives douanes</div>
+    <div class="note-box">Prise de repères ! Objectif : savoir où tu en es pour planifier la Phase 2.</div>
+    <table class="fiche-table" style="margin-top:10px">
+      <tr><th>Épreuve</th><th>Objectif final</th></tr>
+      <tr><td><strong>Course 1 000 m</strong></td><td>H: &lt;4min15 / F: &lt;5min</td></tr>
+      <tr><td><strong>Pompes max 1 min</strong></td><td>H: 20+ / F: 10+</td></tr>
+      <tr><td><strong>Abdos max 1 min</strong></td><td>H: 25+ / F: 20+</td></tr>
+      <tr><td><strong>Souplesse</strong></td><td>Toucher les orteils</td></tr>
+    </table></div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">📋 Résultats de référence — 30 juin 2026</div>
+    <table class="fiche-table">
+      <tr><th>Épreuve</th><th>Objectif final</th><th>Mon résultat</th></tr>
+      \${[['sp1','Course 1 000 m','H: <4min15'],['sp2','Pompes en 1 min','H: 20+'],
+         ['sp3','Abdos en 1 min','H: 25+'],['sp4','Souplesse','Orteils'],
+      ].map(([id,ep,obj]) => \`<tr><td>\${ep}</td><td>\${obj}</td>
+        <td><textarea class="answer-area" id="\${id}" style="min-height:34px"
+          \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea></td>
+      </tr>\`).join('')}
+    </table>
+    <textarea class="answer-area" id="sp_obs" style="min-height:70px;margin-top:10px"
+      placeholder="Observations..." \${submitted?'disabled':''} onchange="saveAnswer('sp_obs')">\${answers?.['sp_obs']||''}</textarea>\`,
+  qcmAnswers: {}
+};
+
+FICHES['mercredi_p1_s4'] = {
+  cours: \`
+    <div class="fiche-section"><div class="fiche-section-title">1. La DDHC (1789)</div>
+      <table class="fiche-table">
+        <tr><th>Article</th><th>Principe</th></tr>
+        <tr><td><strong>Art. 1</strong></td><td>Les hommes naissent libres et égaux en droits.</td></tr>
+        <tr><td><strong>Art. 2</strong></td><td>But : conservation de la liberté, propriété, sûreté.</td></tr>
+        <tr><td><strong>Art. 9</strong></td><td>Présomption d'innocence jusqu'à déclaration de culpabilité.</td></tr>
+        <tr><td><strong>Art. 11</strong></td><td>Libre communication des pensées et opinions.</td></tr>
+      </table>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">2. La laïcité — Loi 1905</div>
+      <div class="fiche-bullet"><strong>Séparation :</strong> L'État ne subventionne aucun culte.</div>
+      <div class="fiche-bullet"><strong>Neutralité :</strong> Services publics neutres religieusement.</div>
+      <div class="fiche-bullet"><strong>En pratique :</strong> Agent douanier = pas de signes religieux en service.</div>
+      <div class="note-box">🎯 Oral : futur fonctionnaire = devoir de neutralité et de laïcité.</div>
+    </div>
+    <div class="fiche-section"><div class="fiche-section-title">3. Droits et devoirs</div>
+      <table class="fiche-table">
+        <tr><th>Droits</th><th>Devoirs</th></tr>
+        <tr><td>Liberté d'expression</td><td>Respecter les lois</td></tr>
+        <tr><td>Droit de vote</td><td>Payer ses impôts</td></tr>
+        <tr><td>Présomption d'innocence</td><td>Respecter la laïcité</td></tr>
+      </table>
+    </div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    \${[['dr1',"Qu'est-ce que la DDHC et quand a-t-elle été adoptée ?"],
+       ['dr2',"Explique la laïcité et ses implications pour un agent douanier."],
+       ['dr3',"Cite 3 droits et 3 devoirs du citoyen français."],
+       ['dr4',"Qu'est-ce que la présomption d'innocence ?"],
+    ].map(([id,q]) => \`
+      <div class="exo-phrase">\${q}</div>
+      <textarea class="answer-area" id="\${id}" style="min-height:70px"
+        \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+      <div class="correction-zone \${corrected?'show':''}">
+        <div class="correction-label">✅ Éléments de réponse</div>
+        \${{dr1:"Adoptée le 26 août 1789. Texte fondateur des droits fondamentaux en France.",
+           dr2:"Loi 1905 = séparation État/religions. Agent douanier : neutralité religieuse, pas de signes religieux en service.",
+           dr3:"Droits : liberté d'expression, vote, présomption d'innocence. Devoirs : respecter les lois, payer impôts, laïcité.",
+           dr4:"Tout accusé est considéré innocent jusqu'à ce qu'un tribunal le déclare coupable."}[id]}
+      </div>\`).join('')}\`,
+};
+
+FICHES['jeudi_p1_s4'] = {
+  cours: \`<div class="fiche-section"><div class="fiche-section-title">Test blanc logique — Bilan Phase 1</div>
+    <div class="note-box">⏱️ 10 QCM en 20 min. Compare avec tes scores S1, S2, S3 !</div></div>\`,
+  exercices: (submitted, corrected, answers) => {
+    const qcm = [
+      {id:"tb1",q:"Série : 2, 6, 18, 54, ?",opts:["A) 108","B) 162","C) 216","D) 144"],ans:"B"},
+      {id:"tb2",q:"Tous les agents portent un badge. Luc porte un badge. Donc :",opts:["A) Luc est agent","B) Luc est peut-être agent","C) Luc n'est pas agent","D) Rien"],ans:"B"},
+      {id:"tb3",q:"Matrice : 3,6,12 / 4,8,16 / 5,10,?",opts:["A) 15","B) 18","C) 20","D) 25"],ans:"C"},
+      {id:"tb4",q:"Si P→Q et non-Q, alors :",opts:["A) P vrai","B) P faux","C) On ne sait pas","D) Q vrai"],ans:"B"},
+      {id:"tb5",q:"Aucun fraudeur n'est honnête. Paul est honnête. Donc :",opts:["A) Fraudeur","B) Pas fraudeur","C) Suspect","D) Rien"],ans:"B"},
+      {id:"tb6",q:"Douane:contrôle = Justice:?",opts:["A) loi","B) jugement","C) avocat","D) prison"],ans:"B"},
+      {id:"tb7",q:"Série : 5, 10, 20, 40, ?",opts:["A) 60","B) 70","C) 80","D) 100"],ans:"C"},
+      {id:"tb8",q:"France:Paris = Martinique:?",opts:["A) Schoelcher","B) Le Lamentin","C) Fort-de-France","D) Saint-Pierre"],ans:"C"},
+      {id:"tb9",q:"3 équipes × 8 agents × 5 jours = ?",opts:["A) 100","B) 110","C) 120","D) 130"],ans:"C"},
+      {id:"tb10",q:"Si A ou B, et A est faux, alors :",opts:["A) B faux","B) B vrai","C) B peut-être","D) Rien"],ans:"B"},
+    ];
+    return \`
+      <div class="exo-num">⏱️ TEST BLANC LOGIQUE — 20 min</div>
+      \${qcm.map(item => \`
+        <div class="qcm-item">
+          <div class="qcm-question">\${item.id.replace('tb','Q')}. \${item.q}</div>
+          <div class="qcm-options">
+            \${item.opts.map(o => {
+              const l=o[0],sel=answers?.qcmAnswers?.[item.id]===l;
+              const ok=corrected&&l===item.ans,bad=corrected&&sel&&l!==item.ans;
+              return \`<button class="qcm-opt \${sel?'selected':''} \${ok?'correct-ans':''} \${bad?'wrong-ans':''} \${submitted?'locked':''}"
+                data-qid="\${item.id}" data-opt="\${l}" onclick="selectQCM('\${item.id}','\${l}',this)">\${o}</button>\`;
+            }).join('')}
+          </div>
+        </div>\`).join('')}
+      <div style="margin-top:12px"><strong>Mon score :</strong>
+        <textarea class="answer-area" id="tb_score" style="min-height:44px"
+          \${submitted?'disabled':''} onchange="saveAnswer('tb_score')">\${answers?.['tb_score']||''}</textarea>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:6px">Progression — S1:___ / S2:___ / S3:___ / S4:___</p>
+      </div>\`;
+  },
+  qcmAnswers: {tb1:"B",tb2:"B",tb3:"C",tb4:"B",tb5:"B",tb6:"B",tb7:"C",tb8:"C",tb9:"C",tb10:"B"}
+};
+
+FICHES['vendredi_p1_s4'] = {
+  cours: \`<div class="fiche-section"><div class="fiche-section-title">Paragraphe argumenté — Rappel structure</div>
+    <table class="fiche-table">
+      <tr><th>Partie</th><th>Contenu</th></tr>
+      <tr><td><strong>THÈSE</strong></td><td>Idée principale (1-2 phrases)</td></tr>
+      <tr><td><strong>ARGUMENT 1</strong></td><td>1er argument + exemple (2-3 phrases)</td></tr>
+      <tr><td><strong>ARGUMENT 2</strong></td><td>2e argument + exemple (2-3 phrases)</td></tr>
+      <tr><td><strong>NUANCE</strong></td><td>Limites (1-2 phrases)</td></tr>
+      <tr><td><strong>CONCLUSION</strong></td><td>Thèse enrichie (1 phrase)</td></tr>
+    </table>
+    <div class="note-box">🎯 Objectif : 200-250 mots.</div></div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">Paragraphe argumenté — Sujet douanes</div>
+    <div style="background:rgba(79,142,247,0.1);border:1.5px solid var(--blue);border-radius:10px;padding:14px;margin:10px 0;font-size:13px;font-weight:600">
+      SUJET : Montrez en quoi les missions de l'agent des douanes dépassent la simple surveillance des frontières.
+    </div>
+    <div class="note-box">💡 Pistes : fiscalité, protection économique, coopération internationale, valeurs républicaines.</div>
+    <textarea class="answer-area" id="exp_s4" style="min-height:200px"
+      \${submitted?'disabled':''} onchange="saveAnswer('exp_s4')">\${answers?.['exp_s4']||''}</textarea>
+    <div class="correction-zone \${corrected?'show':''}">
+      <div class="correction-label">✅ Éléments de correction</div>
+      Arguments attendus : fiscalité (octroi de mer, TVA), protection économique (contrefaçons), coopération internationale (JIATF-South), valeurs (laïcité, neutralité). Nuance : effectifs limités, pression budgétaire.
+    </div>\`,
+};
+
+FICHES['samedi_p1_s4'] = {
+  cours: \`<div class="fiche-section"><div class="fiche-section-title">🏃 Sortie longue — 1h</div>
+    <div class="fiche-bullet">Allure modérée. Fin de Phase 1 — recharge les batteries !</div>
+    <div class="note-box">Phase 2 démarre le 6 juillet. Le travail de Phase 1 va porter ses fruits !</div></div>\`,
+  exercices: (submitted, corrected, answers) => \`
+    <div class="exo-num">📋 BILAN PHASE 1 — 8 juin au 4 juillet 2026</div>
+    <div class="fiche-section" style="margin-top:12px">
+      <div class="fiche-section-title">Progression QCM logique</div>
+      <table class="fiche-table">
+        <tr><th>Semaine</th><th>Score obtenu</th><th>Objectif</th></tr>
+        \${[['bp1','S1 — 11 juin','15/30'],['bp2','S2 — 18 juin','20/30'],
+           ['bp3','S3 — 25 juin','22/30'],['bp4','S4 — 2 juillet','25/30'],
+        ].map(([id,s,obj]) => \`<tr><td>\${s}</td>
+          <td><textarea class="answer-area" id="\${id}" style="min-height:34px" \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea></td>
+          <td>\${obj}</td></tr>\`).join('')}
+      </table>
+    </div>
+    \${[['bp_bien',"Ce que j'ai le mieux maîtrisé en Phase 1 :"],
+       ['bp_prog','Les 3 points à améliorer en Phase 2 :'],
+       ['bp_conf','Mon niveau de confiance (1-10) et pourquoi :'],
+       ['bp_msg','Message à moi-même pour la Phase 2 :'],
+    ].map(([id,l]) => \`<p style="margin-top:10px"><strong>\${l}</strong></p>
+      <textarea class="answer-area" id="\${id}" style="min-height:60px" \${submitted?'disabled':''} onchange="saveAnswer('\${id}')">\${answers?.[\${id}]||''}</textarea>
+    \`).join('')}\`,
   qcmAnswers: {}
 };
 
