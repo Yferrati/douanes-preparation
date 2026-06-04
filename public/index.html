@@ -784,7 +784,8 @@ const PHASE_COLORS = {
   5: { bg:'#2a0f0f', border:'#f87171', text:'#f87171', light:'#fee2e2', tag:'#b91c1c' },
 };
 
-const START_DATE = new Date('2026-06-08');
+// Date de départ : lundi 8 juin 2026 (UTC pour éviter décalage fuseau horaire)
+const START_DATE = new Date('2026-06-08T12:00:00');
 
 function getDate(semIdx, dayIdx) {
   const d = new Date(START_DATE);
