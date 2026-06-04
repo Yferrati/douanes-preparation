@@ -1112,11 +1112,16 @@ function renderPhaseProgress(phaseNum) {
 // ═══════════════════════════════════════════════════════════════
 let currentFiche = null;
 
-function openFiche(phaseNum, jourNom) {
+function openFiche(phaseNum, jourNom, semNum) {
+  // Phase 1 : sélecteur de semaine si semaine non précisée
+  if (phaseNum === 1 && !semNum) {
+    showSemainePicker(1, jourNom);
+    return;
+  }
   const phase = PHASES.find(p => p.num === phaseNum);
   const jour = phase.jours.find(j => j.nom === jourNom);
   const c = phase.color;
-  currentFiche = { phaseNum, jourNom, phase, jour };
+  currentFiche = { phaseNum, jourNom, phase, jour, semNum: semNum || null };
 
   document.getElementById('modal-badge').style.background = c.bg;
   document.getElementById('modal-badge').style.border = `1px solid ${c.border}`;
@@ -1143,8 +1148,11 @@ document.getElementById('modal-overlay').addEventListener('click', function(e) {
 
 function renderModalTabs(phaseNum, jourNom) {
   const tabs = document.getElementById('modal-tabs');
-  const hasCours = FICHES[`${jourNom.toLowerCase()}_s${phaseNum}`]?.cours;
-  const hasExo = FICHES[`${jourNom.toLowerCase()}_s${phaseNum}`]?.exercices;
+  const _fkey = currentFiche && currentFiche.semNum && phaseNum === 1
+    ? jourNom.toLowerCase() + '_p1_s' + currentFiche.semNum
+    : jourNom.toLowerCase() + '_s' + phaseNum;
+  const hasCours = FICHES[_fkey]?.cours;
+  const hasExo = FICHES[_fkey]?.exercices;
   tabs.innerHTML = '';
   if (hasCours) tabs.innerHTML += `<button class="modal-tab active" onclick="renderModalTab('cours',this)">📖 Cours</button>`;
   if (hasExo) tabs.innerHTML += `<button class="modal-tab" onclick="renderModalTab('exercices',this)">✏️ Exercices</button>`;
@@ -1156,8 +1164,10 @@ function renderModalTab(tab, btn) {
     document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
   }
-  const { phaseNum, jourNom } = currentFiche;
-  const key = `${jourNom.toLowerCase()}_s${phaseNum}`;
+  const { phaseNum, jourNom, semNum } = currentFiche;
+  const key = semNum && phaseNum === 1
+    ? jourNom.toLowerCase() + '_p1_s' + semNum
+    : jourNom.toLowerCase() + '_s' + phaseNum;
   const fiche = FICHES[key];
   const js = getJourState(phaseNum, jourNom);
   const body = document.getElementById('modal-body');
@@ -1245,6 +1255,11 @@ function submitWork() {
     }
   });
   js.submitted = true;
+  // Cochage automatique
+  var _phase = PHASES.find(function(p) { return p.num === currentFiche.phaseNum; });
+  if (_phase && _phase.semaines) {
+    for (var _s = 1; _s <= _phase.semaines; _s++) { js.checks['s' + _s] = true; }
+  } else { js.checks['s1'] = true; }
   saveState();
   updateModalStatus();
   updateModalActions();
@@ -2146,6 +2161,49 @@ FICHES['samedi_s2'] = {
   qcmAnswers: {}
 };
 
+
+function showSemainePicker(phaseNum, jourNom) {
+  var phase = PHASES.find(function(p) { return p.num === phaseNum; });
+  var c = phase.color;
+  var jourIdx = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'].indexOf(jourNom);
+  var dates = {
+    1: ['08/06','09/06','10/06','11/06','12/06','13/06'],
+    2: ['15/06','16/06','17/06','18/06','19/06','20/06'],
+    3: ['22/06','23/06','24/06','25/06','26/06','27/06'],
+    4: ['29/06','30/06','01/07','02/07','03/07','04/07']
+  };
+  var matieres = [
+    ['Grammaire & orthographe','Sport','Institutions françaises','Logique QCM','Compréhension texte','Bilan'],
+    ['Résumé de texte','Sport fractionné','Missions des douanes','Matrices & syllogismes','Expression écrite','Sortie + Presse'],
+    ['Accords adjectifs & Majuscules','Circuit complet','Histoire de France','Logique déductions','Compréhension texte','Bilan'],
+    ['Test blanc français','Simulation épreuves','Droit et libertés','Test blanc logique','Expression écrite','Bilan Phase 1']
+  ];
+  var jour = phase.jours.find(function(j) { return j.nom === jourNom; });
+  document.getElementById('modal-badge').style.background = c.bg;
+  document.getElementById('modal-badge').style.border = '1px solid ' + c.border;
+  document.getElementById('modal-badge').style.color = c.text;
+  document.getElementById('modal-badge').innerHTML = '<span style="font-family:Syne;font-weight:800;font-size:10px;text-align:center">' + jourNom + '<br><span style="font-weight:400;font-size:9px">P1</span></span>';
+  document.getElementById('modal-title').textContent = jourNom + ' — Phase 1';
+  document.getElementById('modal-subtitle').textContent = 'Choisissez la semaine';
+  document.getElementById('modal-tabs').innerHTML = '';
+  var rows = '';
+  for (var s = 1; s <= 4; s++) {
+    var js2 = getJourState(1, jourNom);
+    var done = js2.checks && js2.checks['s' + s];
+    var date = jourIdx >= 0 ? dates[s][jourIdx] : '';
+    var mat = jourIdx >= 0 ? matieres[s-1][jourIdx] : '';
+    rows += '<div onclick="openFiche(1,\'' + jourNom + '\',' + s + ')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border-radius:10px;cursor:pointer;background:var(--surface2);border:1px solid ' + (done ? 'var(--green)' : 'var(--border)') + '">';
+    rows += '<div><div style="font-family:Syne;font-weight:700;font-size:14px;color:var(--text)">Semaine ' + s + '</div>';
+    rows += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + date + ' — ' + mat + '</div></div>';
+    rows += '<div style="font-size:18px">' + (done ? '✅' : '→') + '</div></div>';
+  }
+  document.getElementById('modal-body').innerHTML = '<div style="padding:8px 0"><p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Quelle semaine souhaitez-vous ouvrir ?</p>' + rows + '</div>';
+  document.getElementById('modal-actions').innerHTML = '<button class="btn btn-outline" onclick="closeModal()">Fermer</button>';
+  document.getElementById('status-text').textContent = 'Choisissez une semaine';
+  document.getElementById('status-dot').className = 'status-dot';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
 // ══════════════════════════════════════════════════════════════
 // FICHES PHASE 1 — SEMAINE 3
 // ══════════════════════════════════════════════════════════════
@@ -2515,8 +2573,10 @@ FICHES['samedi_p1_s4'] = {
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
-// ── LOGIN intégré ──
+renderPlanning();
+</script>
 
+<script>
 (function() {
   var EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
   var EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
@@ -2548,12 +2608,7 @@ FICHES['samedi_p1_s4'] = {
     document.getElementById('el-login').addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
   });
 })();
-
-
-renderPlanning();
 </script>
-
-
 
 </body>
 </html>
