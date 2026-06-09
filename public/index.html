@@ -658,6 +658,19 @@ body {
   </div>
 </div>
 
+<div id="eleve-login" style="position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a2f45;border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center;">
+    <div style="font-size:44px;margin-bottom:16px">🎯</div>
+    <div style="font-family:sans-serif;font-weight:800;font-size:20px;margin-bottom:6px;color:#e8eaf0">Concours Douanes 2026</div>
+    <div style="font-size:13px;color:#7b82a0;margin-bottom:28px">Plateforme de revision — CHRISTOPHE-HAYOT</div>
+    <input id="el-login" type="text" placeholder="Identifiant" autocomplete="username" style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
+    <input id="el-pwd" type="password" placeholder="Mot de passe" autocomplete="current-password" style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
+    <div id="el-error" style="color:#f87171;font-size:12px;margin-bottom:10px;min-height:16px"></div>
+    <button id="eleve-btn" style="width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🔓 Acceder au planning</button>
+    <div style="margin-top:16px"><a href="/correcteur.html" style="font-size:11px;color:#7b82a0;text-decoration:none">Acces correcteur →</a></div>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- SIDEBAR -->
@@ -784,8 +797,7 @@ const PHASE_COLORS = {
   5: { bg:'#2a0f0f', border:'#f87171', text:'#f87171', light:'#fee2e2', tag:'#b91c1c' },
 };
 
-// Date de départ : lundi 8 juin 2026 (UTC pour éviter décalage fuseau horaire)
-const START_DATE = new Date('2026-06-08T12:00:00');
+const START_DATE = new Date('2026-06-08');
 
 function getDate(semIdx, dayIdx) {
   const d = new Date(START_DATE);
@@ -1113,16 +1125,48 @@ function renderPhaseProgress(phaseNum) {
 // ═══════════════════════════════════════════════════════════════
 let currentFiche = null;
 
-function openFiche(phaseNum, jourNom, semNum) {
-  // Phase 1 : sélecteur de semaine si semaine non précisée
-  if (phaseNum === 1 && !semNum) {
-    showSemainePicker(1, jourNom);
-    return;
+function showSemainePicker(ph, jn) {
+  var phase = PHASES.find(function(p){return p.num===ph;});
+  var c = phase.color;
+  var ji = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'].indexOf(jn);
+  var D={1:['08/06','09/06','10/06','11/06','12/06','13/06'],2:['15/06','16/06','17/06','18/06','19/06','20/06'],3:['22/06','23/06','24/06','25/06','26/06','27/06'],4:['29/06','30/06','01/07','02/07','03/07','04/07']};
+  var M=[['Grammaire','Sport','Institutions','Logique QCM','Comprehension','Bilan'],['Resume texte','Sport fractionne','Missions douanes','Matrices','Expression ecrite','Sortie'],['Accords adjectifs','Circuit complet','Histoire France','Logique deductions','Comprehension','Bilan'],['Test blanc','Simulation sport','Droit libertes','Test blanc logique','Expression ecrite','Bilan P1']];
+  document.getElementById('modal-badge').style.background=c.bg;
+  document.getElementById('modal-badge').style.border='1px solid '+c.border;
+  document.getElementById('modal-badge').style.color=c.text;
+  document.getElementById('modal-badge').innerHTML='<span style="font-family:Syne;font-weight:800;font-size:10px">'+jn+'</span>';
+  document.getElementById('modal-title').textContent=jn+' - Phase '+ph;
+  document.getElementById('modal-subtitle').textContent='Choisissez la semaine';
+  document.getElementById('modal-tabs').innerHTML='';
+  var h='<div style="padding:8px 0">';
+  for(var s=1;s<=4;s++){
+    var js2=getJourState(ph,jn);
+    var done=js2.checks&&js2.checks['s'+s];
+    var date=ji>=0?D[s][ji]:'';
+    var mat=ji>=0?M[s-1][ji]:'';
+    h+='<div id="psem'+s+'" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border-radius:10px;cursor:pointer;background:var(--surface2);border:1px solid '+(done?'var(--green)':'var(--border)')+'"><div><div style="font-family:Syne;font-weight:700;font-size:14px;color:var(--text)">Semaine '+s+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+date+' - '+mat+'</div></div><div style="font-size:18px">'+(done?'✅':'→')+'</div></div>';
   }
+  h+='</div>';
+  document.getElementById('modal-body').innerHTML=h;
+  document.getElementById('modal-actions').innerHTML='<button class="btn btn-outline" onclick="closeModal()">Fermer</button>';
+  document.getElementById('status-text').textContent='Semaine';
+  document.getElementById('status-dot').className='status-dot';
+  document.getElementById('modal-overlay').classList.add('open');
+  // Attacher clics
+  for(var i=1;i<=4;i++){
+    (function(sn){
+      var el=document.getElementById('psem'+sn);
+      if(el) el.addEventListener('click',function(){openFiche(ph,jn,sn);});
+    })(i);
+  }
+}
+
+function openFiche(phaseNum, jourNom, semNum) {
+  if(phaseNum===1 && !semNum){showSemainePicker(phaseNum,jourNom);return;}
   const phase = PHASES.find(p => p.num === phaseNum);
   const jour = phase.jours.find(j => j.nom === jourNom);
   const c = phase.color;
-  currentFiche = { phaseNum, jourNom, phase, jour, semNum: semNum || null };
+  currentFiche = { phaseNum, jourNom, phase, jour, semNum: semNum||null };
 
   document.getElementById('modal-badge').style.background = c.bg;
   document.getElementById('modal-badge').style.border = `1px solid ${c.border}`;
@@ -1149,16 +1193,9 @@ document.getElementById('modal-overlay').addEventListener('click', function(e) {
 
 function renderModalTabs(phaseNum, jourNom) {
   const tabs = document.getElementById('modal-tabs');
-  // Clés Phase 1 : s1=lundi_s1, s2=lundi_s2, s3=lundi_p1_s3, s4=lundi_p1_s4
-  var _fkey;
-  var _jn = jourNom.toLowerCase();
-  if (currentFiche && currentFiche.semNum) {
-    _fkey = _jn + '_p' + phaseNum + '_s' + currentFiche.semNum;
-  } else {
-    _fkey = _jn + '_s' + phaseNum;
-  }
-  const hasCours = FICHES[_fkey]?.cours;
-  const hasExo = FICHES[_fkey]?.exercices;
+  var _k1=(currentFiche&&currentFiche.semNum)?jourNom.toLowerCase()+'_p'+phaseNum+'_s'+currentFiche.semNum:jourNom.toLowerCase()+'_s'+phaseNum;
+  const hasCours=FICHES[_k1]?.cours;
+  const hasExo=FICHES[_k1]?.exercices;
   tabs.innerHTML = '';
   if (hasCours) tabs.innerHTML += `<button class="modal-tab active" onclick="renderModalTab('cours',this)">📖 Cours</button>`;
   if (hasExo) tabs.innerHTML += `<button class="modal-tab" onclick="renderModalTab('exercices',this)">✏️ Exercices</button>`;
@@ -1171,14 +1208,8 @@ function renderModalTab(tab, btn) {
     btn.classList.add('active');
   }
   const { phaseNum, jourNom, semNum } = currentFiche;
-  var _jn2 = jourNom.toLowerCase();
-  var key;
-  if (semNum) {
-    key = _jn2 + '_p' + phaseNum + '_s' + semNum;
-  } else {
-    key = _jn2 + '_s' + phaseNum;
-  }
-  const fiche = FICHES[key];
+  const key=(semNum)?jourNom.toLowerCase()+'_p'+phaseNum+'_s'+semNum:jourNom.toLowerCase()+'_s'+phaseNum;
+  const fiche=FICHES[key];
   const js = getJourState(phaseNum, jourNom);
   const body = document.getElementById('modal-body');
 
@@ -1265,11 +1296,9 @@ function submitWork() {
     }
   });
   js.submitted = true;
-  // Cochage automatique
-  var _phase = PHASES.find(function(p) { return p.num === currentFiche.phaseNum; });
-  if (_phase && _phase.semaines) {
-    for (var _s = 1; _s <= _phase.semaines; _s++) { js.checks['s' + _s] = true; }
-  } else { js.checks['s1'] = true; }
+  var _ph = PHASES.find(function(p){return p.num===currentFiche.phaseNum;});
+  if(_ph && _ph.semaines){for(var _s=1;_s<=_ph.semaines;_s++){js.checks['s'+_s]=true;}}
+  else{js.checks['s1']=true;}
   saveState();
   updateModalStatus();
   updateModalActions();
@@ -2171,49 +2200,6 @@ FICHES['samedi_p1_s2'] = {
   qcmAnswers: {}
 };
 
-
-function showSemainePicker(phaseNum, jourNom) {
-  var phase = PHASES.find(function(p) { return p.num === phaseNum; });
-  var c = phase.color;
-  var jourIdx = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'].indexOf(jourNom);
-  var dates = {
-    1: ['08/06','09/06','10/06','11/06','12/06','13/06'],
-    2: ['15/06','16/06','17/06','18/06','19/06','20/06'],
-    3: ['22/06','23/06','24/06','25/06','26/06','27/06'],
-    4: ['29/06','30/06','01/07','02/07','03/07','04/07']
-  };
-  var matieres = [
-    ['Grammaire & orthographe','Sport','Institutions françaises','Logique QCM','Compréhension texte','Bilan'],
-    ['Résumé de texte','Sport fractionné','Missions des douanes','Matrices & syllogismes','Expression écrite','Sortie + Presse'],
-    ['Accords adjectifs & Majuscules','Circuit complet','Histoire de France','Logique déductions','Compréhension texte','Bilan'],
-    ['Test blanc français','Simulation épreuves','Droit et libertés','Test blanc logique','Expression écrite','Bilan Phase 1']
-  ];
-  var jour = phase.jours.find(function(j) { return j.nom === jourNom; });
-  document.getElementById('modal-badge').style.background = c.bg;
-  document.getElementById('modal-badge').style.border = '1px solid ' + c.border;
-  document.getElementById('modal-badge').style.color = c.text;
-  document.getElementById('modal-badge').innerHTML = '<span style="font-family:Syne;font-weight:800;font-size:10px;text-align:center">' + jourNom + '<br><span style="font-weight:400;font-size:9px">P1</span></span>';
-  document.getElementById('modal-title').textContent = jourNom + ' — Phase 1';
-  document.getElementById('modal-subtitle').textContent = 'Choisissez la semaine';
-  document.getElementById('modal-tabs').innerHTML = '';
-  var rows = '';
-  for (var s = 1; s <= 4; s++) {
-    var js2 = getJourState(1, jourNom);
-    var done = js2.checks && js2.checks['s' + s];
-    var date = jourIdx >= 0 ? dates[s][jourIdx] : '';
-    var mat = jourIdx >= 0 ? matieres[s-1][jourIdx] : '';
-    rows += '<div onclick="openFiche(1,\'' + jourNom + '\',' + s + ')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border-radius:10px;cursor:pointer;background:var(--surface2);border:1px solid ' + (done ? 'var(--green)' : 'var(--border)') + '">';
-    rows += '<div><div style="font-family:Syne;font-weight:700;font-size:14px;color:var(--text)">Semaine ' + s + '</div>';
-    rows += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + date + ' — ' + mat + '</div></div>';
-    rows += '<div style="font-size:18px">' + (done ? '✅' : '→') + '</div></div>';
-  }
-  document.getElementById('modal-body').innerHTML = '<div style="padding:8px 0"><p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Quelle semaine souhaitez-vous ouvrir ?</p>' + rows + '</div>';
-  document.getElementById('modal-actions').innerHTML = '<button class="btn btn-outline" onclick="closeModal()">Fermer</button>';
-  document.getElementById('status-text').textContent = 'Choisissez une semaine';
-  document.getElementById('status-dot').className = 'status-dot';
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
 // ══════════════════════════════════════════════════════════════
 // FICHES PHASE 1 — SEMAINE 3
 // ══════════════════════════════════════════════════════════════
@@ -2762,39 +2748,40 @@ FICHES['samedi_p2_s1'] = {
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
-// ── LOGIN intégré ──
+// LOGIN
 
-(function() {
-  var EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
-  var EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
+var _EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
+var _EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
 
-  async function sha256(str) {
-    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+async function sha256Login(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+}
+
+async function doLogin() {
+  var login = (document.getElementById('el-login').value || '').trim();
+  var pwd = document.getElementById('el-pwd').value || '';
+  var lh = await sha256Login(login);
+  var ph = await sha256Login(pwd);
+  if (lh === _EL && ph === _EP) {
+    sessionStorage.setItem('eleve_auth','1');
+    document.getElementById('eleve-login').style.display = 'none';
+  } else {
+    document.getElementById('el-error').textContent = 'Identifiant ou mot de passe incorrect';
   }
+}
 
-  async function doLogin() {
-    var login = (document.getElementById('el-login').value || '').trim();
-    var pwd   = document.getElementById('el-pwd').value || '';
-    var lh = await sha256(login);
-    var ph = await sha256(pwd);
-    if (lh === EL && ph === EP) {
-      sessionStorage.setItem('eleve_auth','1');
-      document.getElementById('eleve-login').style.display = 'none';
-    } else {
-      document.getElementById('el-error').textContent = '❌ Identifiant ou mot de passe incorrect';
-    }
+document.addEventListener('DOMContentLoaded', function() {
+  if (sessionStorage.getItem('eleve_auth')) {
+    document.getElementById('eleve-login').style.display = 'none';
   }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    if (sessionStorage.getItem('eleve_auth')) {
-      document.getElementById('eleve-login').style.display = 'none';
-    }
-    document.getElementById('eleve-btn').addEventListener('click', doLogin);
-    document.getElementById('el-pwd').addEventListener('keydown', function(e) { if(e.key==='Enter') doLogin(); });
-    document.getElementById('el-login').addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
-  });
-})();
+  var btn = document.getElementById('eleve-btn');
+  if (btn) btn.addEventListener('click', doLogin);
+  var pwd = document.getElementById('el-pwd');
+  if (pwd) pwd.addEventListener('keydown', function(e) { if(e.key==='Enter') doLogin(); });
+  var lid = document.getElementById('el-login');
+  if (lid) lid.addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
+});
 
 
 renderPlanning();
