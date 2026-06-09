@@ -2766,6 +2766,9 @@ async function doLogin() {
   if (lh === _EL && ph === _EP) {
     sessionStorage.setItem('eleve_auth','1');
     document.getElementById('eleve-login').style.display = 'none';
+    renderPlanning();
+    updateCountdown();
+    computeStats();
   } else {
     document.getElementById('el-error').textContent = 'Identifiant ou mot de passe incorrect';
   }
