@@ -1151,12 +1151,11 @@ function renderModalTabs(phaseNum, jourNom) {
   const tabs = document.getElementById('modal-tabs');
   // Clés Phase 1 : s1=lundi_s1, s2=lundi_s2, s3=lundi_p1_s3, s4=lundi_p1_s4
   var _fkey;
-  if (currentFiche && currentFiche.semNum && phaseNum === 1) {
-    var sn = currentFiche.semNum;
-    if (sn <= 2) { _fkey = jourNom.toLowerCase() + '_s' + sn; }
-    else { _fkey = jourNom.toLowerCase() + '_p1_s' + sn; }
+  var _jn = jourNom.toLowerCase();
+  if (currentFiche && currentFiche.semNum) {
+    _fkey = _jn + '_p' + phaseNum + '_s' + currentFiche.semNum;
   } else {
-    _fkey = jourNom.toLowerCase() + '_s' + phaseNum;
+    _fkey = _jn + '_s' + phaseNum;
   }
   const hasCours = FICHES[_fkey]?.cours;
   const hasExo = FICHES[_fkey]?.exercices;
@@ -1172,12 +1171,12 @@ function renderModalTab(tab, btn) {
     btn.classList.add('active');
   }
   const { phaseNum, jourNom, semNum } = currentFiche;
+  var _jn2 = jourNom.toLowerCase();
   var key;
-  if (semNum && phaseNum === 1) {
-    if (semNum <= 2) { key = jourNom.toLowerCase() + '_s' + semNum; }
-    else { key = jourNom.toLowerCase() + '_p1_s' + semNum; }
+  if (semNum) {
+    key = _jn2 + '_p' + phaseNum + '_s' + semNum;
   } else {
-    key = jourNom.toLowerCase() + '_s' + phaseNum;
+    key = _jn2 + '_s' + phaseNum;
   }
   const fiche = FICHES[key];
   const js = getJourState(phaseNum, jourNom);
@@ -1380,7 +1379,7 @@ function showToast(msg) {
 const FICHES = {
 
   // ─── LUNDI S1 ────────────────────────────────────────────────
-  lundi_s1: {
+  lundi_p1_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">1. Les accords sujet-verbe</div>
@@ -1476,7 +1475,7 @@ const FICHES = {
   },
 
   // ─── MERCREDI S1 ─────────────────────────────────────────────
-  mercredi_s1: {
+  mercredi_p1_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">1. La Ve République</div>
@@ -1533,7 +1532,7 @@ const FICHES = {
   },
 
   // ─── JEUDI S1 ─────────────────────────────────────────────────
-  jeudi_s1: {
+  jeudi_p1_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">Méthode QCM — Conseils</div>
@@ -1587,7 +1586,7 @@ const FICHES = {
   },
 
   // ─── VENDREDI S1 ──────────────────────────────────────────────
-  vendredi_s1: {
+  vendredi_p1_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">Méthode — Compréhension de texte</div>
@@ -1659,7 +1658,7 @@ const CORRECTIONS_VENDREDI = {
 
 // Fiches génériques pour les autres jours (à développer)
 // ─── MARDI S1 — SPORT ────────────────────────────────────────
-FICHES['mardi_s1'] = {
+FICHES['mardi_p1_s1'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Programme du jour — 55 minutes</div>
@@ -1759,7 +1758,7 @@ FICHES['mardi_s1'] = {
 };
 
 // ─── SAMEDI S1 — BILAN + SPORT ───────────────────────────────
-FICHES['samedi_s1'] = {
+FICHES['samedi_p1_s1'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Sortie sportive libre — 45 min</div>
@@ -1870,7 +1869,7 @@ FICHES['samedi_s1'] = {
 // FICHES SEMAINE 2 — Phase 2
 // ══════════════════════════════════════════════════════════════
 
-FICHES['lundi_s2'] = {
+FICHES['lundi_p1_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">1. Qu'est-ce qu'un résumé ?</div>
@@ -1940,7 +1939,7 @@ FICHES['lundi_s2'] = {
   qcmAnswers: {}
 };
 
-FICHES['mardi_s2'] = {
+FICHES['mardi_p1_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Footing fractionné — 35 min</div>
@@ -1987,7 +1986,7 @@ FICHES['mardi_s2'] = {
   qcmAnswers: {}
 };
 
-FICHES['mercredi_s2'] = {
+FICHES['mercredi_p1_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">1. La DGDDI</div>
@@ -2049,7 +2048,7 @@ FICHES['mercredi_s2'] = {
       </div>`).join('')}`,
 };
 
-FICHES['jeudi_s2'] = {
+FICHES['jeudi_p1_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">1. Les matrices logiques</div>
@@ -2102,7 +2101,7 @@ FICHES['jeudi_s2'] = {
   qcmAnswers: {j1:"B",j2:"B",j3:"C",j4:"C",j5:"B",j6:"C",j7:"C",j8:"B",j9:"B",j10:"A"}
 };
 
-FICHES['vendredi_s2'] = {
+FICHES['vendredi_p1_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">Structure du paragraphe argumenté</div>
@@ -2130,7 +2129,7 @@ FICHES['vendredi_s2'] = {
     </div>`,
 };
 
-FICHES['samedi_s2'] = {
+FICHES['samedi_p1_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Sortie longue — 1 heure</div>
@@ -2586,7 +2585,7 @@ FICHES['samedi_p1_s4'] = {
 // ══════════════════════════════════════════════════════════════
 
 // ── LUNDI P2 ──────────────────────────────────────────────────
-FICHES['lundi_s2'] = {
+FICHES['lundi_p2_s1'] = {
   cours: '<div class="fiche-section"><div class="fiche-section-title">1. Les 3 niveaux de reformulation</div><table class="fiche-table"><tr><th>Niveau</th><th>Technique</th><th>Exemple</th></tr><tr><td><strong>1 — Synonymie</strong></td><td>Remplacer un mot par un synonyme</td><td>Insuffisant seul en Phase 2</td></tr><tr><td><strong>2 — Restructuration</strong></td><td>Changer la construction de la phrase</td><td>Passif vers actif, phrase complexe vers simple</td></tr><tr><td><strong>3 — Synthese</strong></td><td>Regrouper plusieurs phrases en une seule</td><td>3 exemples du texte vers 1 idee generale</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">2. Gestion des chiffres dans le resume</div><table class="fiche-table"><tr><th>Dans le texte</th><th>Dans le resume</th></tr><tr><td>28 000 fonctionnaires</td><td>des dizaines de milliers d\'agents</td></tr><tr><td>une hausse de 12,7%</td><td>une augmentation significative</td></tr><tr><td>620 km de frontieres</td><td>un long lineaire frontalier</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">3. Connecteurs avances</div><table class="fiche-table"><tr><th>Usage</th><th>Connecteurs</th></tr><tr><td><strong>Nuance</strong></td><td>Si ce n\'est que, a ceci pres que, encore que</td></tr><tr><td><strong>Illustration</strong></td><td>C\'est ainsi que, a titre d\'exemple</td></tr><tr><td><strong>Cause profonde</strong></td><td>Eu egard a, compte tenu de, en raison de</td></tr><tr><td><strong>Consequence</strong></td><td>Il s\'ensuit que, d\'ou, de la decoule</td></tr><tr><td><strong>Reformulation</strong></td><td>Autrement dit, c\'est-a-dire, en d\'autres termes</td></tr></table><div class="note-box">Objectif : 145-155 mots exactement, style varie, connecteurs de niveau avance.</div></div>',
   exercices: function(submitted, corrected, answers) {
     var texte = 'La modernisation de l\'administration francaise s\'est considerablement acceleree depuis le debut des annees 2010. La DGDDI n\'a pas echappe a ce mouvement : ses effectifs ont ete reduits d\'environ 20% entre 2009 et 2022, passant de plus de 20 000 a environ 16 000 agents. Paradoxalement, cette reduction des moyens humains s\'est accompagnee d\'une intensification des missions. Pour compenser, la DGDDI a massivement investi dans les nouvelles technologies : scanners a rayons X, algorithmes de detection des risques, declarations electroniques. Cependant, les situations complexes sur le terrain -- interrogatoire d\'un voyageur suspect, evaluation d\'une situation ambigue -- requierent des competences humaines irrempplacables : jugement, intuition, detection des comportements anormaux. Ces qualites justifient que la formation des agents reste une priorite absolue.';
@@ -2605,7 +2604,7 @@ FICHES['lundi_s2'] = {
 };
 
 // ── MARDI P2 ──────────────────────────────────────────────────
-FICHES['mardi_s2'] = {
+FICHES['mardi_p2_s1'] = {
   cours: '<div class="fiche-section"><div class="fiche-section-title">Sport Phase 2 - Footing + Pompes</div><div class="note-box">Phase 2 : on monte en intensite. Pompes : 4 series cette semaine. Toujours sur les genoux si necessaire.</div><table class="fiche-table"><tr><th>Exercice</th><th>Volume</th><th>Consigne</th></tr><tr><td><strong>Echauffement</strong></td><td>10 min</td><td>Marche + rotations + 5 pompes lentes</td></tr><tr><td><strong>Footing continu</strong></td><td>35 min</td><td>Allure reguliere 5-6/10, respiration nasale</td></tr><tr><td><strong>Pompes (genoux ou classiques)</strong></td><td>4 series x max</td><td>Repos 45 sec. Corps aligne, coudes a 45 deg</td></tr><tr><td><strong>Gainage frontal</strong></td><td>3 x 40 sec</td><td>Progression +10 sec vs Phase 1</td></tr><tr><td><strong>Abdos crunch</strong></td><td>3 x 18</td><td>Montee lente, descente controlee</td></tr><tr><td><strong>Retour au calme</strong></td><td>5 min</td><td>Etirements complets</td></tr></table></div>',
   exercices: function(submitted, corrected, answers) {
     var fields = [
@@ -2630,7 +2629,7 @@ FICHES['mardi_s2'] = {
 };
 
 // ── MERCREDI P2 ───────────────────────────────────────────────
-FICHES['mercredi_s2'] = {
+FICHES['mercredi_p2_s1'] = {
   cours: '<div class="fiche-section"><div class="fiche-section-title">1. L\'Union douaniere europeenne</div><p class="fiche-text">L\'UE forme une union douaniere depuis 1968 : libre circulation entre Etats membres + tarif douanier commun pour les pays tiers.</p><table class="fiche-table"><tr><th>Principe</th><th>Explication</th></tr><tr><td><strong>Libre circulation</strong></td><td>Aucun droit de douane entre Etats membres</td></tr><tr><td><strong>Tarif exterieur commun</strong></td><td>Meme taux pour les importations hors UE</td></tr><tr><td><strong>Code des douanes (CDU)</strong></td><td>Reglement UE 952/2013 - texte de reference</td></tr><tr><td><strong>Declaration en douane</strong></td><td>Obligatoire pour toute marchandise entrant dans l\'UE</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">2. Principales infractions douanieres</div><table class="fiche-table"><tr><th>Infraction</th><th>Definition</th><th>Sanction</th></tr><tr><td><strong>Contrebande</strong></td><td>Import/export sans declaration</td><td>Confiscation + amende + prison</td></tr><tr><td><strong>Fausse declaration</strong></td><td>Declaration inexacte (nature, valeur)</td><td>Amende proportionnelle</td></tr><tr><td><strong>Fraude fiscale</strong></td><td>Non-paiement volontaire des droits</td><td>Amende + redressement</td></tr><tr><td><strong>Trafic de stupefiants</strong></td><td>Importation de substances illicites</td><td>Peine criminelle jusqu\'a 30 ans</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">3. Pouvoirs de l\'agent des douanes</div><table class="fiche-table"><tr><th>Pouvoir</th><th>Conditions</th></tr><tr><td><strong>Droit de visite</strong></td><td>Controler marchandises, bagages, vehicules</td></tr><tr><td><strong>Retenue douaniere</strong></td><td>Retenir une personne jusqu\'a 3h</td></tr><tr><td><strong>Saisie</strong></td><td>Confisquer les marchandises en infraction</td></tr><tr><td><strong>Proces-verbal</strong></td><td>Constater et transmettre les infractions</td></tr></table><div class="note-box">Point oral : l\'agent de surveillance est fonctionnaire et represente l\'Etat. Ses pouvoirs sont encadres par la loi.</div></div>',
   exercices: function(submitted, corrected, answers) {
     var questions = [
@@ -2653,7 +2652,7 @@ FICHES['mercredi_s2'] = {
 };
 
 // ── JEUDI P2 ──────────────────────────────────────────────────
-FICHES['jeudi_s2'] = {
+FICHES['jeudi_p2_s1'] = {
   cours: '<div class="fiche-section"><div class="fiche-section-title">Logique avancee - Methodes cles</div><div class="fiche-bullet"><strong>Transitivite :</strong> Si A implique B et B implique C, alors A implique C</div><div class="fiche-bullet"><strong>Contraposee :</strong> Si A implique B, alors non-B implique non-A</div><div class="fiche-bullet"><strong>Disjonction :</strong> Si A ou B est vrai, et A est faux, alors B est vrai</div><div class="fiche-bullet"><strong>Suites :</strong> chercher la difference entre termes consecutifs</div><div class="fiche-bullet"><strong>Matrices :</strong> la regle doit fonctionner en ligne ET en colonne</div><div class="note-box">Objectif : 24/30 en 25 min. Phase 2 = questions plus complexes, pieges plus subtils.</div></div>',
   exercices: function(submitted, corrected, answers) {
     var qcm = [
@@ -2691,7 +2690,7 @@ FICHES['jeudi_s2'] = {
 };
 
 // ── VENDREDI P2 ───────────────────────────────────────────────
-FICHES['vendredi_s2'] = {
+FICHES['vendredi_p2_s1'] = {
   cours: '<div class="fiche-section"><div class="fiche-section-title">Rappel methode comprehension</div><div class="fiche-bullet"><strong>1.</strong> Lire entierement sans s\'arreter.</div><div class="fiche-bullet"><strong>2.</strong> Relire en soulignant les idees cles.</div><div class="fiche-bullet"><strong>3.</strong> Repondre en reformulant - ne pas recopier.</div><div class="fiche-bullet"><strong>Phase 2 :</strong> reformulation precise, justification appuyee sur le texte, vocabulaire soigne.</div></div>',
   exercices: function(submitted, corrected, answers) {
     var texte = 'La fonction publique francaise traverse une profonde mutation. Elle doit composer avec des exigences contradictoires : reduire ses effectifs pour alleger les finances publiques tout en ameliorant la qualite du service. La loi du 6 aout 2019 a introduit la possibilite de recruter des contractuels sur des emplois de direction et facilite la mobilite entre les trois versants. Le numerique automatise des taches manuelles mais genere des angoisses sur l\'avenir de certains emplois. Face a ces transformations, la formation continue est devenue strategique. Chaque fonctionnaire beneficie d\'un CPF. L\'enjeu n\'est plus seulement de former aux outils numeriques, mais de developper des competences transversales : adaptabilite, esprit critique, capacite a travailler en mode projet.';
@@ -2722,7 +2721,7 @@ FICHES['vendredi_s2'] = {
 };
 
 // ── SAMEDI P2 ─────────────────────────────────────────────────
-FICHES['samedi_s2'] = {
+FICHES['samedi_p2_s1'] = {
   cours: '<div class="fiche-section"><div class="fiche-section-title">Sortie longue - 1 heure</div><div class="fiche-bullet">Footing ou marche rapide a allure moderee (4-5/10).</div><div class="fiche-bullet">Etirements 5-10 min apres l\'effort.</div><div class="note-box">Lecture de presse 15 min : sujet national (institutions, economie, societe).</div></div>',
   exercices: function(submitted, corrected, answers) {
     var jours = [
