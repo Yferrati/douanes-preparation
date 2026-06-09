@@ -1149,9 +1149,15 @@ document.getElementById('modal-overlay').addEventListener('click', function(e) {
 
 function renderModalTabs(phaseNum, jourNom) {
   const tabs = document.getElementById('modal-tabs');
-  const _fkey = currentFiche && currentFiche.semNum && phaseNum === 1
-    ? jourNom.toLowerCase() + '_p1_s' + currentFiche.semNum
-    : jourNom.toLowerCase() + '_s' + phaseNum;
+  // Clés Phase 1 : s1=lundi_s1, s2=lundi_s2, s3=lundi_p1_s3, s4=lundi_p1_s4
+  var _fkey;
+  if (currentFiche && currentFiche.semNum && phaseNum === 1) {
+    var sn = currentFiche.semNum;
+    if (sn <= 2) { _fkey = jourNom.toLowerCase() + '_s' + sn; }
+    else { _fkey = jourNom.toLowerCase() + '_p1_s' + sn; }
+  } else {
+    _fkey = jourNom.toLowerCase() + '_s' + phaseNum;
+  }
   const hasCours = FICHES[_fkey]?.cours;
   const hasExo = FICHES[_fkey]?.exercices;
   tabs.innerHTML = '';
@@ -1166,9 +1172,13 @@ function renderModalTab(tab, btn) {
     btn.classList.add('active');
   }
   const { phaseNum, jourNom, semNum } = currentFiche;
-  const key = semNum && phaseNum === 1
-    ? jourNom.toLowerCase() + '_p1_s' + semNum
-    : jourNom.toLowerCase() + '_s' + phaseNum;
+  var key;
+  if (semNum && phaseNum === 1) {
+    if (semNum <= 2) { key = jourNom.toLowerCase() + '_s' + semNum; }
+    else { key = jourNom.toLowerCase() + '_p1_s' + semNum; }
+  } else {
+    key = jourNom.toLowerCase() + '_s' + phaseNum;
+  }
   const fiche = FICHES[key];
   const js = getJourState(phaseNum, jourNom);
   const body = document.getElementById('modal-body');
@@ -2571,13 +2581,190 @@ FICHES['samedi_p1_s4'] = {
 };
 
 
+// ══════════════════════════════════════════════════════════════
+// FICHES PHASE 2 — Semaines 1 à 4 (clés: jourNom_s2)
+// ══════════════════════════════════════════════════════════════
+
+// ── LUNDI P2 ──────────────────────────────────────────────────
+FICHES['lundi_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">1. Les 3 niveaux de reformulation</div><table class="fiche-table"><tr><th>Niveau</th><th>Technique</th><th>Exemple</th></tr><tr><td><strong>1 — Synonymie</strong></td><td>Remplacer un mot par un synonyme</td><td>Insuffisant seul en Phase 2</td></tr><tr><td><strong>2 — Restructuration</strong></td><td>Changer la construction de la phrase</td><td>Passif vers actif, phrase complexe vers simple</td></tr><tr><td><strong>3 — Synthese</strong></td><td>Regrouper plusieurs phrases en une seule</td><td>3 exemples du texte vers 1 idee generale</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">2. Gestion des chiffres dans le resume</div><table class="fiche-table"><tr><th>Dans le texte</th><th>Dans le resume</th></tr><tr><td>28 000 fonctionnaires</td><td>des dizaines de milliers d\'agents</td></tr><tr><td>une hausse de 12,7%</td><td>une augmentation significative</td></tr><tr><td>620 km de frontieres</td><td>un long lineaire frontalier</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">3. Connecteurs avances</div><table class="fiche-table"><tr><th>Usage</th><th>Connecteurs</th></tr><tr><td><strong>Nuance</strong></td><td>Si ce n\'est que, a ceci pres que, encore que</td></tr><tr><td><strong>Illustration</strong></td><td>C\'est ainsi que, a titre d\'exemple</td></tr><tr><td><strong>Cause profonde</strong></td><td>Eu egard a, compte tenu de, en raison de</td></tr><tr><td><strong>Consequence</strong></td><td>Il s\'ensuit que, d\'ou, de la decoule</td></tr><tr><td><strong>Reformulation</strong></td><td>Autrement dit, c\'est-a-dire, en d\'autres termes</td></tr></table><div class="note-box">Objectif : 145-155 mots exactement, style varie, connecteurs de niveau avance.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var texte = 'La modernisation de l\'administration francaise s\'est considerablement acceleree depuis le debut des annees 2010. La DGDDI n\'a pas echappe a ce mouvement : ses effectifs ont ete reduits d\'environ 20% entre 2009 et 2022, passant de plus de 20 000 a environ 16 000 agents. Paradoxalement, cette reduction des moyens humains s\'est accompagnee d\'une intensification des missions. Pour compenser, la DGDDI a massivement investi dans les nouvelles technologies : scanners a rayons X, algorithmes de detection des risques, declarations electroniques. Cependant, les situations complexes sur le terrain -- interrogatoire d\'un voyageur suspect, evaluation d\'une situation ambigue -- requierent des competences humaines irrempplacables : jugement, intuition, detection des comportements anormaux. Ces qualites justifient que la formation des agents reste une priorite absolue.';
+    var val = (answers && answers['res_p2_l']) || '';
+    var dis = submitted ? 'disabled' : '';
+    var show = corrected ? 'show' : '';
+    var html = '<div class="exo-num">Exercice - Resume en 150 mots (+-10%)</div>';
+    html += '<div class="note-box">Lis d\'abord entierement, puis redige SANS regarder le texte.</div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-size:12px;line-height:1.8">' + texte + '</div>';
+    html += '<textarea class="answer-area" id="res_p2_l" style="min-height:200px" ' + dis + ' onchange="saveAnswer(\'res_p2_l\')">' + val + '</textarea>';
+    html += '<div style="margin-bottom:10px"><strong style="font-size:12px">Nombre de mots : </strong><input type="number" style="width:60px;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px" placeholder="0"> / 150</div>';
+    html += '<div class="correction-zone ' + show + '"><div class="correction-label">Elements de correction</div>Idees attendues : (1) reduction des effectifs DGDDI malgre intensification des missions, (2) investissement technologique pour compenser, (3) mais les competences humaines restent irrempplacables (jugement, intuition), (4) donc la formation reste prioritaire.</div>';
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+// ── MARDI P2 ──────────────────────────────────────────────────
+FICHES['mardi_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Sport Phase 2 - Footing + Pompes</div><div class="note-box">Phase 2 : on monte en intensite. Pompes : 4 series cette semaine. Toujours sur les genoux si necessaire.</div><table class="fiche-table"><tr><th>Exercice</th><th>Volume</th><th>Consigne</th></tr><tr><td><strong>Echauffement</strong></td><td>10 min</td><td>Marche + rotations + 5 pompes lentes</td></tr><tr><td><strong>Footing continu</strong></td><td>35 min</td><td>Allure reguliere 5-6/10, respiration nasale</td></tr><tr><td><strong>Pompes (genoux ou classiques)</strong></td><td>4 series x max</td><td>Repos 45 sec. Corps aligne, coudes a 45 deg</td></tr><tr><td><strong>Gainage frontal</strong></td><td>3 x 40 sec</td><td>Progression +10 sec vs Phase 1</td></tr><tr><td><strong>Abdos crunch</strong></td><td>3 x 18</td><td>Montee lente, descente controlee</td></tr><tr><td><strong>Retour au calme</strong></td><td>5 min</td><td>Etirements complets</td></tr></table></div>',
+  exercices: function(submitted, corrected, answers) {
+    var fields = [
+      ['p2m_dur', 'Footing (duree)', '35 min'],
+      ['p2m_pom', 'Pompes (type + nb)', '4 series'],
+      ['p2m_gai', 'Gainage tenu', '40 sec x 3'],
+      ['p2m_res', 'Ressenti (1-10)', '6-7/10']
+    ];
+    var html = '<div class="exo-num">Fiche de suivi - Mardi Phase 2</div>';
+    html += '<table class="fiche-table"><tr><th>Indicateur</th><th>Objectif</th><th>Realise</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    fields.forEach(function(f) {
+      var val = (answers && answers[f[0]]) || '';
+      html += '<tr><td>' + f[1] + '</td><td>' + f[2] + '</td><td><textarea class="answer-area" id="' + f[0] + '" style="min-height:34px" ' + dis + ' onchange="saveAnswer(\'' + f[0] + '\')">' + val + '</textarea></td></tr>';
+    });
+    html += '</table>';
+    var obs = (answers && answers['p2m_obs']) || '';
+    html += '<textarea class="answer-area" id="p2m_obs" style="min-height:70px;margin-top:10px" placeholder="Observations..." ' + dis + ' onchange="saveAnswer(\'p2m_obs\')">' + obs + '</textarea>';
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+// ── MERCREDI P2 ───────────────────────────────────────────────
+FICHES['mercredi_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">1. L\'Union douaniere europeenne</div><p class="fiche-text">L\'UE forme une union douaniere depuis 1968 : libre circulation entre Etats membres + tarif douanier commun pour les pays tiers.</p><table class="fiche-table"><tr><th>Principe</th><th>Explication</th></tr><tr><td><strong>Libre circulation</strong></td><td>Aucun droit de douane entre Etats membres</td></tr><tr><td><strong>Tarif exterieur commun</strong></td><td>Meme taux pour les importations hors UE</td></tr><tr><td><strong>Code des douanes (CDU)</strong></td><td>Reglement UE 952/2013 - texte de reference</td></tr><tr><td><strong>Declaration en douane</strong></td><td>Obligatoire pour toute marchandise entrant dans l\'UE</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">2. Principales infractions douanieres</div><table class="fiche-table"><tr><th>Infraction</th><th>Definition</th><th>Sanction</th></tr><tr><td><strong>Contrebande</strong></td><td>Import/export sans declaration</td><td>Confiscation + amende + prison</td></tr><tr><td><strong>Fausse declaration</strong></td><td>Declaration inexacte (nature, valeur)</td><td>Amende proportionnelle</td></tr><tr><td><strong>Fraude fiscale</strong></td><td>Non-paiement volontaire des droits</td><td>Amende + redressement</td></tr><tr><td><strong>Trafic de stupefiants</strong></td><td>Importation de substances illicites</td><td>Peine criminelle jusqu\'a 30 ans</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">3. Pouvoirs de l\'agent des douanes</div><table class="fiche-table"><tr><th>Pouvoir</th><th>Conditions</th></tr><tr><td><strong>Droit de visite</strong></td><td>Controler marchandises, bagages, vehicules</td></tr><tr><td><strong>Retenue douaniere</strong></td><td>Retenir une personne jusqu\'a 3h</td></tr><tr><td><strong>Saisie</strong></td><td>Confisquer les marchandises en infraction</td></tr><tr><td><strong>Proces-verbal</strong></td><td>Constater et transmettre les infractions</td></tr></table><div class="note-box">Point oral : l\'agent de surveillance est fonctionnaire et represente l\'Etat. Ses pouvoirs sont encadres par la loi.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var questions = [
+      ['p2me1', 'Qu\'est-ce que l\'Union douaniere europeenne et depuis quand existe-t-elle ?', 'L\'UE forme une union douaniere depuis 1968 : libre circulation des marchandises entre Etats membres + tarif exterieur commun pour les pays tiers. Code des douanes de l\'Union (CDU) = Reglement 952/2013.'],
+      ['p2me2', 'Quelle est la difference entre contrebande et fausse declaration ?', 'Contrebande = import/export SANS declaration. Fausse declaration = declaration qui existe mais inexacte (mauvaise valeur, nature, origine). Les deux sont des infractions mais de nature differente.'],
+      ['p2me3', 'Cite 3 pouvoirs de l\'agent des douanes et leurs conditions.', 'Droit de visite (marchandises, bagages), retenue douaniere (jusqu\'a 3h), saisie (confiscation en infraction), redaction de proces-verbal.'],
+      ['p2me4', 'Qu\'est-ce que le blanchiment d\'argent et comment les douanes y participent-elles ?', 'Blanchiment = dissimuler l\'origine illicite de capitaux en les reinjectant dans l\'economie legale. Les douanes controlent les mouvements de capitaux aux frontieres et collaborent avec Tracfin.']
+    ];
+    var html = '<div class="exo-num">Questions - Droit douanier</div>';
+    questions.forEach(function(q) {
+      var val = (answers && answers[q[0]]) || '';
+      var dis = submitted ? 'disabled' : '';
+      var show = corrected ? 'show' : '';
+      html += '<div class="exo-phrase">' + q[1] + '</div>';
+      html += '<textarea class="answer-area" id="' + q[0] + '" style="min-height:70px" ' + dis + ' onchange="saveAnswer(\'' + q[0] + '\')">' + val + '</textarea>';
+      html += '<div class="correction-zone ' + show + '"><div class="correction-label">Elements de reponse</div>' + q[2] + '</div>';
+    });
+    return html;
+  }
+};
+
+// ── JEUDI P2 ──────────────────────────────────────────────────
+FICHES['jeudi_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Logique avancee - Methodes cles</div><div class="fiche-bullet"><strong>Transitivite :</strong> Si A implique B et B implique C, alors A implique C</div><div class="fiche-bullet"><strong>Contraposee :</strong> Si A implique B, alors non-B implique non-A</div><div class="fiche-bullet"><strong>Disjonction :</strong> Si A ou B est vrai, et A est faux, alors B est vrai</div><div class="fiche-bullet"><strong>Suites :</strong> chercher la difference entre termes consecutifs</div><div class="fiche-bullet"><strong>Matrices :</strong> la regle doit fonctionner en ligne ET en colonne</div><div class="note-box">Objectif : 24/30 en 25 min. Phase 2 = questions plus complexes, pieges plus subtils.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var qcm = [
+      {id:'p2j1', q:'Tous les douaniers sont fonctionnaires. Tous les fonctionnaires cotisent a la retraite. Donc :', opts:['A) Certains douaniers cotisent','B) Tous les douaniers cotisent','C) Aucun ne cotise','D) On ne sait pas'], ans:'B'},
+      {id:'p2j2', q:'Serie : 1, 2, 4, 8, 16, 32, 64, ?', opts:['A) 96','B) 112','C) 128','D) 256'], ans:'C'},
+      {id:'p2j3', q:'Aucun trafic n\'est legal. Cette activite est legale. Donc :', opts:['A) C\'est un trafic','B) Ce n\'est pas un trafic','C) Peut-etre un trafic','D) Rien'], ans:'B'},
+      {id:'p2j4', q:'Matrice : 2,4,8 / 3,9,27 / 4,16,?', opts:['A) 48','B) 56','C) 64','D) 72'], ans:'C'},
+      {id:'p2j5', q:'Serie : 7, 11, 16, 22, 29, ?', opts:['A) 35','B) 37','C) 38','D) 40'], ans:'B'},
+      {id:'p2j6', q:'Si P implique Q, Q implique R, et R est faux, alors :', opts:['A) P est vrai','B) Q est vrai','C) P est faux','D) Rien'], ans:'C'},
+      {id:'p2j7', q:'Matrice : 1,3,9 / 2,6,18 / 3,9,?', opts:['A) 24','B) 27','C) 30','D) 36'], ans:'B'},
+      {id:'p2j8', q:'Serie : 100, 95, 85, 70, 50, ?', opts:['A) 20','B) 25','C) 30','D) 35'], ans:'B'},
+      {id:'p2j9', q:'5 agents x 3 controles/j x 5 jours = ?', opts:['A) 60','B) 70','C) 75','D) 80'], ans:'C'},
+      {id:'p2j10', q:'Etat:Prefet = Ministere:?', opts:['A) Directeur','B) Ministre','C) Secretaire','D) Sous-prefet'], ans:'B'}
+    ];
+    var html = '<div class="exo-num">QCM Logique avancee - 20 min chrono</div>';
+    html += '<div class="note-box">Score cible : 8+/10.</div>';
+    qcm.forEach(function(item) {
+      html += '<div class="qcm-item"><div class="qcm-question">' + item.id.replace('p2j','Q') + '. ' + item.q + '</div><div class="qcm-options">';
+      item.opts.forEach(function(o) {
+        var l = o[0];
+        var sel = (answers && answers.qcmAnswers && answers.qcmAnswers[item.id] === l) ? 'selected' : '';
+        var ok = (corrected && l === item.ans) ? 'correct-ans' : '';
+        var bad = (corrected && sel && l !== item.ans) ? 'wrong-ans' : '';
+        var locked = submitted ? 'locked' : '';
+        html += '<button class="qcm-opt ' + sel + ' ' + ok + ' ' + bad + ' ' + locked + '" data-qid="' + item.id + '" data-opt="' + l + '" onclick="selectQCM(\'' + item.id + '\',\'' + l + '\',this)">' + o + '</button>';
+      });
+      html += '</div></div>';
+    });
+    var scoreVal = (answers && answers['p2j_score']) || '';
+    var dis = submitted ? 'disabled' : '';
+    html += '<div style="margin-top:12px"><strong>Mon score :</strong><textarea class="answer-area" id="p2j_score" style="min-height:44px" ' + dis + ' onchange="saveAnswer(\'p2j_score\')">' + scoreVal + '</textarea></div>';
+    return html;
+  },
+  qcmAnswers: {p2j1:'B',p2j2:'C',p2j3:'B',p2j4:'C',p2j5:'B',p2j6:'C',p2j7:'B',p2j8:'B',p2j9:'C',p2j10:'B'}
+};
+
+// ── VENDREDI P2 ───────────────────────────────────────────────
+FICHES['vendredi_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Rappel methode comprehension</div><div class="fiche-bullet"><strong>1.</strong> Lire entierement sans s\'arreter.</div><div class="fiche-bullet"><strong>2.</strong> Relire en soulignant les idees cles.</div><div class="fiche-bullet"><strong>3.</strong> Repondre en reformulant - ne pas recopier.</div><div class="fiche-bullet"><strong>Phase 2 :</strong> reformulation precise, justification appuyee sur le texte, vocabulaire soigne.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var texte = 'La fonction publique francaise traverse une profonde mutation. Elle doit composer avec des exigences contradictoires : reduire ses effectifs pour alleger les finances publiques tout en ameliorant la qualite du service. La loi du 6 aout 2019 a introduit la possibilite de recruter des contractuels sur des emplois de direction et facilite la mobilite entre les trois versants. Le numerique automatise des taches manuelles mais genere des angoisses sur l\'avenir de certains emplois. Face a ces transformations, la formation continue est devenue strategique. Chaque fonctionnaire beneficie d\'un CPF. L\'enjeu n\'est plus seulement de former aux outils numeriques, mais de developper des competences transversales : adaptabilite, esprit critique, capacite a travailler en mode projet.';
+    var corrs = {
+      p2v1: 'La loi du 6 aout 2019 de transformation de la fonction publique. Elle permet de recruter des contractuels sur des emplois de direction et facilite la mobilite entre les trois versants.',
+      p2v2: 'Il automatise des taches manuelles, liberant du temps pour des missions a forte valeur humaine, mais genere des inquietudes legitimes sur l\'avenir de certains emplois.',
+      p2v3: 'Le Compte Personnel de Formation, alimente annuellement, garantit le droit a la formation de chaque fonctionnaire.',
+      p2v4: 'La fonction publique doit simultanement reduire ses effectifs et ameliorer le service aux citoyens : deux objectifs en apparente contradiction.'
+    };
+    var qs = [
+      ['p2v1','1. Quelle loi a constitue un tournant et en quoi consiste-t-elle ?'],
+      ['p2v2','2. Comment le numerique transforme-t-il les metiers de la fonction publique ?'],
+      ['p2v3','3. Qu\'est-ce que le CPF et quel est son role ?'],
+      ['p2v4','4. Resumez en 2 phrases le paradoxe central du texte.']
+    ];
+    var html = '<div class="exo-num">Comprehension de texte - Sujet national</div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-size:12px;line-height:1.8">' + texte + '</div>';
+    qs.forEach(function(q) {
+      var val = (answers && answers[q[0]]) || '';
+      var dis = submitted ? 'disabled' : '';
+      var show = corrected ? 'show' : '';
+      html += '<div class="exo-phrase">' + q[1] + '</div>';
+      html += '<textarea class="answer-area" id="' + q[0] + '" style="min-height:60px" ' + dis + ' onchange="saveAnswer(\'' + q[0] + '\')">' + val + '</textarea>';
+      html += '<div class="correction-zone ' + show + '"><div class="correction-label">Corrige type</div>' + corrs[q[0]] + '</div>';
+    });
+    return html;
+  }
+};
+
+// ── SAMEDI P2 ─────────────────────────────────────────────────
+FICHES['samedi_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Sortie longue - 1 heure</div><div class="fiche-bullet">Footing ou marche rapide a allure moderee (4-5/10).</div><div class="fiche-bullet">Etirements 5-10 min apres l\'effort.</div><div class="note-box">Lecture de presse 15 min : sujet national (institutions, economie, societe).</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var jours = [
+      ['p2b_lun','Lundi','Resume avance'],
+      ['p2b_mar','Mardi','Footing + Pompes'],
+      ['p2b_mer','Mercredi','Droit douanier'],
+      ['p2b_jeu','Jeudi','QCM logique'],
+      ['p2b_ven','Vendredi','Comprehension texte'],
+      ['p2b_sam','Samedi','Sortie + Presse']
+    ];
+    var html = '<div class="exo-num">Bilan semaine Phase 2</div>';
+    html += '<table class="fiche-table"><tr><th>Jour</th><th>Activite</th><th>Fait ?</th><th>Note /10</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    jours.forEach(function(j) {
+      var vok = (answers && answers[j[0]+'_ok']) || '';
+      var vn = (answers && answers[j[0]+'_n']) || '';
+      html += '<tr><td>' + j[1] + '</td><td>' + j[2] + '</td>';
+      html += '<td><textarea class="answer-area" id="' + j[0] + '_ok" style="min-height:34px" ' + dis + ' onchange="saveAnswer(\'' + j[0] + '_ok\')">' + vok + '</textarea></td>';
+      html += '<td><textarea class="answer-area" id="' + j[0] + '_n" style="min-height:34px" ' + dis + ' onchange="saveAnswer(\'' + j[0] + '_n\')">' + vn + '</textarea></td></tr>';
+    });
+    html += '</table>';
+    var fields = [
+      ['p2b_prog','Progression cette semaine :'],
+      ['p2b_diff','Points a ameliorer :'],
+      ['p2b_obj','Objectif semaine suivante :']
+    ];
+    fields.forEach(function(f) {
+      var val = (answers && answers[f[0]]) || '';
+      html += '<p style="margin-top:10px"><strong>' + f[1] + '</strong></p>';
+      html += '<textarea class="answer-area" id="' + f[0] + '" style="min-height:50px" ' + dis + ' onchange="saveAnswer(\'' + f[0] + '\')">' + val + '</textarea>';
+    });
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
-renderPlanning();
-</script>
+// ── LOGIN intégré ──
 
-<script>
 (function() {
   var EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
   var EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
@@ -2609,7 +2796,12 @@ renderPlanning();
     document.getElementById('el-login').addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
   });
 })();
+
+
+renderPlanning();
 </script>
+
+
 
 </body>
 </html>
