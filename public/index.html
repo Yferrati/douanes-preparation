@@ -658,19 +658,6 @@ body {
   </div>
 </div>
 
-<div id="eleve-login" style="position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
-  <div style="background:#181c27;border:1px solid #2a2f45;border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center;">
-    <div style="font-size:44px;margin-bottom:16px">🎯</div>
-    <div style="font-family:sans-serif;font-weight:800;font-size:20px;margin-bottom:6px;color:#e8eaf0">Concours Douanes 2026</div>
-    <div style="font-size:13px;color:#7b82a0;margin-bottom:28px">Plateforme de revision — CHRISTOPHE-HAYOT</div>
-    <input id="el-login" type="text" placeholder="Identifiant" autocomplete="username" style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
-    <input id="el-pwd" type="password" placeholder="Mot de passe" autocomplete="current-password" style="width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2a2f45;border-radius:8px;color:#e8eaf0;font-size:14px;margin-bottom:10px;box-sizing:border-box">
-    <div id="el-error" style="color:#f87171;font-size:12px;margin-bottom:10px;min-height:16px"></div>
-    <button id="eleve-btn" style="width:100%;padding:12px;background:#4f8ef7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🔓 Acceder au planning</button>
-    <div style="margin-top:16px"><a href="/correcteur.html" style="font-size:11px;color:#7b82a0;text-decoration:none">Acces correcteur →</a></div>
-  </div>
-</div>
-
 <div class="app">
 
   <!-- SIDEBAR -->
@@ -1125,48 +1112,60 @@ function renderPhaseProgress(phaseNum) {
 // ═══════════════════════════════════════════════════════════════
 let currentFiche = null;
 
-function showSemainePicker(ph, jn) {
-  var phase = PHASES.find(function(p){return p.num===ph;});
+
+function getFicheKey(phaseNum, jourNom, semNum) {
+  var j = jourNom.toLowerCase();
+  if (!semNum) return j + '_s' + phaseNum;
+  // Phase 1 S1/S2 : clés lundi_s1, lundi_s2
+  if (phaseNum === 1 && semNum <= 2) return j + '_s' + semNum;
+  // Toutes les autres : lundi_p{phase}_s{sem}
+  return j + '_p' + phaseNum + '_s' + semNum;
+}
+
+function showSemainePicker(phaseNum, jourNom) {
+  var phase = PHASES.find(function(p) { return p.num === phaseNum; });
   var c = phase.color;
-  var ji = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'].indexOf(jn);
-  var D={1:['08/06','09/06','10/06','11/06','12/06','13/06'],2:['15/06','16/06','17/06','18/06','19/06','20/06'],3:['22/06','23/06','24/06','25/06','26/06','27/06'],4:['29/06','30/06','01/07','02/07','03/07','04/07']};
-  var M=[['Grammaire','Sport','Institutions','Logique QCM','Comprehension','Bilan'],['Resume texte','Sport fractionne','Missions douanes','Matrices','Expression ecrite','Sortie'],['Accords adjectifs','Circuit complet','Histoire France','Logique deductions','Comprehension','Bilan'],['Test blanc','Simulation sport','Droit libertes','Test blanc logique','Expression ecrite','Bilan P1']];
-  document.getElementById('modal-badge').style.background=c.bg;
-  document.getElementById('modal-badge').style.border='1px solid '+c.border;
-  document.getElementById('modal-badge').style.color=c.text;
-  document.getElementById('modal-badge').innerHTML='<span style="font-family:Syne;font-weight:800;font-size:10px">'+jn+'</span>';
-  document.getElementById('modal-title').textContent=jn+' - Phase '+ph;
-  document.getElementById('modal-subtitle').textContent='Choisissez la semaine';
-  document.getElementById('modal-tabs').innerHTML='';
-  var h='<div style="padding:8px 0">';
-  for(var s=1;s<=4;s++){
-    var js2=getJourState(ph,jn);
-    var done=js2.checks&&js2.checks['s'+s];
-    var date=ji>=0?D[s][ji]:'';
-    var mat=ji>=0?M[s-1][ji]:'';
-    h+='<div id="psem'+s+'" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border-radius:10px;cursor:pointer;background:var(--surface2);border:1px solid '+(done?'var(--green)':'var(--border)')+'"><div><div style="font-family:Syne;font-weight:700;font-size:14px;color:var(--text)">Semaine '+s+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+date+' - '+mat+'</div></div><div style="font-size:18px">'+(done?'✅':'→')+'</div></div>';
+  var ji = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'].indexOf(jourNom);
+  var datesP1 = {1:['08/06','09/06','10/06','11/06','12/06','13/06'],2:['15/06','16/06','17/06','18/06','19/06','20/06'],3:['22/06','23/06','24/06','25/06','26/06','27/06'],4:['29/06','30/06','01/07','02/07','03/07','04/07']};
+  var datesP2 = {1:['06/07','07/07','08/07','09/07','10/07','11/07'],2:['13/07','14/07','15/07','16/07','17/07','18/07'],3:['20/07','21/07','22/07','23/07','24/07','25/07'],4:['27/07','28/07','29/07','30/07','31/07','01/08']};
+  var dates = phaseNum === 2 ? datesP2 : datesP1;
+  var matieres = phaseNum === 2
+    ? [['Resume avance','Sport pompes','Droit douanier','Logique 30 QCM','Comprehension','Bilan'],['Expression ecrite','Sport circuit','Institutions Etat','Raisonnement','Comprehension','Bilan'],['Resume chrono','Sport fractionne','Economie nationale','Test blanc logique','Expression','Bilan'],['Test blanc complet','Simulation sport','Revision globale','QCM final P2','Expression','Bilan P2']]
+    : [['Grammaire','Sport','Institutions','Logique','Comprehension','Bilan'],['Resume','Sport fractionne','Missions douanes','Matrices','Expression','Sortie'],['Accords adj.','Circuit','Histoire','Deductions','Comprehension','Bilan'],['Test blanc','Simulation','Droit','Test logique','Expression','Bilan P1']];
+  window._pPhase = phaseNum;
+  window._pJour = jourNom;
+  document.getElementById('modal-badge').style.background = c.bg;
+  document.getElementById('modal-badge').style.border = '1px solid ' + c.border;
+  document.getElementById('modal-badge').style.color = c.text;
+  document.getElementById('modal-badge').innerHTML = '<span style="font-family:Syne;font-weight:800;font-size:10px">' + jourNom + '</span>';
+  document.getElementById('modal-title').textContent = jourNom + ' - Phase ' + phaseNum;
+  document.getElementById('modal-subtitle').textContent = 'Choisissez la semaine';
+  document.getElementById('modal-tabs').innerHTML = '';
+  var h = '<div style="padding:8px 0">';
+  for (var s = 1; s <= 4; s++) {
+    var js2 = getJourState(phaseNum, jourNom);
+    var done = js2.checks && js2.checks['s' + s];
+    var date = ji >= 0 ? dates[s][ji] : '';
+    var mat = ji >= 0 ? matieres[s-1][ji] : '';
+    h += '<div onclick="openFiche(window._pPhase,window._pJour,' + s + ')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border-radius:10px;cursor:pointer;background:var(--surface2);border:1px solid ' + (done?'var(--green)':'var(--border)') + '">';
+    h += '<div><div style="font-family:Syne;font-weight:700;font-size:14px;color:var(--text)">Semaine ' + s + '</div>';
+    h += '<div style="font-size:12px;color:var(--muted);margin-top:2px">' + date + ' - ' + mat + '</div></div>';
+    h += '<div style="font-size:18px">' + (done?'✅':'→') + '</div></div>';
   }
-  h+='</div>';
-  document.getElementById('modal-body').innerHTML=h;
-  document.getElementById('modal-actions').innerHTML='<button class="btn btn-outline" onclick="closeModal()">Fermer</button>';
-  document.getElementById('status-text').textContent='Semaine';
-  document.getElementById('status-dot').className='status-dot';
+  h += '</div>';
+  document.getElementById('modal-body').innerHTML = h;
+  document.getElementById('modal-actions').innerHTML = '<button class="btn btn-outline" onclick="closeModal()">Fermer</button>';
+  document.getElementById('status-text').textContent = 'Semaine';
+  document.getElementById('status-dot').className = 'status-dot';
   document.getElementById('modal-overlay').classList.add('open');
-  // Attacher clics
-  for(var i=1;i<=4;i++){
-    (function(sn){
-      var el=document.getElementById('psem'+sn);
-      if(el) el.addEventListener('click',function(){openFiche(ph,jn,sn);});
-    })(i);
-  }
 }
 
 function openFiche(phaseNum, jourNom, semNum) {
-  if(phaseNum===1 && !semNum){showSemainePicker(phaseNum,jourNom);return;}
+  if ((phaseNum === 1 || phaseNum === 2) && !semNum) { showSemainePicker(phaseNum, jourNom); return; }
   const phase = PHASES.find(p => p.num === phaseNum);
   const jour = phase.jours.find(j => j.nom === jourNom);
   const c = phase.color;
-  currentFiche = { phaseNum, jourNom, phase, jour, semNum: semNum||null };
+  currentFiche = { phaseNum, jourNom, phase, jour, semNum: semNum || null };
 
   document.getElementById('modal-badge').style.background = c.bg;
   document.getElementById('modal-badge').style.border = `1px solid ${c.border}`;
@@ -1193,9 +1192,9 @@ document.getElementById('modal-overlay').addEventListener('click', function(e) {
 
 function renderModalTabs(phaseNum, jourNom) {
   const tabs = document.getElementById('modal-tabs');
-  var _k1=(currentFiche&&currentFiche.semNum)?jourNom.toLowerCase()+'_p'+phaseNum+'_s'+currentFiche.semNum:jourNom.toLowerCase()+'_s'+phaseNum;
-  const hasCours=FICHES[_k1]?.cours;
-  const hasExo=FICHES[_k1]?.exercices;
+  var _fk = getFicheKey(phaseNum, jourNom, currentFiche ? currentFiche.semNum : null);
+  const hasCours = FICHES[_fk]?.cours;
+  const hasExo = FICHES[_fk]?.exercices;
   tabs.innerHTML = '';
   if (hasCours) tabs.innerHTML += `<button class="modal-tab active" onclick="renderModalTab('cours',this)">📖 Cours</button>`;
   if (hasExo) tabs.innerHTML += `<button class="modal-tab" onclick="renderModalTab('exercices',this)">✏️ Exercices</button>`;
@@ -1208,8 +1207,8 @@ function renderModalTab(tab, btn) {
     btn.classList.add('active');
   }
   const { phaseNum, jourNom, semNum } = currentFiche;
-  const key=(semNum)?jourNom.toLowerCase()+'_p'+phaseNum+'_s'+semNum:jourNom.toLowerCase()+'_s'+phaseNum;
-  const fiche=FICHES[key];
+  const key = getFicheKey(phaseNum, jourNom, semNum);
+  const fiche = FICHES[key];
   const js = getJourState(phaseNum, jourNom);
   const body = document.getElementById('modal-body');
 
@@ -1296,9 +1295,6 @@ function submitWork() {
     }
   });
   js.submitted = true;
-  var _ph = PHASES.find(function(p){return p.num===currentFiche.phaseNum;});
-  if(_ph && _ph.semaines){for(var _s=1;_s<=_ph.semaines;_s++){js.checks['s'+_s]=true;}}
-  else{js.checks['s1']=true;}
   saveState();
   updateModalStatus();
   updateModalActions();
@@ -1408,7 +1404,7 @@ function showToast(msg) {
 const FICHES = {
 
   // ─── LUNDI S1 ────────────────────────────────────────────────
-  lundi_p1_s1: {
+  lundi_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">1. Les accords sujet-verbe</div>
@@ -1504,7 +1500,7 @@ const FICHES = {
   },
 
   // ─── MERCREDI S1 ─────────────────────────────────────────────
-  mercredi_p1_s1: {
+  mercredi_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">1. La Ve République</div>
@@ -1561,7 +1557,7 @@ const FICHES = {
   },
 
   // ─── JEUDI S1 ─────────────────────────────────────────────────
-  jeudi_p1_s1: {
+  jeudi_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">Méthode QCM — Conseils</div>
@@ -1615,7 +1611,7 @@ const FICHES = {
   },
 
   // ─── VENDREDI S1 ──────────────────────────────────────────────
-  vendredi_p1_s1: {
+  vendredi_s1: {
     cours: `
       <div class="fiche-section">
         <div class="fiche-section-title">Méthode — Compréhension de texte</div>
@@ -1687,7 +1683,7 @@ const CORRECTIONS_VENDREDI = {
 
 // Fiches génériques pour les autres jours (à développer)
 // ─── MARDI S1 — SPORT ────────────────────────────────────────
-FICHES['mardi_p1_s1'] = {
+FICHES['mardi_s1'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Programme du jour — 55 minutes</div>
@@ -1787,7 +1783,7 @@ FICHES['mardi_p1_s1'] = {
 };
 
 // ─── SAMEDI S1 — BILAN + SPORT ───────────────────────────────
-FICHES['samedi_p1_s1'] = {
+FICHES['samedi_s1'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Sortie sportive libre — 45 min</div>
@@ -1898,7 +1894,7 @@ FICHES['samedi_p1_s1'] = {
 // FICHES SEMAINE 2 — Phase 2
 // ══════════════════════════════════════════════════════════════
 
-FICHES['lundi_p1_s2'] = {
+FICHES['lundi_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">1. Qu'est-ce qu'un résumé ?</div>
@@ -1968,7 +1964,7 @@ FICHES['lundi_p1_s2'] = {
   qcmAnswers: {}
 };
 
-FICHES['mardi_p1_s2'] = {
+FICHES['mardi_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Footing fractionné — 35 min</div>
@@ -2015,7 +2011,7 @@ FICHES['mardi_p1_s2'] = {
   qcmAnswers: {}
 };
 
-FICHES['mercredi_p1_s2'] = {
+FICHES['mercredi_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">1. La DGDDI</div>
@@ -2077,7 +2073,7 @@ FICHES['mercredi_p1_s2'] = {
       </div>`).join('')}`,
 };
 
-FICHES['jeudi_p1_s2'] = {
+FICHES['jeudi_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">1. Les matrices logiques</div>
@@ -2130,7 +2126,7 @@ FICHES['jeudi_p1_s2'] = {
   qcmAnswers: {j1:"B",j2:"B",j3:"C",j4:"C",j5:"B",j6:"C",j7:"C",j8:"B",j9:"B",j10:"A"}
 };
 
-FICHES['vendredi_p1_s2'] = {
+FICHES['vendredi_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">Structure du paragraphe argumenté</div>
@@ -2158,7 +2154,7 @@ FICHES['vendredi_p1_s2'] = {
     </div>`,
 };
 
-FICHES['samedi_p1_s2'] = {
+FICHES['samedi_s2'] = {
   cours: `
     <div class="fiche-section">
       <div class="fiche-section-title">🏃 Sortie longue — 1 heure</div>
@@ -2745,52 +2741,477 @@ FICHES['samedi_p2_s1'] = {
 };
 
 
+// ══════════════════════════════════════════════════════════════
+// FICHES PHASE 2 — SEMAINE 2 (S6 — 13 au 18 juillet)
+// ══════════════════════════════════════════════════════════════
+
+FICHES['lundi_p2_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Expression ecrite — Paragraphe argumente niveau 2</div><table class="fiche-table"><tr><th>Partie</th><th>Contenu</th></tr><tr><td><strong>THESE</strong> (1-2 ph.)</td><td>Idee principale a defendre</td></tr><tr><td><strong>ARGUMENT 1</strong> (2-3 ph.)</td><td>1er argument + exemple national</td></tr><tr><td><strong>ARGUMENT 2</strong> (2-3 ph.)</td><td>2e argument + exemple national</td></tr><tr><td><strong>NUANCE</strong> (1-2 ph.)</td><td>Limite de la these</td></tr><tr><td><strong>CONCLUSION</strong> (1 ph.)</td><td>These enrichie</td></tr></table><div class="note-box">Niveau 2 : les arguments doivent etre precis, etayes par des exemples concrets. Objectif : 250-300 mots.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var val = (answers && answers['p2s2_exp']) || '';
+    var dis = submitted ? 'disabled' : '';
+    var show = corrected ? 'show' : '';
+    var html = '<div class="exo-num">Paragraphe argumente — Sujet national</div>';
+    html += '<div style="background:rgba(79,142,247,0.1);border:1.5px solid var(--blue);border-radius:10px;padding:14px;margin:10px 0;font-size:13px;font-weight:600;color:var(--text)">SUJET : Le service public est-il compatible avec la logique de performance ? Discutez en vous appuyant sur des exemples concrets.</div>';
+    html += '<div class="note-box">Pistes : missions de service public (egalite, continuite, adaptabilite), contraintes budgetaires, exemples des douanes, de la police, de l\'education.</div>';
+    html += '<textarea class="answer-area" id="p2s2_exp" style="min-height:200px" ' + dis + ' onchange="saveAnswer(\'p2s2_exp\')">' + val + '</textarea>';
+    html += '<div style="margin-bottom:10px"><strong style="font-size:12px">Nombre de mots : </strong><input type="number" style="width:60px;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px" placeholder="0"> / 300</div>';
+    html += '<div class="correction-zone ' + show + '"><div class="correction-label">Elements de correction</div>These : le service public peut integrer la performance sans trahir ses valeurs. Arguments : (1) la RGPP a reduit les effectifs tout en maintenant les missions essentielles, (2) les douanes utilisent des outils technologiques performants. Nuance : certaines missions de solidarite ne peuvent pas etre mesurees en termes de rendement. Conclusion : performance et service public sont complementaires si on redefinit les criteres d\'evaluation.</div>';
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+FICHES['mardi_p2_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Sport — Circuit renforce</div><div class="note-box">Semaine 6 : progression +5 sec gainage, +1 pompe par serie vs S5.</div><table class="fiche-table"><tr><th>Exercice</th><th>Volume</th><th>Consigne</th></tr><tr><td><strong>Footing continu</strong></td><td>35 min</td><td>5-6/10 — maintenir le rythme</td></tr><tr><td><strong>Pompes</strong></td><td>4 series x max</td><td>Vise +1 pompe vs S5</td></tr><tr><td><strong>Gainage frontal</strong></td><td>3 x 45 sec</td><td>+5 sec vs S5</td></tr><tr><td><strong>Abdos crunch</strong></td><td>4 x 18</td><td>+1 serie vs S5</td></tr></table></div>',
+  exercices: function(submitted, corrected, answers) {
+    var fields = [['p2s2_dur','Footing','35 min'],['p2s2_pom','Pompes (nb)','Max+1'],['p2s2_gai','Gainage','45 sec x3'],['p2s2_res','Ressenti','6-7/10']];
+    var html = '<div class="exo-num">Fiche de suivi — Mardi S6</div>';
+    html += '<table class="fiche-table"><tr><th>Indicateur</th><th>Objectif</th><th>Realise</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    fields.forEach(function(f) {
+      var val = (answers && answers[f[0]]) || '';
+      html += '<tr><td>' + f[1] + '</td><td>' + f[2] + '</td><td><textarea class="answer-area" id="' + f[0] + '" style="min-height:34px" ' + dis + ' onchange="saveAnswer(\'' + f[0] + '\')">' + val + '</textarea></td></tr>';
+    });
+    html += '</table>';
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+FICHES['mercredi_p2_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">1. Les institutions francaises — L\'Etat et ses acteurs</div><table class="fiche-table"><tr><th>Institution</th><th>Role</th><th>Lien avec les douanes</th></tr><tr><td><strong>President de la Republique</strong></td><td>Chef de l\'Etat, nomme le PM, signe les ordonnances</td><td>Autorite supreme dont dependent les fonctionnaires</td></tr><tr><td><strong>Premier ministre</strong></td><td>Chef du gouvernement, dirige l\'administration</td><td>Supervise les ministeres dont celui de l\'Economie</td></tr><tr><td><strong>Ministre de l\'Economie</strong></td><td>Tutelle de la DGDDI</td><td>Autorite hierarchique directe des douanes</td></tr><tr><td><strong>Parlement</strong></td><td>Vote les lois et le budget</td><td>Vote les credits pour les douanes</td></tr><tr><td><strong>Conseil d\'Etat</strong></td><td>Juge administratif supreme, conseille le gouvernement</td><td>Controle la legalite des actes douaniers</td></tr><tr><td><strong>Conseil constitutionnel</strong></td><td>Verifie la constitutionnalite des lois</td><td>Garantit les droits fondamentaux des personnes controlees</td></tr></table></div><div class="fiche-section"><div class="fiche-section-title">2. La hierarchie administrative</div><div class="fiche-bullet"><strong>Etat central</strong> : ministeres, administrations centrales (Paris)</div><div class="fiche-bullet"><strong>Services deconcentres</strong> : prefectures, directions regionales (en regions)</div><div class="fiche-bullet"><strong>Collectivites territoriales</strong> : regions, departements, communes (autonomes)</div><div class="note-box">Point oral : les douanes sont un service de l\'Etat CENTRAL — pas des collectivites territoriales. Elles repondent au ministre de l\'Economie, pas au president de region.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var qs = [
+      ['p2s2_i1','1. Quelle est la hierarchie entre President, Premier ministre et Ministre de l\'Economie ?'],
+      ['p2s2_i2','2. Quelle est la difference entre services deconcentres et collectivites territoriales ?'],
+      ['p2s2_i3','3. Pourquoi les douanes relevent-elles de l\'Etat central et non des collectivites ?'],
+      ['p2s2_i4','4. Quel est le role du Conseil d\'Etat par rapport a l\'administration douaniere ?']
+    ];
+    var corrs = {
+      p2s2_i1: 'President = chef de l\'Etat (autorite supremne). Premier ministre = chef du gouvernement (dirige l\'administration). Ministre de l\'Economie = tutelle directe de la DGDDI.',
+      p2s2_i2: 'Services deconcentres = representants de l\'Etat central en regions (ex: prefectures, directions douanieres regionales). Collectivites = organismes autonomes elus (region, departement, commune).',
+      p2s2_i3: 'Car les douanes exercent une mission de souverainete nationale (frontières, fiscalite nationale) qui ne peut pas etre geree localement.',
+      p2s2_i4: 'Le Conseil d\'Etat est le juge administratif supreme. Il peut annuler les decisions douanieres illegales et conseille le gouvernement sur les textes reglementaires.'
+    };
+    var html = '<div class="exo-num">Questions — Institutions</div>';
+    qs.forEach(function(q) {
+      var val = (answers && answers[q[0]]) || '';
+      var dis = submitted ? 'disabled' : '';
+      var show = corrected ? 'show' : '';
+      html += '<div class="exo-phrase">' + q[1] + '</div>';
+      html += '<textarea class="answer-area" id="' + q[0] + '" style="min-height:70px" ' + dis + ' onchange="saveAnswer(\'' + q[0] + '\')">' + val + '</textarea>';
+      html += '<div class="correction-zone ' + show + '"><div class="correction-label">Elements de reponse</div>' + corrs[q[0]] + '</div>';
+    });
+    return html;
+  }
+};
+
+FICHES['jeudi_p2_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Raisonnement avance — Methodes</div><div class="fiche-bullet"><strong>Analogie :</strong> A:B = C:? — trouver la meme relation</div><div class="fiche-bullet"><strong>Inclusion :</strong> Si tous A sont B et X est A, alors X est B</div><div class="fiche-bullet"><strong>Exclusion :</strong> Si aucun A n\'est B et X est A, alors X n\'est pas B</div><div class="fiche-bullet"><strong>Probabilite simple :</strong> Si 3 boules sur 10 sont rouges, P = 3/10 = 30%</div><div class="note-box">Objectif : 25 QCM en 20 min. Score cible : 20/25.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var qcm = [
+      {id:'p2s2j1',q:'Fonctionnaire:Etat = Salarie:?',opts:['A) Syndicat','B) Employeur','C) Contrat','D) Retraite'],ans:'B'},
+      {id:'p2s2j2',q:'Serie : 2, 5, 10, 17, 26, ?',opts:['A) 35','B) 36','C) 37','D) 38'],ans:'C'},
+      {id:'p2s2j3',q:'Tous les prefets sont nommes par le gouvernement. Paul est prefet. Donc :',opts:['A) Paul est elu','B) Paul est nomme','C) Paul est peut-etre nomme','D) Rien'],ans:'B'},
+      {id:'p2s2j4',q:'Matrice : 4,8,16 / 3,6,12 / 5,10,?',opts:['A) 15','B) 18','C) 20','D) 25'],ans:'C'},
+      {id:'p2s2j5',q:'Loi:Parlement = Budget:?',opts:['A) President','B) Senat','C) Parlement','D) Ministre'],ans:'C'},
+      {id:'p2s2j6',q:'Serie : 1, 3, 7, 15, 31, ?',opts:['A) 55','B) 60','C) 63','D) 65'],ans:'C'},
+      {id:'p2s2j7',q:'Si aucun fonctionnaire n\'est corruptible et Marc est fonctionnaire, alors :',opts:['A) Marc est corruptible','B) Marc n\'est pas corruptible','C) Marc est peut-etre corruptible','D) Rien'],ans:'B'},
+      {id:'p2s2j8',q:'4 agents x 6h x 5 jours = ?',opts:['A) 100h','B) 110h','C) 120h','D) 130h'],ans:'C'},
+      {id:'p2s2j9',q:'Matrice : 1,2,4 / 3,6,12 / 5,10,?',opts:['A) 15','B) 18','C) 20','D) 25'],ans:'C'},
+      {id:'p2s2j10',q:'Neutre:Laicite = Egal:?',opts:['A) Fraternite','B) Liberte','C) Egalite','D) Republique'],ans:'C'}
+    ];
+    var html = '<div class="exo-num">QCM Raisonnement — 20 min chrono</div><div class="note-box">Score cible : 8+/10.</div>';
+    qcm.forEach(function(item) {
+      html += '<div class="qcm-item"><div class="qcm-question">' + item.id.replace('p2s2j','Q') + '. ' + item.q + '</div><div class="qcm-options">';
+      item.opts.forEach(function(o) {
+        var l=o[0], sel=(answers&&answers.qcmAnswers&&answers.qcmAnswers[item.id]===l)?'selected':'';
+        var ok=(corrected&&l===item.ans)?'correct-ans':'', bad=(corrected&&sel&&l!==item.ans)?'wrong-ans':'';
+        var locked=submitted?'locked':'';
+        html += '<button class="qcm-opt '+sel+' '+ok+' '+bad+' '+locked+'" data-qid="'+item.id+'" data-opt="'+l+'" onclick="selectQCM(\''+item.id+'\',\''+l+'\',this)">'+o+'</button>';
+      });
+      html += '</div></div>';
+    });
+    var scoreVal=(answers&&answers['p2s2j_score'])||'';
+    var dis=submitted?'disabled':'';
+    html += '<div style="margin-top:12px"><strong>Mon score :</strong><textarea class="answer-area" id="p2s2j_score" style="min-height:44px" '+dis+' onchange="saveAnswer(\'p2s2j_score\')">'+scoreVal+'</textarea></div>';
+    return html;
+  },
+  qcmAnswers: {p2s2j1:'B',p2s2j2:'C',p2s2j3:'B',p2s2j4:'C',p2s2j5:'C',p2s2j6:'C',p2s2j7:'B',p2s2j8:'C',p2s2j9:'C',p2s2j10:'C'}
+};
+
+FICHES['vendredi_p2_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Comprehension — Sujet : La laicite en France</div><div class="fiche-bullet">Lire entierement, souligner les idees cles, repondre sans recopier.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var texte = 'La laicite constitue l\'un des principes fondateurs de la Republique francaise, consacre par la loi du 9 decembre 1905 separant les Eglises de l\'Etat. Ce principe repose sur trois piliers : la liberte de conscience (chacun est libre de croire ou non), la neutralite de l\'Etat (qui ne reconnait ni ne finance aucun culte), et l\'egalite de tous les citoyens devant la loi quelle que soit leur religion.\n\nDans la sphere publique, la laicite s\'impose aux agents de l\'Etat qui doivent exercer leurs fonctions avec une stricte neutralite religieuse. Un fonctionnaire des douanes, par exemple, ne peut pas manifester ses convictions religieuses en service, que ce soit par des signes visibles, des propos ou des comportements. Cette obligation de neutralite vise a garantir a chaque usager un service public impartial, indifferent a son appartenance religieuse.\n\nCependant, la laicite ne s\'oppose pas a la religion dans la vie privee. Les citoyens sont entierement libres de pratiquer leur foi en dehors du cadre professionnel ou scolaire. La loi protege cette liberte autant qu\'elle impose la neutralite dans l\'espace public institutionnel. Cette distinction entre sphere publique et sphere privee constitue le coeur de l\'equilibre republicain francais.';
+    var corrs = {
+      p2s2v1: 'La loi du 9 decembre 1905 separant les Eglises de l\'Etat. Elle repose sur 3 piliers : liberte de conscience, neutralite de l\'Etat, egalite des citoyens.',
+      p2s2v2: 'Un agent de l\'Etat ne peut pas manifester ses convictions religieuses en service (signes visibles, propos, comportements). Objectif : garantir un service impartial a tous les usagers.',
+      p2s2v3: 'Sphere publique = neutralite obligatoire (fonctionnaires, ecoles). Sphere privee = liberte totale de pratiquer sa religion.',
+      p2s2v4: 'La laicite garantit a la fois la neutralite de l\'Etat et la liberte religieuse individuelle. Elle ne combat pas la religion mais la maintient hors de la sphere publique.'
+    };
+    var qs = [
+      ['p2s2v1','1. Qu\'est-ce que la loi de 1905 et sur quels piliers repose-t-elle ?'],
+      ['p2s2v2','2. Quelles obligations la laicite impose-t-elle a un agent des douanes ?'],
+      ['p2s2v3','3. Quelle distinction l\'auteur etablit-il entre sphere publique et sphere privee ?'],
+      ['p2s2v4','4. Resumez en 2 phrases le paradoxe apparent de la laicite selon le texte.']
+    ];
+    var html = '<div class="exo-num">Comprehension — La laicite</div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-size:12px;line-height:1.8">' + texte.replace(/\n\n/g,'<br><br>') + '</div>';
+    qs.forEach(function(q) {
+      var val=(answers&&answers[q[0]])||'';
+      var dis=submitted?'disabled':'', show=corrected?'show':'';
+      html += '<div class="exo-phrase">'+q[1]+'</div>';
+      html += '<textarea class="answer-area" id="'+q[0]+'" style="min-height:60px" '+dis+' onchange="saveAnswer(\''+q[0]+'\')">'+val+'</textarea>';
+      html += '<div class="correction-zone '+show+'"><div class="correction-label">Corrige type</div>'+corrs[q[0]]+'</div>';
+    });
+    return html;
+  }
+};
+
+FICHES['samedi_p2_s2'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Sortie + Bilan S6</div><div class="fiche-bullet">Footing ou marche 1h a allure moderee.</div><div class="fiche-bullet">Lecture presse 15 min : institutions, politique, economie nationale.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var jours = [['p2s2b_lun','Lundi 13/07','Expression ecrite'],['p2s2b_mar','Mardi 14/07','Sport circuit'],['p2s2b_mer','Mercredi 15/07','Institutions Etat'],['p2s2b_jeu','Jeudi 16/07','QCM raisonnement'],['p2s2b_ven','Vendredi 17/07','Comprehension laicite'],['p2s2b_sam','Samedi 18/07','Sortie + Presse']];
+    var html = '<div class="exo-num">Bilan semaine 6</div><table class="fiche-table"><tr><th>Jour</th><th>Activite</th><th>Fait ?</th><th>Note /10</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    jours.forEach(function(j) {
+      var vok=(answers&&answers[j[0]+'_ok'])||'', vn=(answers&&answers[j[0]+'_n'])||'';
+      html += '<tr><td>'+j[1]+'</td><td>'+j[2]+'</td><td><textarea class="answer-area" id="'+j[0]+'_ok" style="min-height:34px" '+dis+' onchange="saveAnswer(\''+j[0]+'_ok\')">'+vok+'</textarea></td><td><textarea class="answer-area" id="'+j[0]+'_n" style="min-height:34px" '+dis+' onchange="saveAnswer(\''+j[0]+'_n\')">'+vn+'</textarea></td></tr>';
+    });
+    html += '</table>';
+    [['p2s2_prog','Progression :'],['p2s2_diff','Difficultes :'],['p2s2_obj','Objectif S7 :']].forEach(function(f) {
+      var val=(answers&&answers[f[0]])||'';
+      html += '<p style="margin-top:10px"><strong>'+f[1]+'</strong></p><textarea class="answer-area" id="'+f[0]+'" style="min-height:50px" '+dis+' onchange="saveAnswer(\''+f[0]+'\')">'+val+'</textarea>';
+    });
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+// ══════════════════════════════════════════════════════════════
+// FICHES PHASE 2 — SEMAINE 3 (S7 — 20 au 25 juillet)
+// ══════════════════════════════════════════════════════════════
+
+FICHES['lundi_p2_s3'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Resume chronometrie — 45 minutes</div><div class="note-box">Objectif : produire un resume de 150 mots en 45 min SANS regarder ses notes. Mesure l\'autonomie complete.</div><div class="fiche-bullet"><strong>Etape 1 (5 min) :</strong> Lire entierement une seule fois.</div><div class="fiche-bullet"><strong>Etape 2 (5 min) :</strong> Relire et souligner les idees cles seulement.</div><div class="fiche-bullet"><strong>Etape 3 (25 min) :</strong> Rediger sans regarder le texte.</div><div class="fiche-bullet"><strong>Etape 4 (10 min) :</strong> Compter les mots, relire, corriger.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var texte = 'La justice francaise repose sur un double principe : l\'independance de la magistrature et l\'acces egal de tous les citoyens au droit. Cette independance est garantie par la Constitution et le Conseil superieur de la magistrature, qui protege les juges de toute pression politique ou administrative. Sans cette independance, l\'Etat de droit ne pourrait exister.\n\nEn France, l\'organisation judiciaire distingue deux ordres : l\'ordre judiciaire (tribunaux civils et penaux, cours d\'appel, Cour de cassation) et l\'ordre administratif (tribunaux administratifs, cours administratives d\'appel, Conseil d\'Etat). Cette dualite, unique en Europe, permet a chaque citoyen de contester les decisions de l\'administration devant des juges specialises.\n\nLe principe de presomption d\'innocence, inscrit dans la Declaration des droits de l\'homme de 1789, constitue une protection fondamentale. Toute personne accusee est consideree innocente jusqu\'a ce qu\'un tribunal la declare coupable. Ce principe oblige les autorites — y compris les douaniers — a respecter les droits des personnes qu\'ils controlent ou interpellent, sous peine de voir leurs actes annules par un juge.';
+    var val=(answers&&answers['p2s3_res'])||'';
+    var dis=submitted?'disabled':'', show=corrected?'show':'';
+    var html = '<div class="exo-num">Resume chronometrie — 45 min — Lance le chrono !</div>';
+    html += '<div class="note-box">Lis une fois, souligne, puis redige SANS regarder le texte.</div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-size:12px;line-height:1.8">'+texte.replace(/\n\n/g,'<br><br>')+'</div>';
+    html += '<textarea class="answer-area" id="p2s3_res" style="min-height:220px" '+dis+' onchange="saveAnswer(\'p2s3_res\')">'+val+'</textarea>';
+    html += '<div style="margin-bottom:10px"><strong style="font-size:12px">Mots : </strong><input type="number" style="width:60px;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px" placeholder="0"> / 150</div>';
+    html += '<div class="correction-zone '+show+'"><div class="correction-label">Elements attendus</div>Idees : (1) independance de la magistrature garantie par la Constitution et le CSM, (2) double ordre judiciaire et administratif unique en Europe, (3) presomption d\'innocence oblige les autorites a respecter les droits des personnes controlees.</div>';
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+FICHES['mardi_p2_s3'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Sport fractionne intensif</div><div class="note-box">Semaine 7 : 6 sprints au lieu de 4. Objectif : progression +10% sur chaque indicateur vs S5.</div><table class="fiche-table"><tr><th>Exercice</th><th>Volume</th><th>Consigne</th></tr><tr><td><strong>Footing fractionne</strong></td><td>35 min / 6 sprints</td><td>1 min sprint 8/10, 2 min recup 3/10</td></tr><tr><td><strong>Pompes</strong></td><td>4 series x max</td><td>Compare avec S5 — progression ?</td></tr><tr><td><strong>Abdos crunch</strong></td><td>4 x 20</td><td>+2 reps vs S5</td></tr></table></div>',
+  exercices: function(submitted, corrected, answers) {
+    var fields = [['p2s3_spr','Sprints completes','6'],['p2s3_pom','Pompes (nb)','Max vs S5'],['p2s3_abd','Abdos','4x20'],['p2s3_res','Ressenti','7/10']];
+    var html = '<div class="exo-num">Fiche de suivi — Mardi S7</div>';
+    html += '<table class="fiche-table"><tr><th>Indicateur</th><th>Objectif</th><th>Realise</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    fields.forEach(function(f) {
+      var val=(answers&&answers[f[0]])||'';
+      html += '<tr><td>'+f[1]+'</td><td>'+f[2]+'</td><td><textarea class="answer-area" id="'+f[0]+'" style="min-height:34px" '+dis+' onchange="saveAnswer(\''+f[0]+'\')">'+val+'</textarea></td></tr>';
+    });
+    html += '</table>';
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+FICHES['mercredi_p2_s3'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Economie nationale — Les grands indicateurs</div><table class="fiche-table"><tr><th>Indicateur</th><th>Definition</th><th>Chiffre a connaitre</th></tr><tr><td><strong>PIB</strong></td><td>Richesse produite par un pays en 1 an</td><td>France ~2 800 milliards euros (5e mondial)</td></tr><tr><td><strong>Taux de chomage</strong></td><td>Part des actifs sans emploi</td><td>France ~7-8% (variable)</td></tr><tr><td><strong>Dette publique</strong></td><td>Total des emprunts de l\'Etat</td><td>~3 000 milliards / ~110% du PIB</td></tr><tr><td><strong>Deficit budgetaire</strong></td><td>Depenses > recettes sur 1 an</td><td>France vise < 3% du PIB (critere UE)</td></tr><tr><td><strong>Balance commerciale</strong></td><td>Exportations - Importations</td><td>France generalement deficitaire</td></tr><tr><td><strong>Inflation</strong></td><td>Hausse generale des prix</td><td>Objectif BCE : 2% / an</td></tr></table><div class="note-box">Pourquoi connaitre ces chiffres ? Les douanes collectent des recettes fiscales importantes (TVA import, droits de douane) — elles participent directement au financement du budget de l\'Etat.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var qs = [
+      ['p2s3_e1','1. Qu\'est-ce que le PIB et quel est celui de la France approximativement ?'],
+      ['p2s3_e2','2. Qu\'est-ce que la balance commerciale et pourquoi les douanes y jouent-elles un role ?'],
+      ['p2s3_e3','3. Quel est le critere europeen concernant le deficit budgetaire et pourquoi est-il important ?'],
+      ['p2s3_e4','4. Comment les recettes douanieres contribuent-elles au budget de l\'Etat ?']
+    ];
+    var corrs = {
+      p2s3_e1:'PIB = Produit Interieur Brut = richesse totale produite en France en 1 an. Environ 2 800 milliards d\'euros (5e economie mondiale).',
+      p2s3_e2:'Balance commerciale = exportations - importations. Les douanes controlent et taxent les importations, ce qui influence directement cet indicateur.',
+      p2s3_e3:'Deficit < 3% du PIB = critere du Pacte de stabilite europeen. Important car garantit la solidite des finances publiques et evite une dette excessive.',
+      p2s3_e4:'Les douanes collectent la TVA sur les importations, les droits de douane et les accises (alcool, tabac). Cela represente des milliards d\'euros de recettes pour l\'Etat.'
+    };
+    var html = '<div class="exo-num">Questions — Economie nationale</div>';
+    qs.forEach(function(q) {
+      var val=(answers&&answers[q[0]])||'';
+      var dis=submitted?'disabled':'', show=corrected?'show':'';
+      html += '<div class="exo-phrase">'+q[1]+'</div>';
+      html += '<textarea class="answer-area" id="'+q[0]+'" style="min-height:70px" '+dis+' onchange="saveAnswer(\''+q[0]+'\')">'+val+'</textarea>';
+      html += '<div class="correction-zone '+show+'"><div class="correction-label">Elements de reponse</div>'+corrs[q[0]]+'</div>';
+    });
+    return html;
+  }
+};
+
+FICHES['jeudi_p2_s3'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Test blanc logique — Bilan Phase 2 mi-parcours</div><div class="note-box">30 QCM en 25 min. Compare avec S5 (debut Phase 2). Score cible : 25/30.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var qcm = [
+      {id:'p2s3j1',q:'Serie : 2,6,18,54,?',opts:['A) 108','B) 162','C) 216','D) 144'],ans:'B'},
+      {id:'p2s3j2',q:'Tous les prefets represented l\'Etat. Marc represente l\'Etat. Donc :',opts:['A) Marc est prefet','B) Marc est peut-etre prefet','C) Marc n\'est pas prefet','D) Rien'],ans:'B'},
+      {id:'p2s3j3',q:'Matrice : 3,6,12 / 4,8,16 / 5,10,?',opts:['A) 15','B) 18','C) 20','D) 25'],ans:'C'},
+      {id:'p2s3j4',q:'Serie : 1,2,4,7,11,16,?',opts:['A) 20','B) 21','C) 22','D) 23'],ans:'C'},
+      {id:'p2s3j5',q:'PIB:richesse = dette:?',opts:['A) salaire','B) emprunt','C) impot','D) budget'],ans:'B'},
+      {id:'p2s3j6',q:'3 brigades x 8 agents x 5 jours = ?',opts:['A) 100','B) 110','C) 120','D) 130'],ans:'C'},
+      {id:'p2s3j7',q:'Si P implique Q et non-Q, alors :',opts:['A) P est vrai','B) P est faux','C) On ne sait pas','D) Q est vrai'],ans:'B'},
+      {id:'p2s3j8',q:'Matrice : 2,4,8 / 3,9,27 / 4,16,?',opts:['A) 48','B) 56','C) 64','D) 72'],ans:'C'},
+      {id:'p2s3j9',q:'Serie : 50,49,47,44,40,?',opts:['A) 33','B) 35','C) 37','D) 39'],ans:'B'},
+      {id:'p2s3j10',q:'Laicite:1905 = Suffrage feminin:?',opts:['A) 1789','B) 1848','C) 1944','D) 1958'],ans:'C'}
+    ];
+    var html = '<div class="exo-num">Test blanc logique — 20 min chrono</div>';
+    qcm.forEach(function(item) {
+      html += '<div class="qcm-item"><div class="qcm-question">'+item.id.replace('p2s3j','Q')+'. '+item.q+'</div><div class="qcm-options">';
+      item.opts.forEach(function(o) {
+        var l=o[0], sel=(answers&&answers.qcmAnswers&&answers.qcmAnswers[item.id]===l)?'selected':'';
+        var ok=(corrected&&l===item.ans)?'correct-ans':'', bad=(corrected&&sel&&l!==item.ans)?'wrong-ans':'';
+        html += '<button class="qcm-opt '+sel+' '+ok+' '+bad+' '+(submitted?'locked':'')+'" data-qid="'+item.id+'" data-opt="'+l+'" onclick="selectQCM(\''+item.id+'\',\''+l+'\',this)">'+o+'</button>';
+      });
+      html += '</div></div>';
+    });
+    var scoreVal=(answers&&answers['p2s3j_score'])||'';
+    var dis=submitted?'disabled':'';
+    html += '<div style="margin-top:12px"><strong>Mon score :</strong><textarea class="answer-area" id="p2s3j_score" style="min-height:44px" '+dis+' onchange="saveAnswer(\'p2s3j_score\')">'+scoreVal+'</textarea>';
+    html += '<p style="font-size:12px;color:var(--muted);margin-top:6px">Progression : S5:___ / S7:___</p></div>';
+    return html;
+  },
+  qcmAnswers: {p2s3j1:'B',p2s3j2:'B',p2s3j3:'C',p2s3j4:'C',p2s3j5:'B',p2s3j6:'C',p2s3j7:'B',p2s3j8:'C',p2s3j9:'B',p2s3j10:'C'}
+};
+
+FICHES['vendredi_p2_s3'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Expression ecrite — Argumentation complexe</div><div class="note-box">Niveau 3 : nuance obligatoire, exemples precis, vocabulaire soutenu. Objectif : 250-300 mots.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var val=(answers&&answers['p2s3_exp'])||'';
+    var dis=submitted?'disabled':'', show=corrected?'show':'';
+    var html = '<div class="exo-num">Paragraphe argumente — Sujet national</div>';
+    html += '<div style="background:rgba(79,142,247,0.1);border:1.5px solid var(--blue);border-radius:10px;padding:14px;margin:10px 0;font-size:13px;font-weight:600;color:var(--text)">SUJET : La modernisation de l\'Etat est-elle une menace pour le service public ? Discutez en vous appuyant sur des exemples concrets.</div>';
+    html += '<div class="note-box">Pistes : RGPP, numerisation, reduction effectifs, maintien qualite service, exemples douanes / sante / education.</div>';
+    html += '<textarea class="answer-area" id="p2s3_exp" style="min-height:200px" '+dis+' onchange="saveAnswer(\'p2s3_exp\')">'+val+'</textarea>';
+    html += '<div class="correction-zone '+show+'"><div class="correction-label">Elements de correction</div>These : la modernisation est un risque si elle vise seulement la reduction des couts. Arguments : (1) baisse effectifs DGDDI tout en maintenant les missions, (2) numerisation ameliore l\'efficacite. Nuance : certaines missions humaines ne peuvent pas etre automatisees. Conclusion : la modernisation est une opportunite si elle preserve les valeurs du service public.</div>';
+    return html;
+  }
+};
+
+FICHES['samedi_p2_s3'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Sortie + Bilan S7</div><div class="fiche-bullet">Footing 1h15 — progression vs S5 (1h).</div><div class="fiche-bullet">Lecture presse : economie, institutions, actualite nationale.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var jours = [['p2s3b_lun','Lundi 20/07','Resume chronometrie'],['p2s3b_mar','Mardi 21/07','Sport fractionne intensif'],['p2s3b_mer','Mercredi 22/07','Economie nationale'],['p2s3b_jeu','Jeudi 23/07','Test blanc logique'],['p2s3b_ven','Vendredi 24/07','Expression ecrite'],['p2s3b_sam','Samedi 25/07','Sortie 1h15 + Presse']];
+    var html = '<div class="exo-num">Bilan semaine 7</div><table class="fiche-table"><tr><th>Jour</th><th>Activite</th><th>Fait ?</th><th>Note /10</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    jours.forEach(function(j) {
+      var vok=(answers&&answers[j[0]+'_ok'])||'', vn=(answers&&answers[j[0]+'_n'])||'';
+      html += '<tr><td>'+j[1]+'</td><td>'+j[2]+'</td><td><textarea class="answer-area" id="'+j[0]+'_ok" style="min-height:34px" '+dis+' onchange="saveAnswer(\''+j[0]+'_ok\')">'+vok+'</textarea></td><td><textarea class="answer-area" id="'+j[0]+'_n" style="min-height:34px" '+dis+' onchange="saveAnswer(\''+j[0]+'_n\')">'+vn+'</textarea></td></tr>';
+    });
+    html += '</table>';
+    [['p2s3_prog','Progression :'],['p2s3_diff','Difficultes :'],['p2s3_obj','Objectif S8 :']].forEach(function(f) {
+      var val=(answers&&answers[f[0]])||'';
+      html += '<p style="margin-top:10px"><strong>'+f[1]+'</strong></p><textarea class="answer-area" id="'+f[0]+'" style="min-height:50px" '+dis+' onchange="saveAnswer(\''+f[0]+'\')">'+val+'</textarea>';
+    });
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+// ══════════════════════════════════════════════════════════════
+// FICHES PHASE 2 — SEMAINE 4 (S8 — 27 juillet au 1er aout)
+// ══════════════════════════════════════════════════════════════
+
+FICHES['lundi_p2_s4'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">TEST BLANC COMPLET — Francais (1h15 chrono)</div><div class="note-box">Conditions reelles. SANS notes. Mesure la progression depuis le debut de la Phase 2.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var phrases = [
+      ['p2s4t1','1. Les agents des douanes a qui on avait confie cette mission ont reussi leur objectif.','...agents des douanes a qui on avait confiee... NON — confiee avec etre? Non, confer avec avoir. COD "mission" apres -> invariable. Correct : ont reussi.'],
+      ['p2s4t2','2. Des marchandises contrefaits ont ete saisit par les agents.','Des marchandises contrefaites (F.pl.) ont ete saisies (accord avec sujet F.pl.).'],
+      ['p2s4t3','3. C\'est toi qui doit rediger le rapport sur les saisies effectue ce mois-ci.','C\'est toi qui dois (accord avec toi) ... saisies effectuees (F.pl.).'],
+      ['p2s4t4','4. Ni le directeur ni son adjoint n\'ont ete prevenu de la decision.','...n\'a ete prevenu (sujets singuliers reunis par ni...ni -> singulier).'],
+      ['p2s4t5','5. Les nouvelles recrues, tres motive, ont fait preuve d\'une grande efficacite.','...tres motivees (accord avec recrues, F.pl.).']
+    ];
+    var html = '<div class="exo-num">TEST BLANC — Accords + Comprehension (1h15)</div>';
+    html += '<div class="exo-num" style="margin-top:12px">Partie 1 — Accords (corrige les erreurs)</div>';
+    phrases.forEach(function(p) {
+      var val=(answers&&answers[p[0]])||'';
+      var dis=submitted?'disabled':'', show=corrected?'show':'';
+      html += '<div class="exo-phrase">'+p[1]+'</div>';
+      html += '<textarea class="answer-area" id="'+p[0]+'" style="min-height:44px" '+dis+' onchange="saveAnswer(\''+p[0]+'\')">'+val+'</textarea>';
+      html += '<div class="correction-zone '+show+'"><div class="correction-label">Correction</div>'+p[2]+'</div>';
+    });
+    var texte = 'Le numerique transforme en profondeur les metiers de la fonction publique. Des milliers de taches autrefois accomplies manuellement sont desormais automatisees. Cette revolution libere du temps pour les missions a forte valeur ajoutee humaine. Cependant, elle genere aussi des angoisses legitimes sur l\'avenir de certains emplois. La formation continue est devenue une priorite strategique : chaque fonctionnaire beneficie d\'un Compte Personnel de Formation (CPF). L\'enjeu n\'est plus seulement de former aux outils numeriques, mais de developper des competences transversales — adaptabilite, esprit critique, travail en mode projet.';
+    var corrs2 = {
+      p2s4c1:'Automatisation des taches manuelles et formation aux competences transversales (adaptabilite, esprit critique, mode projet).',
+      p2s4c2:'Il libere du temps pour les missions a forte valeur humaine mais genere des angoisses sur l\'avenir de certains emplois.',
+      p2s4c3:'Le CPF garantit le droit a la formation de chaque fonctionnaire.'
+    };
+    html += '<div class="exo-num" style="margin-top:16px">Partie 2 — Comprehension</div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-size:12px;line-height:1.8">'+texte+'</div>';
+    [['p2s4c1','1. Quels sont les deux enjeux principaux de la transformation numerique ?'],['p2s4c2','2. Quel paradoxe le numerique cree-t-il ?'],['p2s4c3','3. Qu\'est-ce que le CPF ?']].forEach(function(q) {
+      var val=(answers&&answers[q[0]])||'';
+      var dis=submitted?'disabled':'', show=corrected?'show':'';
+      html += '<div class="exo-phrase">'+q[1]+'</div>';
+      html += '<textarea class="answer-area" id="'+q[0]+'" style="min-height:60px" '+dis+' onchange="saveAnswer(\''+q[0]+'\')">'+val+'</textarea>';
+      html += '<div class="correction-zone '+show+'"><div class="correction-label">Corrige</div>'+corrs2[q[0]]+'</div>';
+    });
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+FICHES['mardi_p2_s4'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Simulation epreuves sportives — Bilan Phase 2</div><div class="note-box">Compare avec S4 (bilan Phase 1). Mesure la progression sur 2 mois.</div><table class="fiche-table"><tr><th>Epreuve</th><th>Objectif final</th><th>Resultat S4</th><th>Resultat S8</th></tr><tr><td>1000m chrono</td><td>H: moins de 4min15</td><td>___</td><td>___</td></tr><tr><td>Pompes 1 min</td><td>H: 20+ / F: 10+</td><td>___</td><td>___</td></tr><tr><td>Abdos 1 min</td><td>H: 25+ / F: 20+</td><td>___</td><td>___</td></tr><tr><td>Souplesse</td><td>Toucher orteils</td><td>___</td><td>___</td></tr></table></div>',
+  exercices: function(submitted, corrected, answers) {
+    var fields = [['p2s4_1000','1000m (temps)','moins de 4min15'],['p2s4_pom','Pompes en 1 min','20+'],['p2s4_abd','Abdos en 1 min','25+'],['p2s4_sou','Souplesse','Orteils']];
+    var html = '<div class="exo-num">Simulation epreuves — 27 juillet 2026</div>';
+    html += '<table class="fiche-table"><tr><th>Epreuve</th><th>Objectif final</th><th>Mon resultat</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    fields.forEach(function(f) {
+      var val=(answers&&answers[f[0]])||'';
+      html += '<tr><td>'+f[1]+'</td><td>'+f[2]+'</td><td><textarea class="answer-area" id="'+f[0]+'" style="min-height:34px" '+dis+' onchange="saveAnswer(\''+f[0]+'\')">'+val+'</textarea></td></tr>';
+    });
+    html += '</table>';
+    var obs=(answers&&answers['p2s4_obs'])||'';
+    html += '<textarea class="answer-area" id="p2s4_obs" style="min-height:70px;margin-top:10px" placeholder="Observations et progression vs Phase 1..." '+dis+' onchange="saveAnswer(\'p2s4_obs\')">'+obs+'</textarea>';
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+FICHES['mercredi_p2_s4'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Revision globale Phase 2 — Synthese</div><p class="fiche-text">Revois toutes les fiches de la Phase 2 et cree une fiche synthese d\'1 page par theme.</p><table class="fiche-table"><tr><th>Theme</th><th>Points cles a retenir</th></tr><tr><td><strong>Droit douanier</strong></td><td>Union douaniere UE, CDU, infractions, pouvoirs de l\'agent</td></tr><tr><td><strong>Institutions</strong></td><td>President / PM / Ministre, services deconcentres vs collectivites</td></tr><tr><td><strong>Economie</strong></td><td>PIB, dette, deficit, balance commerciale, role des douanes</td></tr><tr><td><strong>Laicite</strong></td><td>Loi 1905, neutralite agent, sphere publique / privee</td></tr><tr><td><strong>Fonction publique</strong></td><td>Modernisation, CPF, competences transversales</td></tr></table></div>',
+  exercices: function(submitted, corrected, answers) {
+    var themes = [['p2s4r1','Synthese Droit douanier (5 points cles) :'],['p2s4r2','Synthese Institutions (5 points cles) :'],['p2s4r3','Synthese Economie (5 points cles) :'],['p2s4r4','Synthese Laicite (5 points cles) :']];
+    var html = '<div class="exo-num">Fiches de synthese — Sans regarder les notes !</div>';
+    var dis = submitted ? 'disabled' : '';
+    themes.forEach(function(t) {
+      var val=(answers&&answers[t[0]])||'';
+      html += '<p class="fiche-text" style="margin-top:12px"><strong>'+t[1]+'</strong></p>';
+      html += '<textarea class="answer-area" id="'+t[0]+'" style="min-height:100px" '+dis+' onchange="saveAnswer(\''+t[0]+'\')">'+val+'</textarea>';
+    });
+    return html;
+  }
+};
+
+FICHES['jeudi_p2_s4'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">QCM FINAL Phase 2 — Toutes categories</div><div class="note-box">30 QCM en 25 min. Score cible : 26/30. Dernier test avant Phase 3 !</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var qcm = [
+      {id:'p2s4j1',q:'Serie : 1,1,2,3,5,8,13,?',opts:['A) 18','B) 20','C) 21','D) 24'],ans:'C'},
+      {id:'p2s4j2',q:'Tous les agents signent un serment. Luc est agent. Donc :',opts:['A) Luc a peut-etre signe','B) Luc a signe','C) Luc n\'a pas signe','D) Rien'],ans:'B'},
+      {id:'p2s4j3',q:'PIB:production = Dette:?',opts:['A) richesse','B) emprunt','C) impot','D) epargne'],ans:'B'},
+      {id:'p2s4j4',q:'Matrice : 1,4,9 / 4,9,16 / 9,16,?',opts:['A) 20','B) 23','C) 25','D) 27'],ans:'C'},
+      {id:'p2s4j5',q:'Laicite:Etat = Independance:?',opts:['A) President','B) Parlement','C) Justice','D) Gouvernement'],ans:'C'},
+      {id:'p2s4j6',q:'Serie : 3,5,8,13,21,?',opts:['A) 30','B) 32','C) 34','D) 36'],ans:'C'},
+      {id:'p2s4j7',q:'Si aucun X n\'est Y, et tous les Z sont Y, alors :',opts:['A) Certains Z sont X','B) Aucun Z n\'est X','C) Tous les Z sont X','D) Rien'],ans:'B'},
+      {id:'p2s4j8',q:'5 agents x 7h x 4 semaines x 5j = ?',opts:['A) 600h','B) 650h','C) 700h','D) 750h'],ans:'C'},
+      {id:'p2s4j9',q:'Matrice : 2,6,18 / 3,9,27 / 4,12,?',opts:['A) 24','B) 36','C) 48','D) 64'],ans:'B'},
+      {id:'p2s4j10',q:'Fonctionnaire:neutralite = Juge:?',opts:['A) severite','B) independance','C) rigueur','D) autorite'],ans:'B'}
+    ];
+    var html = '<div class="exo-num">QCM FINAL Phase 2 — 25 min chrono</div>';
+    qcm.forEach(function(item) {
+      html += '<div class="qcm-item"><div class="qcm-question">'+item.id.replace('p2s4j','Q')+'. '+item.q+'</div><div class="qcm-options">';
+      item.opts.forEach(function(o) {
+        var l=o[0], sel=(answers&&answers.qcmAnswers&&answers.qcmAnswers[item.id]===l)?'selected':'';
+        var ok=(corrected&&l===item.ans)?'correct-ans':'', bad=(corrected&&sel&&l!==item.ans)?'wrong-ans':'';
+        html += '<button class="qcm-opt '+sel+' '+ok+' '+bad+' '+(submitted?'locked':'')+'" data-qid="'+item.id+'" data-opt="'+l+'" onclick="selectQCM(\''+item.id+'\',\''+l+'\',this)">'+o+'</button>';
+      });
+      html += '</div></div>';
+    });
+    var scoreVal=(answers&&answers['p2s4j_score'])||'';
+    var dis=submitted?'disabled':'';
+    html += '<div style="margin-top:12px"><strong>Mon score :</strong><textarea class="answer-area" id="p2s4j_score" style="min-height:44px" '+dis+' onchange="saveAnswer(\'p2s4j_score\')">'+scoreVal+'</textarea></div>';
+    return html;
+  },
+  qcmAnswers: {p2s4j1:'C',p2s4j2:'B',p2s4j3:'B',p2s4j4:'C',p2s4j5:'C',p2s4j6:'C',p2s4j7:'B',p2s4j8:'C',p2s4j9:'B',p2s4j10:'B'}
+};
+
+FICHES['vendredi_p2_s4'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">Expression ecrite finale Phase 2</div><div class="note-box">Sujet tire au sort parmi les 4 travailles en Phase 2. Sans preparation. Mesure l\'autonomie redactionnelle.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var val=(answers&&answers['p2s4_exp'])||'';
+    var dis=submitted?'disabled':'', show=corrected?'show':'';
+    var html = '<div class="exo-num">Expression ecrite finale — Sujet Phase 2</div>';
+    html += '<div style="background:rgba(79,142,247,0.1);border:1.5px solid var(--blue);border-radius:10px;padding:14px;margin:10px 0;font-size:13px;font-weight:600;color:var(--text)">SUJET : En vous appuyant sur l\'ensemble des notions etudiees en Phase 2, montrez comment l\'agent des douanes incarne les valeurs de la Republique francaise dans l\'exercice de ses missions.</div>';
+    html += '<div class="note-box">Mobilise : laicite, service public, institutions, droit douanier, economie nationale. 250-300 mots.</div>';
+    html += '<textarea class="answer-area" id="p2s4_exp" style="min-height:220px" '+dis+' onchange="saveAnswer(\'p2s4_exp\')">'+val+'</textarea>';
+    html += '<div class="correction-zone '+show+'"><div class="correction-label">Elements de correction</div>Arguments attendus : (1) laicite et neutralite (agent impartial), (2) service public et egalite de traitement, (3) application du droit (CDU, infractions), (4) contribution aux recettes de l\'Etat (PIB, budget). Nuance : pression sur les effectifs. Conclusion : l\'agent des douanes = gardien des valeurs republicaines autant que des frontieres.</div>';
+    return html;
+  }
+};
+
+FICHES['samedi_p2_s4'] = {
+  cours: '<div class="fiche-section"><div class="fiche-section-title">BILAN PHASE 2 — 6 juillet au 2 aout 2026</div><div class="fiche-bullet">Sortie longue 1h15 — recharge avant Phase 3 !</div><div class="note-box">Phase 3 demarre le 3 aout — Entrainements intensifs ! 1 test blanc par semaine, objectif 26/30 en logique.</div></div>',
+  exercices: function(submitted, corrected, answers) {
+    var sem = [['bp2_s5','S5 — 09/07'],['bp2_s6','S6 — 16/07'],['bp2_s7','S7 — 23/07'],['bp2_s8','S8 — 30/07']];
+    var html = '<div class="exo-num">BILAN PHASE 2 COMPLET</div>';
+    html += '<div class="fiche-section-title" style="margin-top:12px">Progression QCM</div>';
+    html += '<table class="fiche-table"><tr><th>Semaine</th><th>Score obtenu</th><th>Objectif</th></tr>';
+    var dis = submitted ? 'disabled' : '';
+    var objectifs = ['22/30','24/30','25/30','26/30'];
+    sem.forEach(function(s, i) {
+      var val=(answers&&answers[s[0]])||'';
+      html += '<tr><td>'+s[1]+'</td><td><textarea class="answer-area" id="'+s[0]+'" style="min-height:34px" '+dis+' onchange="saveAnswer(\''+s[0]+'\')">'+val+'</textarea></td><td>'+objectifs[i]+'</td></tr>';
+    });
+    html += '</table>';
+    [['bp2_bien','Ce que j\'ai le mieux maitrise en Phase 2 :'],['bp2_prog','Les 3 points prioritaires pour la Phase 3 :'],['bp2_conf','Mon niveau de confiance (1-10) et pourquoi :'],['bp2_msg','Message a moi-meme avant la Phase 3 :']].forEach(function(f) {
+      var val=(answers&&answers[f[0]])||'';
+      html += '<p style="margin-top:10px"><strong>'+f[1]+'</strong></p>';
+      html += '<textarea class="answer-area" id="'+f[0]+'" style="min-height:60px" '+dis+' onchange="saveAnswer(\''+f[0]+'\')">'+val+'</textarea>';
+    });
+    return html;
+  },
+  qcmAnswers: {}
+};
+
+
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
-// LOGIN
-
-var _EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
-var _EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
-
-async function sha256Login(str) {
-  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
-}
-
-async function doLogin() {
-  var login = (document.getElementById('el-login').value || '').trim();
-  var pwd = document.getElementById('el-pwd').value || '';
-  var lh = await sha256Login(login);
-  var ph = await sha256Login(pwd);
-  if (lh === _EL && ph === _EP) {
-    sessionStorage.setItem('eleve_auth','1');
-    document.getElementById('eleve-login').style.display = 'none';
-    renderPlanning();
-    updateCountdown();
-    computeStats();
-  } else {
-    document.getElementById('el-error').textContent = 'Identifiant ou mot de passe incorrect';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  if (sessionStorage.getItem('eleve_auth')) {
-    document.getElementById('eleve-login').style.display = 'none';
-  }
-  var btn = document.getElementById('eleve-btn');
-  if (btn) btn.addEventListener('click', doLogin);
-  var pwd = document.getElementById('el-pwd');
-  if (pwd) pwd.addEventListener('keydown', function(e) { if(e.key==='Enter') doLogin(); });
-  var lid = document.getElementById('el-login');
-  if (lid) lid.addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
-});
-
-
 renderPlanning();
 </script>
 
+<script>
+(function() {
+  var EL = "110395afe4e739b9ba969a4528ddd17e1a22a67c12a3d1962bdb89f796e6e279";
+  var EP = "d4cdeb11919428a76b9a98542c51fb501175ce7b1d5167bb8ce787288862be44";
 
+  async function sha256(str) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+  }
+
+  async function doLogin() {
+    var login = (document.getElementById('el-login').value || '').trim();
+    var pwd   = document.getElementById('el-pwd').value || '';
+    var lh = await sha256(login);
+    var ph = await sha256(pwd);
+    if (lh === EL && ph === EP) {
+      sessionStorage.setItem('eleve_auth','1');
+      document.getElementById('eleve-login').style.display = 'none';
+      renderPlanning(); updateCountdown(); computeStats();
+    } else {
+      document.getElementById('el-error').textContent = '❌ Identifiant ou mot de passe incorrect';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (sessionStorage.getItem('eleve_auth')) {
+      document.getElementById('eleve-login').style.display = 'none';
+    }
+    document.getElementById('eleve-btn').addEventListener('click', doLogin);
+    document.getElementById('el-pwd').addEventListener('keydown', function(e) { if(e.key==='Enter') doLogin(); });
+    document.getElementById('el-login').addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('el-pwd').focus(); });
+  });
+})();
+</script>
 
 </body>
 </html>
@@ -2900,8 +3321,8 @@ const SVG_GAINAGE = {
 
 // Injecter les SVG dans la fiche mardi après ouverture du modal
 const _origOpenFiche = openFiche;
-openFiche = function(phaseNum, jourNom) {
-  _origOpenFiche(phaseNum, jourNom);
+openFiche = function(phaseNum, jourNom, semNum) {
+  _origOpenFiche(phaseNum, jourNom, semNum);
   if (phaseNum === 1 && jourNom === 'Mardi') {
     setTimeout(injectSVGGainage, 50);
   }
